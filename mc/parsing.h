@@ -10,7 +10,6 @@ namespace mc
 	using namespace parsing;
 
 	Tokenizer createTokenizer();
-	Grammar createParser(Tokenizer &t);
 }
 
 #endif

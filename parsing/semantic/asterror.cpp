@@ -1,15 +1,7 @@
 #include "asterror.h"
-#include "parser.h"
 
 namespace parsing
 {
-	ASTError::ASTError(Token s, Expectation &e, string m)
-	{
-		src = s;
-		exp = &e;
-		msg = m;
-	}
-
 	string ASTError::format(string fmt)
 	{
 		string tmp = fmt;
@@ -42,21 +34,6 @@ namespace parsing
 			tmp.replace(tmp.find("%s"), 2, src.get());
 		}
 
-		if (tmp.find("%C") != string::npos)
-		{
-			tmp.replace(tmp.find("%C"), 2, exp->cls);
-		}
-
-		if (tmp.find("%n") != string::npos)
-		{
-			tmp.replace(tmp.find("%n"), 2, exp->name);
-		}
-
-		if (tmp.find("%e") != string::npos)
-		{
-			tmp.replace(tmp.find("%e"), 2, exp->expecting);
-		}
-
 		if (tmp.find("%m") != string::npos)
 		{
 			tmp.replace(tmp.find("%m"), 2, format(msg));
@@ -72,9 +49,6 @@ namespace parsing
 
 	string ASTError::display()
 	{
-		if (!(exp))
-			return display("\033[1;28mError \033[0;0m- %f:\033[1;28m%l\033[0;0m:%c - \033[0;31m%m\033[0;0m\n");
-		else
-			return display("\033[1;28mError \033[0;0m- %f:\033[1;28m%l\033[0;0m:%c - \033[0;31m%C %n expected %e, but got %t '%s'\033[0;0m\n");
+		return display("\033[1;28mError \033[0;0m- %f:\033[1;28m%l\033[0;0m:%c - \033[0;31m%m\033[0;0m\n");
 	}
 }

@@ -69,7 +69,6 @@ namespace parsing
 		unsigned int match(string s);
 
 		string display();
-		unsigned int getMemorySize();
 	};
 
 	extern string digits;

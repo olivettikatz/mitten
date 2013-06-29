@@ -217,14 +217,6 @@ namespace parsing
 		ss << ")";
 		return ss.str();
 	}
-
-	unsigned int Pattern::getMemorySize()
-	{
-		unsigned int rtn = sizeof(algorithmType)+argument.size()*sizeof(char)+sizeof(callback);
-		for (vector<pair<attachmentType, Pattern> >::iterator i = attachments.begin(); i != attachments.end(); i++)
-			rtn += sizeof(attachmentType)+i->second.getMemorySize();
-		return rtn;
-	}
 	
 	string digits = "0123456789";
 	string lettersLower = "abcdefghijklmnopqrstuvwxyz";

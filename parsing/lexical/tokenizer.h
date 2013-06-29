@@ -49,54 +49,6 @@ namespace parsing
 		bool operator != (string other);
 	};
 
-	class TokenPage;
-
-	class TokenPageIterator
-	{
-	private:
-		TokenPage *page;
-		unsigned int loc;
-
-	public:
-		TokenPageIterator();
-		TokenPageIterator(TokenPage &p);
-		TokenPage &getPage();
-		unsigned int getLocation();
-		Token &operator * ();
-		Token *operator -> ();
-		TokenPageIterator &operator ++ (int);
-		bool isGood();
-		void operator = (unsigned int i);
-		bool operator == (TokenPageIterator i);
-		bool operator != (TokenPageIterator i);
-		bool operator < (TokenPageIterator i);
-		bool operator < (unsigned int i);
-		TokenPageIterator &operator + (unsigned int i);
-		TokenPageIterator &operator + (TokenPageIterator i);
-	};
-
-	class TokenPage
-	{
-	public:
-		typedef TokenPageIterator iterator;
-
-	private:
-		vector<Token> content;
-		iterator off;
-
-	public:
-		TokenPage() : off(*this) {}
-		void operator << (Token t);
-		void operator >> (unsigned int i);
-		unsigned int size();
-		Token &operator [] (unsigned int i);
-		void rewind();
-		Token operator * ();
-		iterator pullOffset();
-		void pushOffset(unsigned int i);
-		string display();
-	};
-
 	class Tokenizer
 	{
 	private:
@@ -129,10 +81,8 @@ namespace parsing
 		Tokenizer &token(string t, Pattern p);
 		Tokenizer &combine(Pattern pa, Pattern pb);
 
-		unsigned int getMemorySize();
-
-		TokenPage tokenize(string s, string f);
-		TokenPage tokenizeFile(string path);
+		vector<Token> tokenize(string s, string f);
+		vector<Token> tokenizeFile(string path);
 	};
 }
 

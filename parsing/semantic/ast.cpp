@@ -34,9 +34,7 @@ namespace parsing
 
 	AST &AST::add(AST a)
 	{
-		if (empty() == true)
-			*this = a;
-		else if (a.empty() == false)
+		if (a.empty() == false)
 			children.push_back(a);
 		return *this;
 	}

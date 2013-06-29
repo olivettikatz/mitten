@@ -9,19 +9,15 @@ namespace parsing
 {
 	using namespace std;
 
-	class Expectation;
-
 	class ASTError
 	{
 	private:
 		Token src;
-		Expectation *exp;
 		string msg;
 
 	public:
-		ASTError() : exp(NULL) {}
-		ASTError(Token s, string m) : src(s), exp(NULL), msg(m) {}
-		ASTError(Token s, Expectation &e, string m);
+		ASTError() {}
+		ASTError(Token s, string m) : src(s), msg(m) {}
 		string format(string fmt);
 		string display(string fmt);
 		string display();

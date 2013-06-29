@@ -92,148 +92,6 @@ namespace parsing
 		return (content.compare(other) != 0);
 	}
 
-	TokenPageIterator::TokenPageIterator()
-	{
-		loc = 0;
-	}
-
-	TokenPageIterator::TokenPageIterator(TokenPage &p)
-	{
-		page = &p;
-		loc = 0;
-	}
-
-	TokenPage &TokenPageIterator::getPage()
-	{
-		return *page;
-	}
-
-	unsigned int TokenPageIterator::getLocation()
-	{
-		return loc;
-	}
-
-	Token &TokenPageIterator::operator * ()
-	{
-		return (*page)[loc];
-	}
-
-	Token *TokenPageIterator::operator -> ()
-	{
-		return &(*page)[loc];
-	}
-
-	TokenPageIterator &TokenPageIterator::operator ++ (int)
-	{
-		loc++;
-		return *this;
-	}
-
-	bool TokenPageIterator::isGood()
-	{
-		if (loc >= page->size())
-			return false;
-		return true;
-	}
-
-	void TokenPageIterator::operator = (unsigned int i)
-	{
-		if (i < page->size())
-			loc = i;
-	}
-
-	bool TokenPageIterator::operator == (TokenPageIterator i)
-	{
-		return (page == i.page) && (loc == i.loc);
-	}
-
-	bool TokenPageIterator::operator != (TokenPageIterator i)
-	{
-		return (page != i.page) || (loc != i.loc);
-	}
-
-	bool TokenPageIterator::operator < (unsigned int i)
-	{
-		return (loc < i);
-	}
-
-	bool TokenPageIterator::operator < (TokenPageIterator i)
-	{
-		return (page == i.page) && (loc < i.loc);
-	}
-
-	TokenPageIterator &TokenPageIterator::operator + (unsigned int i)
-	{
-		loc += i;
-		return *this;
-	}
-
-	TokenPageIterator &TokenPageIterator::operator + (TokenPageIterator i)
-	{
-		if (page != i.page)
-			return *this;
-
-		loc += i.loc;
-		return *this;
-	}
-
-	void TokenPage::operator << (Token t)
-	{
-		content.push_back(t);
-		if (content.size() == 1)
-			off = 0;
-	}
-
-	void TokenPage::operator >> (unsigned int i)
-	{
-		content.erase(content.begin()+i);
-	}
-
-	unsigned int TokenPage::size()
-	{
-		return content.size();
-	}
-
-	Token &TokenPage::operator [] (unsigned int i)
-	{
-		return content[i];
-	}
-
-	Token TokenPage::operator * ()
-	{
-		if (content.empty())
-			return Token();
-		return *off;
-	}
-
-	void TokenPage::rewind()
-	{
-		off = 0;
-	}
-
-	TokenPage::iterator TokenPage::pullOffset()
-	{
-		if (content.empty())
-			off = 0;
-		return off;
-	}
-
-	void TokenPage::pushOffset(unsigned int i)
-	{
-		off = i;
-	}
-
-	string TokenPage::display()
-	{
-		stringstream ss;
-		for (vector<Token>::iterator i = content.begin(); i != content.end(); i++)
-			ss << " '" << i->get() << "'";
-		string rtn = ss.str();
-		if (rtn.empty() == false && rtn[0] == ' ')
-			rtn = rtn.substr(1);
-		return rtn;
-	}
-
 	void Tokenizer::appendPatternToVectorSorted(vector<Pattern> &v, Pattern p)
 	{
 		unsigned int idx = 0;
@@ -380,27 +238,9 @@ namespace parsing
 		return *this;
 	}
 
-	unsigned int Tokenizer::getMemorySize()
+	vector<Token> Tokenizer::tokenize(string s, string f)
 	{
-		unsigned int rtn = 0;
-		for (vector<pair<Pattern, Pattern> >::iterator i = _noDelim.begin(); i != _noDelim.end(); i++)
-			rtn += i->first.getMemorySize()+i->second.getMemorySize();
-		for (vector<pair<Pattern, Pattern> >::iterator i = _skip.begin(); i != _skip.end(); i++)
-			rtn += i->first.getMemorySize()+i->second.getMemorySize();
-		for (vector<Pattern>::iterator i = _whitespace.begin(); i != _whitespace.end(); i++)
-			rtn += i->getMemorySize();
-		for (vector<Pattern>::iterator i = _deliminator.begin(); i != _deliminator.end(); i++)
-			rtn += i->getMemorySize();
-		for (vector<pair<string, Pattern> >::iterator i = categorizers.begin(); i != categorizers.end(); i++)
-			rtn += i->first.size()*sizeof(char)+i->second.getMemorySize();
-		for (vector<pair<Pattern, Pattern> >::iterator i = combinators.begin(); i != combinators.end(); i++)
-			rtn += i->first.getMemorySize()+i->second.getMemorySize();
-		return rtn;
-	}
-
-	TokenPage Tokenizer::tokenize(string s, string f)
-	{
-		TokenPage rtn;
+		vector<Token> rtn;
 		unsigned int last = 0;
 		unsigned int line = 0;
 		unsigned int column = 0;
@@ -420,7 +260,7 @@ namespace parsing
 						Token tmp = Token(s.substr(last, i-last), line, column);
 						tmp.setType(categorize(tmp));
 						tmp.setFile(f);
-						rtn << tmp;
+						rtn.push_back(tmp);
 						if (debug)
 							cout << "  appending last token... '\033[0;31m" << tmp.get() << "\033[0;31m'\n";
 					}
@@ -437,8 +277,8 @@ namespace parsing
 							Token tmp = Token(s.substr(last, i-last+toksize), line, column);
 							tmp.setType(categorize(tmp));
 							tmp.setFile(f);
-							rtn << tmp;
-							last = i+toksize;
+							rtn.push_back(tmp);
+							last = i;
 							if (debug)
 								cout << "  appending segment token... '\033[0;31m" << tmp.get() << "\033[0;0m'\n";
 							break;
@@ -460,7 +300,7 @@ namespace parsing
 						Token tmp = Token(s.substr(last, i-last), line, column);
 						tmp.setType(categorize(tmp));
 						tmp.setFile(f);
-						rtn << tmp;
+						rtn.push_back(tmp);
 						if (debug)
 							cout << "  appending last token... '\033[0;31m" << tmp.get() << "\033[0;0m'\n";
 					}
@@ -493,14 +333,14 @@ namespace parsing
 					Token tmp = Token(s.substr(last, i-last), line, column);
 					tmp.setType(categorize(tmp));
 					tmp.setFile(f);
-					rtn << tmp;
+					rtn.push_back(tmp);
 					if (debug)
 						cout << "  appending last token... '\033[0;31m" << tmp.get() << "\033[0;0m'\n";
 				}
 				Token tmp = Token(s.substr(i, toksize), line, column);
 				tmp.setType(categorize(tmp));
 				tmp.setFile(f);
-				rtn << tmp;
+				rtn.push_back(tmp);
 				i += toksize-1;
 				last = i+1;
 				if (debug)
@@ -515,7 +355,7 @@ namespace parsing
 					Token tmp = Token(s.substr(last, i-last), line, column);
 					tmp.setType(categorize(tmp));
 					tmp.setFile(f);
-					rtn << tmp;
+					rtn.push_back(tmp);
 					if (debug)
 						cout << "  appending last token... '\033[0;31m" << tmp.get() << "\033[0;0m'\n";
 				}
@@ -542,19 +382,24 @@ namespace parsing
 					if (debug)
 						cout << "[Mitten Tokenizer] combining '\033[0;31m" << rtn[i-1].get() << "\033[0;0m' and '\033[0;31m" << rtn[i].get() << "\033[0;0m'\n";
 					rtn[i-1].set(rtn[i-1].get()+rtn[i].get());
-					rtn >> i;
+					rtn.erase(rtn.begin()+i);
 					i--;
 				}
 			}
 		}
 
 		if (debug)
-			cout << "[Mitten Tokenizer] result: " << rtn.display() << "\n";
+		{
+			cout << "[Mitten Tokenizer] result:";
+			for (vector<Token>::iterator i = rtn.begin(); i != rtn.end(); i++)
+				cout << " '" << i->get() << "'";
+			cout << "\n";
+		}
 
 		return rtn;
 	}
 
-	TokenPage Tokenizer::tokenizeFile(string path)
+	vector<Token> Tokenizer::tokenizeFile(string path)
 	{
 		ifstream f(path.c_str());
 		string s((istreambuf_iterator<char>(f)), istreambuf_iterator<char>());
