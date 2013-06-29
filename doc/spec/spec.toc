@@ -1,0 +1,62 @@
+\contentsline {section}{\numberline {1}Introduction}{2}{section.1}
+\contentsline {subsection}{\numberline {1.1}How to Read this Specification}{2}{subsection.1.1}
+\contentsline {section}{\numberline {2}Paradigm}{3}{section.2}
+\contentsline {section}{\numberline {3}Lexing}{3}{section.3}
+\contentsline {subsection}{\numberline {3.1}Input Files}{3}{subsection.3.1}
+\contentsline {subsubsection}{\numberline {3.1.1}Extension}{3}{subsubsection.3.1.1}
+\contentsline {subsubsection}{\numberline {3.1.2}Encoding}{3}{subsubsection.3.1.2}
+\contentsline {subsection}{\numberline {3.2}Comments}{3}{subsection.3.2}
+\contentsline {subsection}{\numberline {3.3}Token Configuration Files}{4}{subsection.3.3}
+\contentsline {subsubsection}{\numberline {3.3.1}Token Symbol List}{4}{subsubsection.3.3.1}
+\contentsline {subsection}{\numberline {3.4}Whitespace}{6}{subsection.3.4}
+\contentsline {subsection}{\numberline {3.5}Tokens}{6}{subsection.3.5}
+\contentsline {subsubsection}{\numberline {3.5.1}Data Types}{6}{subsubsection.3.5.1}
+\contentsline {subsubsection}{\numberline {3.5.2}Binary Numbers}{7}{subsubsection.3.5.2}
+\contentsline {subsubsection}{\numberline {3.5.3}Integral Numbers}{7}{subsubsection.3.5.3}
+\contentsline {subsubsection}{\numberline {3.5.4}Floating-point Numbers}{7}{subsubsection.3.5.4}
+\contentsline {subsubsection}{\numberline {3.5.5}Hexadecimal Numbers}{7}{subsubsection.3.5.5}
+\contentsline {subsubsection}{\numberline {3.5.6}Characters}{8}{subsubsection.3.5.6}
+\contentsline {subsubsection}{\numberline {3.5.7}Strings}{8}{subsubsection.3.5.7}
+\contentsline {subsubsection}{\numberline {3.5.8}Hex Strings}{8}{subsubsection.3.5.8}
+\contentsline {subsubsection}{\numberline {3.5.9}Special Tokens}{9}{subsubsection.3.5.9}
+\contentsline {section}{\numberline {4}Parsing}{11}{section.4}
+\contentsline {subsection}{\numberline {4.1}Inline Assembly}{11}{subsection.4.1}
+\contentsline {subsection}{\numberline {4.2}Type Expressions}{14}{subsection.4.2}
+\contentsline {subsection}{\numberline {4.3}Complex Values}{14}{subsection.4.3}
+\contentsline {subsection}{\numberline {4.4}Operations}{14}{subsection.4.4}
+\contentsline {subsubsection}{\numberline {4.4.1}Expression Boundaries}{15}{subsubsection.4.4.1}
+\contentsline {subsubsection}{\numberline {4.4.2}Precedence}{15}{subsubsection.4.4.2}
+\contentsline {subsection}{\numberline {4.5}Expressions}{16}{subsection.4.5}
+\contentsline {subsection}{\numberline {4.6}Any}{17}{subsection.4.6}
+\contentsline {section}{\numberline {5}Special Expressions and Classes}{17}{section.5}
+\contentsline {subsection}{\numberline {5.1}Casts}{17}{subsection.5.1}
+\contentsline {subsubsection}{\numberline {5.1.1}Casting between Internal Data Types}{17}{subsubsection.5.1.1}
+\contentsline {subsection}{\numberline {5.2}Returns}{18}{subsection.5.2}
+\contentsline {subsection}{\numberline {5.3}If-Statements}{18}{subsection.5.3}
+\contentsline {subsection}{\numberline {5.4}Else-If-Statements}{18}{subsection.5.4}
+\contentsline {subsection}{\numberline {5.5}Else-Statements}{19}{subsection.5.5}
+\contentsline {subsection}{\numberline {5.6}While Loops}{19}{subsection.5.6}
+\contentsline {subsection}{\numberline {5.7}For Loops}{20}{subsection.5.7}
+\contentsline {subsection}{\numberline {5.8}For-Each Loops}{20}{subsection.5.8}
+\contentsline {subsection}{\numberline {5.9}Continue and Break}{21}{subsection.5.9}
+\contentsline {subsection}{\numberline {5.10}Simple Variable Declarations}{21}{subsection.5.10}
+\contentsline {subsection}{\numberline {5.11}Method Declarations}{22}{subsection.5.11}
+\contentsline {subsection}{\numberline {5.12}Method Calls}{23}{subsection.5.12}
+\contentsline {subsection}{\numberline {5.13}Variadic}{23}{subsection.5.13}
+\contentsline {subsection}{\numberline {5.14}Class Declarations}{24}{subsection.5.14}
+\contentsline {subsection}{\numberline {5.15}Address and Deference}{25}{subsection.5.15}
+\contentsline {subsection}{\numberline {5.16}Try/Catch/Throw Statements}{26}{subsection.5.16}
+\contentsline {subsection}{\numberline {5.17}Imports}{27}{subsection.5.17}
+\contentsline {subsection}{\numberline {5.18}Compatibility}{27}{subsection.5.18}
+\contentsline {subsection}{\numberline {5.19}Inline Debugging}{28}{subsection.5.19}
+\contentsline {section}{\numberline {6}Data Model}{28}{section.6}
+\contentsline {subsection}{\numberline {6.1}Serialization}{29}{subsection.6.1}
+\contentsline {subsection}{\numberline {6.2}Object Lifetimes}{30}{subsection.6.2}
+\contentsline {subsection}{\numberline {6.3}Atomic Classes}{30}{subsection.6.3}
+\contentsline {subsection}{\numberline {6.4}Zygote}{31}{subsection.6.4}
+\contentsline {subsection}{\numberline {6.5}Exception}{31}{subsection.6.5}
+\contentsline {subsection}{\numberline {6.6}String}{32}{subsection.6.6}
+\contentsline {subsection}{\numberline {6.7}Vector}{32}{subsection.6.7}
+\contentsline {subsection}{\numberline {6.8}Map}{33}{subsection.6.8}
+\contentsline {subsection}{\numberline {6.9}Method Reference}{33}{subsection.6.9}
+\contentsline {subsection}{\numberline {6.10}Internal Methods}{33}{subsection.6.10}
