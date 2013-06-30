@@ -29,7 +29,7 @@ namespace parsing
 
 	bool AST::empty()
 	{
-		return content.empty();
+		return (content.empty() && eid.empty()) && (children.empty() && errors.empty());
 	}
 
 	AST &AST::add(AST a)
@@ -65,14 +65,19 @@ namespace parsing
 		return children[idx];
 	}
 
-	string AST::display()
+	string AST::display(unsigned int l)
 	{
 		stringstream ss;
-		ss << "(" << eid << ":" << content.get();
+		ss << string(l*2, ' ') << "(" << eid << ":" << content.get();
 		for (vector<AST>::iterator i = children.begin(); i != children.end(); i++)
-			ss << " " << i->display();
+			ss << "\n" << string(l*2, ' ') << i->display(l+1);
 		ss << ")";
 		return ss.str();
+	}
+
+	string AST::display()
+	{
+		return display(0);
 	}
 
 	string AST::dumpErrors()

@@ -14,11 +14,15 @@ namespace parsing
 	{
 	private:
 		map<string, string> bounds;
+		bool debug;
+		string pad(unsigned int l);
+		AST parse(vector<Token> p, unsigned int l);
 
 	public:
-		ScopeParser() {}
+		ScopeParser() : debug(false) {}
+		void enableDebugging();
 		void bindScope(string b, string e);
-		AST parse(TokenPage p);
+		AST parse(vector<Token> p);
 	};
 }
 

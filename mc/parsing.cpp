@@ -76,4 +76,15 @@ namespace mc
 
 		return t;
 	}
+
+	ScopeParser createScopeParser()
+	{
+		ScopeParser s;
+
+		s.bindScope("BoundaryBeginScope", "BoundaryEndScope");
+		s.bindScope("BoundaryBeginComplex", "BoundaryEndComplex");
+		s.bindScope("BoundaryBeginExpression", "BoundaryEndExpression");
+
+		return s;
+	}
 }

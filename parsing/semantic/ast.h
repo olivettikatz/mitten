@@ -32,6 +32,7 @@ namespace parsing
 		Token getContent();
 		unsigned int getChildrenSize();
 		AST getChild(unsigned int idx);
+		string display(unsigned int l);
 		string display();
 		string dumpErrors();
 	};

@@ -5,5 +5,6 @@
 #include "lexical/tokenizer.h"
 #include "semantic/ast.h"
 #include "semantic/asterror.h"
+#include "semantic/scope.h"
 
 #endif

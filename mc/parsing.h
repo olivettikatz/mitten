@@ -10,6 +10,7 @@ namespace mc
 	using namespace parsing;
 
 	Tokenizer createTokenizer();
+	ScopeParser createScopeParser();
 }
 
 #endif

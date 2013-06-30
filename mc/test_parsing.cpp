@@ -9,9 +9,20 @@ int main()
 	Tokenizer t = createTokenizer();
 	cout << "\tdone.\n";
 
-	t.enableDebugging();
+	cout << "Creating scope parser...\n";
+	ScopeParser s = createScopeParser();
+	cout << "\tdone.\n";
+
+	//t.enableDebugging();
+	//s.enableDebugging();
+
+	cout << "Tokenizing test 'expr'...\n";	
+	vector<Token> exprToks = t.tokenize("int main(@vector(string) args)\n{\tprint(\"hello, world\\n\");\n}\n", "--");
 	
-	vector<Token> expr_toks = t.tokenize("int main(@vector(string) args)\n{\tprint(\"hello, world\\n\");\n}\n", "--");
+	cout << "Scope parsing test 'expr'...\n";
+	AST exprAst = s.parse(exprToks);
+
+	cout << "Parsing done.\n";
 
 	return 0;
 }
