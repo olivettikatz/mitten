@@ -50,6 +50,11 @@ namespace parsing
 		return eid;
 	}
 
+	string AST::setExpectationID(string id)
+	{
+		return (eid = id);
+	}
+
 	Token AST::getContent()
 	{
 		return content;
@@ -63,6 +68,11 @@ namespace parsing
 	AST AST::getChild(unsigned int idx)
 	{
 		return children[idx];
+	}
+
+	AST AST::setChild(unsigned int idx, AST c)
+	{
+		return (children[idx] = c);
 	}
 
 	string AST::display(unsigned int l)

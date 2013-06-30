@@ -29,9 +29,11 @@ namespace parsing
 		AST &addAtBeginning(AST a);
 		AST &add(AST a);
 		string getExpectationID();
+		string setExpectationID(string id);
 		Token getContent();
 		unsigned int getChildrenSize();
 		AST getChild(unsigned int idx);
+		AST setChild(unsigned int idx, AST c);
 		string display(unsigned int l);
 		string display();
 		string dumpErrors();
