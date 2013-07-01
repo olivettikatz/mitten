@@ -1,6 +1,7 @@
 #ifndef __MITTEN_PARSING_RDP_H
 #define __MITTEN_PARSING_RDP_H
 
+#include <stdexcept>
 #include "scope.h"
 
 namespace parsing
@@ -11,14 +12,16 @@ namespace parsing
 	{
 	private:
 		map<string, unsigned int> precedences;
-		vector<AST> patterns;
+		vector<ASTE> patterns;
 		
+		vector<ASTE>::iterator findPattern(string name);
+		AST parse(AST ast, ASTE p, unsigned int l);
 		AST parse(AST ast, unsigned int l);
 
 	public:
 		RDP() {}
 		void setPrecedence(string type, unsigned int level);
-		void addPattern(AST p);
+		void addPattern(ASTE p);
 		AST parse(AST ast);
 	};
 }

@@ -7,7 +7,7 @@ RMFLAGS=-rf
 %.o : %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-PARSING_OBJ=parsing/lexical/pattern.o parsing/lexical/tokenizer.o parsing/semantic/ast.o parsing/semantic/asterror.o parsing/semantic/scope.o parsing/semantic/tagger.o
+PARSING_OBJ=parsing/lexical/pattern.o parsing/lexical/tokenizer.o parsing/semantic/ast.o parsing/semantic/asterror.o parsing/semantic/scope.o parsing/semantic/tagger.o parsing/semantic/rdp.o
 MC_OBJ=mc/parsing.o
 TEST_OBJ=mc/test_parsing.o
 TEST_BIN=mc/test_parsing.bin

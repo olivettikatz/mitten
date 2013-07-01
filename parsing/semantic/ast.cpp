@@ -116,5 +116,116 @@ namespace parsing
 
 		return ss.str();
 	}
-}
 
+	AST AST::flatten(vector<AST> &rtn)
+	{
+		rtn.push_back(AST(name, content));
+		for (vector<AST>::iterator i = children.begin(); i != children.end(); i++)
+			i->flatten();
+		return AST();
+	}
+
+	AST AST::flatten()
+	{
+		vector<AST> tmp;
+		flatten(tmp);
+		AST rtn = AST();
+		rtn.children = tmp;
+		return rtn;
+	}
+
+	bool ASTE::empty()
+	{
+		return name.empty() && (argument.empty() && children.empty());
+	}
+
+	ASTE &ASTE::add(ASTE a)
+	{
+		children.push_back(a);
+		return *this;
+	}
+
+	ASTE &ASTE::add(string n, string t)
+	{
+		children.push_back(ASTE(n, t));
+		return *this;
+	}
+
+	ASTE &ASTE::add(string n)
+	{
+		children.push_back(ASTE(n));
+		return *this;
+	}
+
+	ASTE &ASTE::operator << (ASTE a)
+	{
+		return add(a);
+	}
+
+	ASTE &ASTE::operator << (string n)
+	{
+		return add(n);
+	}
+
+	string ASTE::getName()
+	{
+		return name;
+	}
+
+	string ASTE::setName(string n)
+	{
+		return (name = n);
+	}
+
+	ASTE::expectationType ASTE::getExpectationType()
+	{
+		return type;
+	}
+
+	ASTE::expectationType ASTE::setExpectationType(ASTE::expectationType t)
+	{
+		return (type = t);
+	}
+
+	string ASTE::getArgument()
+	{
+		return argument;
+	}
+
+	string ASTE::setArgument(string a)
+	{
+		return (argument = a);
+	}
+
+	unsigned int ASTE::size()
+	{
+		return children.size();
+	}
+
+	ASTE &ASTE::operator [] (unsigned int l)
+	{
+		return children[l];
+	}
+
+	string ASTE::display(unsigned int l)
+	{
+		stringstream ss;
+		ss << string(l*2, ' ') << "(" << name << " <= ";
+		if (type == _name)
+			ss << "name";
+		else if (type == _type)
+			ss << "type";
+		else if (type == _scope)
+			ss << "scope";
+		ss << ":" << argument;
+		for (vector<ASTE>::iterator i = children.begin(); i != children.end(); i++)
+			ss << "\n" << string(l*2, ' ') << i->display(l+1);
+		ss << ")";
+		return ss.str();
+	}
+
+	string ASTE::display()
+	{
+		return display(0);
+	}
+}

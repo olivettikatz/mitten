@@ -42,6 +42,47 @@ namespace parsing
 		string display(unsigned int l);
 		string display();
 		string dumpErrors();
+		AST flatten(vector<AST> &rtn);
+		AST flatten();
+	};
+
+	class ASTE
+	{
+	public:
+		typedef enum
+		{
+			_name,
+			_type,
+			_scope
+		} expectationType;
+
+	private:
+		string name;
+		expectationType type;
+		string argument;
+		vector<ASTE> children;
+
+	public:
+		ASTE() {}
+		ASTE(string n) : name(n) {}
+		ASTE(string n, string t) : name(n), type(_type), argument(t) {}
+		ASTE(string n, expectationType t, string a) : name(n), type(t), argument(a) {}
+		bool empty();
+		ASTE &add(ASTE a);
+		ASTE &add(string n, string t);
+		ASTE &add(string n);
+		ASTE &operator << (ASTE a);
+		ASTE &operator << (string n);
+		string getName();
+		string setName(string n);
+		expectationType getExpectationType();
+		expectationType setExpectationType(expectationType t);
+		string getArgument();
+		string setArgument(string a);
+		unsigned int size();
+		ASTE &operator [] (unsigned int l);
+		string display(unsigned int l);
+		string display();
 	};
 }
 
