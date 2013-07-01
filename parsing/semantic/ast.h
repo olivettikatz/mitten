@@ -12,28 +12,33 @@ namespace parsing
 	class AST
 	{
 	private:
-		string eid;
+		string name;
 		Token content;
 		vector<AST> children;
 		vector<ASTError> errors;
 
 	public:
 		AST() {}
-		AST(string e, Token c) : eid(e), content(c) {}
+		AST(string n, Token c) : name(n), content(c) {}
+		AST(string n) : name(n) {}
+		AST(Token c) : content(c) {}
 		void error(ASTError e);
 		void error(vector<ASTError> e);
 		bool containsErrors();
 		vector<ASTError> getErrors();
-		bool good();
 		bool empty();
-		AST &addAtBeginning(AST a);
 		AST &add(AST a);
-		string getExpectationID();
-		string setExpectationID(string id);
+		AST &add(Token t);
+		AST &add(string n);
+		AST &operator << (AST a);
+		AST &operator << (Token t);
+		AST &operator << (string n);
+		string getName();
+		string setName(string n);
 		Token getContent();
-		unsigned int getChildrenSize();
-		AST getChild(unsigned int idx);
-		AST setChild(unsigned int idx, AST c);
+		Token setContent(Token t);
+		unsigned int size();
+		AST &operator [] (unsigned int idx);
 		string display(unsigned int l);
 		string display();
 		string dumpErrors();

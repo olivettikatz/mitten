@@ -69,15 +69,15 @@ namespace parsing
 		{
 			bool matching = true;
 
-			if (ast.getChildrenSize() != i->expecting.size())
+			if (ast.size() != i->expecting.size())
 				matching = false;
 
 
-			for (unsigned int j = 0; j < ast.getChildrenSize(); j++)
+			for (unsigned int j = 0; j < ast.size(); j++)
 			{
 				if (i->expecting[j].first == expectationToken)
 				{
-					if (i->expecting[j].second.compare(ast.getChild(j).getContent().getType()) != 0)
+					if (i->expecting[j].second.compare(ast[j].getContent().getType()) != 0)
 					{
 						matching = false;
 						break;
@@ -85,12 +85,12 @@ namespace parsing
 				}
 				else
 				{
-					if (ast.getChild(j).getExpectationID().empty())
+					if (ast[j].getName().empty())
 					{
-						ast.setChild(j, parse(ast.getChild(j), l+1));
+						ast[j] = parse(ast[j], l+1);
 					}
 
-					if (i->expecting[j].second.compare(ast.getChild(j).getExpectationID()) != 0)
+					if (i->expecting[j].second.compare(ast[j].getName()) != 0)
 					{
 						matching = false;
 						break;
@@ -100,7 +100,7 @@ namespace parsing
 
 			if (matching == true)
 			{
-				ast.setExpectationID(i->name);
+				ast.setName(i->name);
 				break;
 			}
 		}

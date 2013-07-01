@@ -22,14 +22,9 @@ namespace parsing
 		return errors;
 	}
 
-	bool AST::good()
-	{
-		return (eid.empty() == false);
-	}
-
 	bool AST::empty()
 	{
-		return (content.empty() && eid.empty()) && (children.empty() && errors.empty());
+		return (content.empty() && name.empty()) && (children.empty() && errors.empty());
 	}
 
 	AST &AST::add(AST a)
@@ -39,20 +34,39 @@ namespace parsing
 		return *this;
 	}
 
-	AST &AST::addAtBeginning(AST a)
+	AST &AST::add(Token t)
 	{
-		children.insert(children.begin(), a);
-		return *this;
+		return add(AST(t));
 	}
 
-	string AST::getExpectationID()
+	AST &AST::add(string n)
 	{
-		return eid;
+		return add(AST(n));
 	}
 
-	string AST::setExpectationID(string id)
+	AST &AST::operator << (AST a)
 	{
-		return (eid = id);
+		return add(a);
+	}
+
+	AST &AST::operator << (Token t)
+	{
+		return add(t);
+	}
+
+	AST &AST::operator << (string n)
+	{
+		return add(n);
+	}
+
+	string AST::getName()
+	{
+		return name;
+	}
+
+	string AST::setName(string n)
+	{
+		return (name = n);
 	}
 
 	Token AST::getContent()
@@ -60,25 +74,25 @@ namespace parsing
 		return content;
 	}
 
-	unsigned int AST::getChildrenSize()
+	Token AST::setContent(Token t)
+	{
+		return (content = t);
+	}
+
+	unsigned int AST::size()
 	{
 		return children.size();
 	}
 
-	AST AST::getChild(unsigned int idx)
+	AST &AST::operator [] (unsigned int idx)
 	{
 		return children[idx];
-	}
-
-	AST AST::setChild(unsigned int idx, AST c)
-	{
-		return (children[idx] = c);
 	}
 
 	string AST::display(unsigned int l)
 	{
 		stringstream ss;
-		ss << string(l*2, ' ') << "(" << eid << ":" << content.get();
+		ss << string(l*2, ' ') << "(" << name << ":" << content.get();
 		for (vector<AST>::iterator i = children.begin(); i != children.end(); i++)
 			ss << "\n" << string(l*2, ' ') << i->display(l+1);
 		ss << ")";
