@@ -2,100 +2,207 @@
 
 namespace parsing
 {
-	vector<ASTE>::iterator RDP::findPattern(string name)
+	vector<ASTE>::iterator RDP::findElement(string name)
 	{
-		for (vector<ASTE>::iterator i = patterns.begin(); i != patterns.end(); i++)
+		for (vector<ASTE>::iterator i = content.begin(); i != content.end(); i++)
 			if (i->getName().compare(name) == 0)
 				return i;
-		return patterns.end();
+		return content.end();
 	}
 
-	AST RDP::parse(AST ast, ASTE p, unsigned int l)
+	AST RDP::parse(AST ast, ASTE p, unsigned int l, unsigned int &ci)
 	{
-		AST rtn = AST(p.getName());
+		TRACE_INDATA(TRACE_GREEN << p.getName() << TRACE_DEFAULT << " (from " << ci << " to " << (p.size() < ast.size() ? p.size() : ast.size()) << ") " << ast.displaySome(2));
+		//if (debug)
+		//	cout << "[Mitten RDP] " << pad(l) << "\033[0;32m" << p.getName() << "\033[0;0m (from " << ci << " to " << (p.size() < ast.size() ? p.size() : ast.size()) << ") " << ast.displaySome(2) << "\n";
 
-		if (p.size() > ast.size())
+		if (p.size() == 0)
 		{
-			rtn.error(ASTError(ast.getContent(), "scope segment is too long to be a "+p.getName()));
+			//cout << "[Mitten RDP] Error - empty pattern '" << p.getName() << "'\n";
+			throw runtime_error("empty pattern '"+p.getName()+"'");
 		}
-		else if (p.size() < ast.size())
+
+		if (ast.size() == 0)
 		{
-			rtn.error(ASTError(ast.getContent(), "scope segment is too short to be a "+p.getName()));
+			TRACE_OUTDATA(ast.displaySome(2));
+			if (debug)
+				cout << "[Mitten RDP] " << pad(l) << "cannot parse leaf at this level, returning...\n";
+			return ast;
 		}
-		else
+
+		ast.setName(p.getName());
+		bool fixed = true;
+
+		unsigned int i;
+		for (i = ci; i < p.size() && i < ast.size(); i++)
 		{
-			for (unsigned int i = 0; i < p.size(); i++)
+			if (p[i].getExpectationType() == ASTE::_name)
 			{
-				if (p[i].getExpectationType() == ASTE::_name)
+				vector<ASTE>::iterator pi = findElement(p[i].getArgument());
+				if (pi == content.end())
 				{
-					vector<ASTE>::iterator pi = findPattern(p[i].getArgument());
-					if (pi == patterns.end())
-					{
-						cout << "[Mitten RDP] Error - no such pattern '" << p[i].getArgument() << "'\n";
-						throw runtime_error("no such pattern");
-					}
-					else
-					{
-						rtn << parse(ast[i], *pi, l+1);
-					}
+					//cout << "[Mitten RDP] Error - no such pattern '" << p[i].getArgument() << "'\n";
+					throw runtime_error("no such pattern '"+p[i].getArgument()+"'");
 				}
-				else if (p[i].getExpectationType() == ASTE::_type)
+				else
 				{
-					if (ast[i].getContent().getType().compare(p[i].getArgument()) != 0)
-					{
-						rtn.error(ASTError(ast[i].getContent(), "expected '"+p.getArgument()+"', but got '"+ast[i].getContent().getType()+"'"));
-					}
-					else if (ast[i].size() > 0)
-					{
-						rtn.error(ASTError(ast[i].getContent(), "expected a leaf, but got a branch with now-orphaned children"));
-					}
-					else
-					{
-						AST tmp = AST(p[i].getName(), ast[i].getContent());
-						rtn << tmp;
-					}
+					ast[i] = parse(ast[i], *pi, l+1, i);
+					ast.error(ast[i].getErrors());
 				}
-				else if (p[i].getExpectationType() == ASTE::_scope)
+			}
+			else if (p[i].getExpectationType() == ASTE::_type)
+			{
+				if (ast[i].getContent().getType().compare(p[i].getArgument()) != 0)
 				{
-					if (ast[i].size() == 0)
-					{
-						rtn.error(ASTError(ast[i].getContent(), "expected a scope beginning with '"+p[i].getArgument()+"', but got a leaf"));
-					}
-					else if (ast[i][0].getContent().getType().compare(p[i].getArgument()) != 0)
-					{
-						rtn.error(ASTError(ast[i].getContent(), "expected a scope beginning with '"+p[i].getArgument()+"', but got one beginning with '"+ast[i][0].getContent().getType()+"'"));
-					}
-					else
-					{
-						AST tmp = parse(ast[i], l+1);
-						tmp.setName(p[i].getName());
-						rtn << tmp;
-					}
+					fixed = false;
+					TRACE_COUT << TRACE_RED << p[i].getName() << TRACE_DEFAULT << " failed - " << ast[i].displaySome(2) << "\n";
+					//if (debug)
+					//	cout << "[Mitten RDP] " << pad(l) << "\033[0;31m" << p[i].getName() << "\033[0;0m failed - " << ast[i].displaySome(1) << "\n";;
+					ast.error(ASTError(ast[i].getContent(), "expected '"+p[i].getArgument()+"', but got '"+ast[i].getContent().getType()+"'"));
+					//if (debug)
+					//	cout << ast.dumpErrors();
+				}
+				else if (ast[i].size() > 0)
+				{
+					fixed = false;
+					TRACE_COUT << TRACE_RED << p[i].getName() << TRACE_DEFAULT << " failed - " << ast[i].displaySome(2) << "\n";
+					if (debug)
+						cout << "[Mitten RDP] " << pad(l) << "\033[0;31m" << p[i].getName() << "\033[0;0m failed - " << ast[i].displaySome(1) << "\n";
+					ast.error(ASTError(ast[i].getContent(), "expected a leaf, but got a branch with now-orphaned children"));
+					//if (debug)
+					//	cout << ast.dumpErrors();
+				}
+				else
+				{
+					TRACE_COUT << TRACE_GREEN << p[i].getName() << TRACE_DEFAULT << " succeeded.\n";
+					//if (debug)
+					//	cout << "[Mitten RDP] " << pad(l) << "\033[0;32m" << p[i].getName() << "\033[0;0m succeeded.\n";
+					ast[i].setName(p[i].getName());
+				}
+			}
+			else if (p[i].getExpectationType() == ASTE::_scope)
+			{
+				if (ast[i].size() == 0)
+				{
+					fixed = false;
+					TRACE_COUT << TRACE_RED << p[i].getName() << TRACE_DEFAULT << " failed - " << ast[i].displaySome(2) << "\n";
+					//if (debug)
+					//	cout << "[Mitten RDP] " << pad(l) << "\033[0;31m" << p[i].getName() << "\033[0;0m failed - " << ast[i].displaySome(1) << "\n";;
+					ast.error(ASTError(ast[i].getContent(), "expected a scope, but got a leaf"));
+					//if (debug)
+					//	cout << ast.dumpErrors();
+				}
+				else
+				{
+					TRACE_COUT << TRACE_GREEN << p[i].getName() << TRACE_DEFAULT << " succeeded.\n";
+					//if (debug)
+					//	cout << "[Mitten RDP] " << pad(l) << "\033[0;32m" << p[i].getName() << "\033[0;0m succeeded.\n";
+					unsigned int ci2 = 0;
+					ast[i] = parse(ast[i], l+1, ci2);
+					ast[i].setName(p[i].getName());
+					ast.error(ast[i].getErrors());
 				}
 			}
 		}
 
-		return rtn;
+		if (fixed == false)
+		{
+			ast.setName("");
+		}
+		else if (ast.containsErrors() == false && i < ast.size())
+		{
+			if (debug)
+			{
+				TRACE_COUT << "working tree - " << ast.display() << "\n";
+				//cout << "[Mitten RDP] " << pad(l) << "working tree - " << ast.display() << "\n";
+				TRACE_COUT << "more tokens to parse, starting with " << ast[i].displaySome(2) << "\n";
+				//cout << "[Mitten RDP] " << pad(l) << "more tokens to parse in this scope segment, starting with " << ast[i].displaySome(3) << "\n";
+			}
+			ast = parse(ast, l+1, i);
+		}
+
+		TRACE_OUTDATA(ast.display());
+		//if (debug)
+		//	cout << "[Mitten RDP] " << pad(l) << "returning " << ast.display() << "\n";
+
+		ci = i;
+		return ast;
 	}
 
-	AST RDP::parse(AST ast, unsigned int l)
+	AST RDP::parse(AST ast, unsigned int l, unsigned int &ci)
 	{
-		AST rtn;
-		for (vector<ASTE>::iterator i = patterns.begin(); i != patterns.end(); i++)
+		AST tmp;
+		AST errtmp;
+		bool anyPotentialMatches = false;
+		for (vector<ASTE>::iterator i = content.begin(); i != content.end(); i++)
 		{
-			AST tmp = parse(ast, *i, l);
+			tmp = ast;
+
+			TRACE_COUT << "trying " << TRACE_GREEN << i->getName() << TRACE_DEFAULT << " (" << (i-content.begin()) << "/" << content.size() << ", from " << ci << " to " << ast.size() << ") on " << ast.displaySome(2) << "\n";
+			//if (debug)
+			//	cout << "[Mitten RDP] " << pad(l) << " trying \033[0;32m" << i->getName() << "\033[0;0m (" << (i-content.begin()) << "/" << content.size() << ", from " << ci << " to " << ast.size() << ") on " << ast.displaySome(3) << "\n";
+			for (unsigned int j = 0; j < tmp.size(); j++)
+			{
+				if (tmp[j].getName().empty() && tmp[j].size() > 0)
+				{
+					unsigned int ci2 = 0;
+					tmp[j] = parse(tmp[j], l+1, ci2);
+					tmp.error(tmp[j].getErrors());
+				}
+			}
+
+			//if (debug)
+			//	if (tmp.sizeRecursive() != ast.sizeRecursive())
+			//		cout << "[Mitten RDP] " << pad(l) << "detected orphaned nodes within \033[0;31m" << tmp.displaySome(3) << "\033[0;0m\n";
+
+			if (tmp.getName().empty() == true)
+				tmp = parse(tmp, *i, l+1, ci);
+			if (tmp.getName().empty() == false)
+				anyPotentialMatches = true;
+
 			if (tmp.containsErrors())
 			{
-				rtn.error(tmp.getErrors());
+				TRACE_COUT << "contains errors, skipping... " << tmp.displaySome(2) << "\n";
+				//cout << "[Mitten RDP] " << pad(l) << "contains errors, skipping... " << tmp.displaySome(3) << "\n";
+				errtmp.error(tmp.getErrors());
 			}
 			else
 			{
+				TRACE_COUT << "have successful result.\n";
+				TRACE_OUTDATA(tmp.display());
+				//cout << "[Mitten RDP] " << pad(l) << "returning " << tmp.display() << "\n";
 				return tmp;
 			}
 		}
 
-		rtn.error(ASTError(ast.getContent(), "error when parsing scope segment"));
-		return rtn;
+		if (anyPotentialMatches)
+		{
+			TRACE_COUT << "match found with errors, returning errors...\n";
+			TRACE_OUTDATA(ast.display());
+			//if (debug)
+			//	cout << "[Mitten RDP] " << pad(l) << "match found with errors, returning errors... " << tmp.displaySome(3) << "\n";
+			ast.error(errtmp.getErrors());
+			ast.error(ASTError(ast.getContent(), "error when parsing scope segment"));
+			return ast;
+		}
+		else
+		{
+			TRACE_COUT << "no match found, returning original structure...\n";
+			TRACE_OUTDATA(ast.display());
+			//if (debug)
+			//	cout << "[Mitten RDP] " << pad(l) << "no match found, returning original structure... " << ast.displaySome(3) << "\n";
+			return ast;
+		}
+	}
+
+	string RDP::pad(unsigned int l)
+	{
+		return string(l, ' ');
+	}
+
+	void RDP::enableDebugging()
+	{
+		debug = true;
 	}
 
 	void RDP::setPrecedence(string type, unsigned int level)
@@ -103,19 +210,19 @@ namespace parsing
 		precedences[type] = level;
 	}
 
-	void RDP::addPattern(ASTE p)
+	void RDP::addElement(ASTE e)
 	{
-		if (patterns.empty())
+		if (content.empty())
 		{
-			patterns.push_back(p);
+			content.push_back(e);
 		}
 		else
 		{
-			for (vector<ASTE>::iterator i = patterns.begin(); i != patterns.end(); i++)
+			for (vector<ASTE>::iterator i = content.begin(); i != content.end(); i++)
 			{
-				if (i->size() < p.size())
+				if (i->size() < e.size())
 				{
-					patterns.insert(i, p);
+					content.insert(i, e);
 					break;
 				}
 			}
@@ -124,6 +231,7 @@ namespace parsing
 
 	AST RDP::parse(AST ast)
 	{
-		return parse(ast, 0);
+		unsigned int ci = 0;
+		return parse(ast, 0, ci);
 	}
 }

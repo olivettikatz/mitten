@@ -38,9 +38,12 @@ namespace parsing
 		Token getContent();
 		Token setContent(Token t);
 		unsigned int size();
+		unsigned int sizeRecursive();
 		AST &operator [] (unsigned int idx);
 		string display(unsigned int l);
 		string display();
+		string displaySome(unsigned int l, unsigned int limit);
+		string displaySome(unsigned int limit);
 		string dumpErrors();
 		AST flatten(vector<AST> &rtn);
 		AST flatten();
@@ -66,6 +69,7 @@ namespace parsing
 		ASTE() {}
 		ASTE(string n) : name(n) {}
 		ASTE(string n, string t) : name(n), type(_type), argument(t) {}
+		ASTE(string n, expectationType t) : name(n), type(t) {}
 		ASTE(string n, expectationType t, string a) : name(n), type(t), argument(a) {}
 		bool empty();
 		ASTE &add(ASTE a);

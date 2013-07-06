@@ -6,5 +6,6 @@
 #include "semantic/ast.h"
 #include "semantic/asterror.h"
 #include "semantic/scope.h"
+#include "semantic/rdp.h"
 
 #endif

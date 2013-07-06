@@ -11,6 +11,7 @@ namespace mc
 
 	Tokenizer createTokenizer();
 	ScopeParser createScopeParser();
+	RDP createRDP();
 }
 
 #endif

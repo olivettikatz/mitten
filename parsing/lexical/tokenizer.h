@@ -7,6 +7,7 @@
 #include <fstream>
 #include <streambuf>
 #include "pattern.h"
+#include "../../trace/trace.h"
 
 namespace parsing
 {

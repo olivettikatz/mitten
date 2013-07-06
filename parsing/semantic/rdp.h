@@ -3,25 +3,31 @@
 
 #include <stdexcept>
 #include "scope.h"
+#include "../../trace/trace.h"
 
 namespace parsing
 {
 	using namespace std;
+	using namespace trace;
 
 	class RDP
 	{
 	private:
 		map<string, unsigned int> precedences;
-		vector<ASTE> patterns;
+		vector<ASTE> content;
 		
-		vector<ASTE>::iterator findPattern(string name);
-		AST parse(AST ast, ASTE p, unsigned int l);
-		AST parse(AST ast, unsigned int l);
+		vector<ASTE>::iterator findElement(string name);
+		AST parse(AST ast, ASTE e, unsigned int l, unsigned int &ci);
+		AST parse(AST ast, unsigned int l, unsigned int &ci);
+
+		bool debug;
+		string pad(unsigned int l);
 
 	public:
-		RDP() {}
+		RDP() : debug(false) {}
+		void enableDebugging();
 		void setPrecedence(string type, unsigned int level);
-		void addPattern(ASTE p);
+		void addElement(ASTE e);
 		AST parse(AST ast);
 	};
 }

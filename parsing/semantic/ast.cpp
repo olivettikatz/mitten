@@ -84,6 +84,14 @@ namespace parsing
 		return children.size();
 	}
 
+	unsigned int AST::sizeRecursive()
+	{
+		unsigned int n = 1;
+		for (vector<AST>::iterator i = children.begin(); i != children.end(); i++)
+			n += i->sizeRecursive();
+		return n;
+	}
+
 	AST &AST::operator [] (unsigned int idx)
 	{
 		return children[idx];
@@ -103,6 +111,30 @@ namespace parsing
 	{
 		return display(0);
 	}
+
+	string AST::displaySome(unsigned int l, unsigned int limit)
+	{
+		stringstream ss;
+		ss << string(l*2, ' ') << "(" << name << ":" << content.get();
+		if (limit == 0)
+		{
+			ss << " ...";
+		}
+		else
+		{
+			for (vector<AST>::iterator i = children.begin(); i != children.end(); i++)
+			{
+				ss << "\n" << string(l*2, ' ') << i->displaySome(l+1, limit-1);
+			}
+		}
+		ss << ")";
+		return ss.str();
+	}
+
+	string AST::displaySome(unsigned int limit)
+	{
+		return displaySome(0, limit);
+	}	
 
 	string AST::dumpErrors()
 	{

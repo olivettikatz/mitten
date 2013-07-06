@@ -16,7 +16,6 @@ namespace mc
 		t.whitespace(t() == "\n");
 		t.categorizer("Where", t() == "where");
 		t.categorizer("InternalAssemblySymbol", t() == "asm");
-		t.categorizer("TypeSymbol", t() == "int" || t() == "vector" || t() == "string");
 		t.categorizer("ValueBool", t() == "true" || t() == "True" || t() == "TRUE" || t() == "false" || t() == "False" || t() == "FALSE");
 		t.token("BoundaryBeginExpression", t() == "(");
 		t.token("BoundaryEndExpression", t() == ")");
@@ -79,12 +78,22 @@ namespace mc
 
 	ScopeParser createScopeParser()
 	{
-		ScopeParser s;
+		ScopeParser p;
 
-		s.bindScope("BoundaryBeginScope", "BoundaryEndScope");
-		s.bindScope("BoundaryBeginComplex", "BoundaryEndComplex");
-		s.bindScope("BoundaryBeginExpression", "BoundaryEndExpression");
+		p.bindScope("BoundaryBeginScope", "BoundaryEndScope");
+		p.bindScope("BoundaryBeginComplex", "BoundaryEndComplex");
+		p.bindScope("BoundaryBeginExpression", "BoundaryEndExpression");
 
-		return s;
+		return p;
+	}
+
+	RDP createRDP()
+	{
+		RDP p;
+
+		ASTE typeExpression = ASTE("TypeExpression") << ASTE("Prefix", "TypeExpressionPrefix") << ASTE("Name", "Symbol") << ASTE("BoundaryBegin", "BoundaryBeginExpression") << ASTE("Arguments", ASTE::_scope) << ASTE("BoundaryEnd", "BoundaryEndExpression");
+		p.addElement(typeExpression);
+
+		return p;
 	}
 }
