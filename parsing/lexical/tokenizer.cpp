@@ -157,11 +157,6 @@ namespace parsing
 		return rtn;
 	}
 
-	void Tokenizer::enableDebugging()
-	{
-		debug = true;
-	}
-
 	Pattern Tokenizer::operator () ()
 	{
 		return Pattern();

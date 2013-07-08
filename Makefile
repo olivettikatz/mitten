@@ -4,7 +4,7 @@ CXXFLAGS=-std=c++11 -stdlib=libc++ -g -O0
 RM=rm
 RMFLAGS=-rf
 
-%.o : %.cpp
+%.o : %.cpp %.h
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 TRACE_OBJ=trace/trace.o
@@ -13,12 +13,12 @@ MC_OBJ=mc/parsing.o
 TEST_OBJ=mc/test_parsing.o
 TEST_BIN=mc/test_parsing.bin
 
-%.bin : %.o
-	$(CXX) $(CXXFLAGS) $(TRACE_OBJ) $(PARSING_OBJ) $(MC_OBJ) $< -o $@
-
 build : $(TRACE_OBJ) $(PARSING_OBJ) $(MC_OBJ)
 
 test : $(TEST_OBJ) $(TEST_BIN)
+
+mc/test_parsing.bin : mc/test_parsing.o $(TRACE_OBJ) $(PARSING_OBJ) $(MC_OBJ)
+	$(CXX) $(CXXFLAGS) $^ -o $@
 
 clean :
 	$(RM) $(RMFLAGS) $(TRACE_OBJ) $(PARSING_OBJ) $(MC_OBJ) $(TEST_OBJ) $(TEST_BIN) $(shell for i in $(TEST_BIN); do echo $$i.dSYM; done)

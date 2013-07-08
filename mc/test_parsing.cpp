@@ -3,8 +3,10 @@
 
 using namespace mc;
 
-int main()
+int main(int argc, char *argv[])
 {
+	TRACE_INIT(argc, argv);
+
 	cout << "Creating tokenizer...\n";
 	Tokenizer t = createTokenizer();
 	cout << "\tdone.\n";
@@ -16,10 +18,6 @@ int main()
 	cout << "Creating recursive descent parser...\n";
 	RDP r = createRDP();
 	cout << "\tdone.\n";
-
-	//t.enableDebugging();
-	//s.enableDebugging();
-	//r.enableDebugging();
 
 	cout << "Tokenizing test 'expr'...\n";	
 	vector<Token> exprToks = t.tokenize("int main(@vector(string) args)\n{\tprint(\"hello, world\\n\");\n}\n", "--");

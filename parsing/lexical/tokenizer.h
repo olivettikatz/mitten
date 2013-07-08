@@ -53,8 +53,6 @@ namespace parsing
 	class Tokenizer
 	{
 	private:
-		bool debug;
-
 		vector<pair<Pattern, Pattern> > _noDelim;
 		vector<pair<Pattern, Pattern> > _skip;
 		vector<Pattern> _whitespace;
@@ -71,7 +69,6 @@ namespace parsing
 
 	public:
 		Tokenizer() {}
-		void enableDebugging();
 		Pattern operator () ();
 		vector<pair<string, Pattern> > getCategorizers();
 		Tokenizer &noDelim(Pattern ps, Pattern pe);

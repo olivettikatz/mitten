@@ -17,15 +17,11 @@ namespace parsing
 		vector<ASTE> content;
 		
 		vector<ASTE>::iterator findElement(string name);
-		AST parse(AST ast, ASTE e, unsigned int l, unsigned int &ci);
-		AST parse(AST ast, unsigned int l, unsigned int &ci);
-
-		bool debug;
-		string pad(unsigned int l);
+		AST parse(AST ast, ASTE e, unsigned int &ci);
+		AST parse(AST ast, unsigned int &ci);
 
 	public:
-		RDP() : debug(false) {}
-		void enableDebugging();
+		RDP() {}
 		void setPrecedence(string type, unsigned int level);
 		void addElement(ASTE e);
 		AST parse(AST ast);

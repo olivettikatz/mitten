@@ -8,6 +8,7 @@ namespace trace
 	map<string, string> moduleTable;
 	map<pid_t, Backtrace> stackTable;
 	map<pid_t, bool> debugTable;
+	map<string, bool> flags;
 
 	void Backtrace::setFramesToCapture(unsigned int f)
 	{
@@ -107,5 +108,19 @@ namespace trace
 		b.setFramesToCapture(3);
 		b.capture();
 		return b[0].sym;
+	}
+
+	void initFlags(int argc, char *argv[])
+	{
+		flags["show-data"] = false;
+		flags["show-debug"] = false;
+
+		for (int i = 1; i < argc; i++)
+		{
+			if (string(argv[i]).compare("--trace-show-data") == 0)
+				flags["show-data"] = true;
+			else if (string(argv[i]).compare("--trace-show-debug") == 0)
+				flags["show-debug"] = true;
+		}
 	}
 }
