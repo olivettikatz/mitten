@@ -16,12 +16,17 @@ namespace parsing
 		Token content;
 		vector<AST> children;
 		vector<ASTError> errors;
+		int status;
 
 	public:
-		AST() {}
-		AST(string n, Token c) : name(n), content(c) {}
-		AST(string n) : name(n) {}
-		AST(Token c) : content(c) {}
+		const static int statusRaw = 0;
+		const static int statusScope = 1;
+		const static int statusRDP = 2;
+
+		AST() : status(statusRaw) {}
+		AST(string n, Token c) : name(n), content(c), status(statusRaw) {}
+		AST(string n) : name(n), status(statusRaw) {}
+		AST(Token c) : content(c), status(statusRaw) {}
 		void error(ASTError e);
 		void error(vector<ASTError> e);
 		bool containsErrors();
@@ -47,6 +52,11 @@ namespace parsing
 		string dumpErrors();
 		AST flatten(vector<AST> &rtn);
 		AST flatten();
+		bool containsNamedBranch();
+		bool containsStatusBranch(int s);
+		int setStatus(int s);
+		int setStatusRecursive(int s);
+		int getStatus();
 	};
 
 	class ASTE

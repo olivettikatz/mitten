@@ -99,11 +99,20 @@ namespace parsing
 
 	string AST::display(unsigned int l)
 	{
+		string c;
+		if (status == statusRaw)
+			c = "";
+		else if (status == statusScope)
+			c = "\033[0;34m";
+		else if (status == statusRDP)
+			c = "\033[0;32m";
+		else
+			c = "\033[0;31m";
 		stringstream ss;
-		ss << string(l*2, ' ') << "(" << name << ":" << content.get();
+		ss << string(l*2, ' ') << c << "(\033[0;0m" << name << c << ":\033[0;0m" << content.get();
 		for (vector<AST>::iterator i = children.begin(); i != children.end(); i++)
 			ss << "\n" << string(l*2, ' ') << i->display(l+1);
-		ss << ")";
+		ss << c << ")\033[0;0m";
 		return ss.str();
 	}
 
@@ -114,8 +123,17 @@ namespace parsing
 
 	string AST::displaySome(unsigned int l, unsigned int limit)
 	{
+		string c;
+		if (status == statusRaw)
+			c = "";
+		else if (status == statusScope)
+			c = "\033[0;34m";
+		else if (status == statusRDP)
+			c = "\033[0;32m";
+		else
+			c = "\033[0;31m";
 		stringstream ss;
-		ss << string(l*2, ' ') << "(" << name << ":" << content.get();
+		ss << string(l*2, ' ') << c << "(\033[0;0m" << name << c << ":\033[0;0m" << content.get();
 		if (limit == 0)
 		{
 			ss << " ...";
@@ -127,7 +145,7 @@ namespace parsing
 				ss << "\n" << string(l*2, ' ') << i->displaySome(l+1, limit-1);
 			}
 		}
-		ss << ")";
+		ss << c << ")\033[0;0m";
 		return ss.str();
 	}
 
@@ -164,6 +182,48 @@ namespace parsing
 		AST rtn = AST();
 		rtn.children = tmp;
 		return rtn;
+	}
+
+	bool AST::containsNamedBranch()
+	{
+		if (name.empty() == false)
+			return true;
+
+		for (vector<AST>::iterator i = children.begin(); i != children.end(); i++)
+			if (i->containsNamedBranch())
+				return true;
+
+		return false;
+	}
+
+	bool AST::containsStatusBranch(int s)
+	{
+		if (status >= s)
+			return true;
+
+		for (vector<AST>::iterator i = children.begin(); i != children.end(); i++)
+			if (i->containsStatusBranch(s))
+				return true;
+
+		return false;
+	}
+
+	int AST::setStatus(int s)
+	{
+		return (status = s);
+	}
+
+	int AST::setStatusRecursive(int s)
+	{
+		status = s;
+		for (vector<AST>::iterator i = children.begin(); i != children.end(); i++)
+			i->setStatusRecursive(s);
+		return s;
+	}
+
+	int AST::getStatus()
+	{
+		return status;
 	}
 
 	bool ASTE::empty()

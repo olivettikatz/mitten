@@ -20,6 +20,7 @@ namespace parsing
 	AST ScopeParser::parse(vector<Token> p, unsigned int l)
 	{
 		AST rtn = AST();
+		rtn.setStatus(AST::statusScope);
 		map<string, unsigned int> starts;
 		map<string, unsigned int> levels;
 		unsigned int masterLevel = 0;
@@ -76,16 +77,23 @@ namespace parsing
 				{
 					vector<Token> tmp(p.begin()+starts[i->getType()]+1, i);
 					AST ast = parse(tmp, l+1);
-					rtn.add(AST(p[starts[i->getType()]]));
+					AST tmpast = AST(p[starts[i->getType()]]);
+					tmpast.setStatus(AST::statusScope);
+					rtn.add(tmpast);
+					ast.setStatus(AST::statusScope);
 					rtn.add(ast);
-					rtn.add(*i);
+					tmpast = AST(*i);
+					tmpast.setStatus(AST::statusScope);
+					rtn.add(tmpast);
 				}
 
 				masterLevel--;
 			}
 			else if (masterLevel == 0)
 			{
-				rtn.add(AST("", *i));
+				AST tmpast = AST("", *i);
+				tmpast.setStatus(AST::statusScope);
+				rtn.add(tmpast);
 			}
 		}
 
