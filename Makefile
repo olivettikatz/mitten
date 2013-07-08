@@ -1,5 +1,12 @@
+SYSTEM=$(shell uname -s)
+
+ifeq ($(SYSTEM),"Darwin")
 CXX=c++
 CXXFLAGS=-std=c++11 -stdlib=libc++ -g -O0
+else
+CXX=g++
+CXXFLAGS=-std=c++11 -g -O0
+endif
 
 RM=rm
 RMFLAGS=-rf
