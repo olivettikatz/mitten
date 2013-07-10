@@ -36,6 +36,7 @@ namespace parsing
 		AST &add(Token t);
 		AST &add(string n);
 		AST &addLowerPrecedence(AST a);
+		AST &addAtBeginning(AST a);
 		AST &operator << (AST a);
 		AST &operator << (Token t);
 		AST &operator << (string n);

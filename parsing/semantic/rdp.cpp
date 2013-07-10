@@ -41,14 +41,24 @@ namespace parsing
 				}
 				else
 				{
-					// this is where precedence comes into play
 					if (ast[i].getStatus() < AST::statusRDP)
 					{
 						AST tmp = parse(ast[i], *pi, i);
 						TRACE_INDATA(tmp.display());
+						if (getPrecedence(ast.getContent().getType()) >= getPrecedence(tmp.getContent().getType()))
+						{
+							ast[i] = tmp;
+							ast.error(ast[i].getErrors());
+							ast[i].setStatus(AST::statusRDP);
+						}
+						else
+						{
+							tmp.addAtBeginning(ast[i]);
+							ast[i] = tmp;
+							ast.error(ast[i].getErrors());
+							ast[i].setStatus(AST::statusRDP);
+						}
 					}
-					ast.error(ast[i].getErrors());
-					ast[i].setStatus(AST::statusRDP);
 				}
 			}
 			else if (p[i].getExpectationType() == ASTE::_type)
@@ -190,6 +200,14 @@ namespace parsing
 	void RDP::setPrecedence(string type, unsigned int level)
 	{
 		precedences[type] = level;
+	}
+
+	unsigned int RDP::getPrecedence(string type)
+	{
+		if (precedences.find(type) == precedences.end())
+			return 0;
+		else
+			return precedences[type];
 	}
 
 	void RDP::addElement(ASTE e)

@@ -56,6 +56,15 @@ namespace parsing
 		return *this;
 	}
 
+	AST &AST::addAtBeginning(AST a)
+	{
+		if (a.empty() == false)
+		{
+			children.insert(children.begin(), a);
+		}
+		return *this;
+	}
+
 	AST &AST::operator << (AST a)
 	{
 		return add(a);
