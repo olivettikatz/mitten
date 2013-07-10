@@ -91,8 +91,19 @@ namespace mc
 	{
 		RDP p;
 
-		ASTE typeExpression = ASTE("TypeExpression") << ASTE("Prefix", "TypeExpressionPrefix") << ASTE("Name", "Symbol") << ASTE("BoundaryBegin", "BoundaryBeginExpression") << ASTE("Arguments", ASTE::_scope) << ASTE("BoundaryEnd", "BoundaryEndExpression");
-		p.addElement(typeExpression);
+		p.addElement(ASTE("TypeExpression") << ASTE("Prefix", "TypeExpressionPrefix") << ASTE("Name", "Symbol") << ASTE("BoundaryBegin", "BoundaryBeginExpression") << ASTE("Arguments", ASTE::_scope) << ASTE("BoundaryEnd", "BoundaryEndExpression"));
+
+		p.addElement(ASTE("Operation") << ASTE("Value", "Value") << ASTE("Operator", "OperatorUnaryLeft"));
+		p.addElement(ASTE("Operation") << ASTE("Operator", "OperatorUnaryRight") << ASTE("Value", "Value"));
+		p.addElement(ASTE("Operation") << ASTE("Value", "Value") << ASTE("Operator", "OperatorBinary") << ASTE("Value", "Value"));
+
+		p.addElement(ASTE("Operation") << ASTE("Value", ASTE::_scope) << ASTE("Operator", "OperatorUnaryLeft"));
+		p.addElement(ASTE("Operation") << ASTE("Operator", "OperatorUnaryRight") << ASTE("Value", ASTE::_scope));
+		p.addElement(ASTE("Operation") << ASTE("Value", ASTE::_scope) << ASTE("Operator", "OperatorBinary") << ASTE("Value", ASTE::_scope));
+		p.addElement(ASTE("Operation") << ASTE("Value", ASTE::_scope) << ASTE("Operator", "OperatorBinary") << ASTE("Value", "Value"));
+		p.addElement(ASTE("Operation") << ASTE("Value", "Value") << ASTE("Operator", "OperatorBinary") << ASTE("Value", ASTE::_scope));
+		
+		p.addElement(ASTE("Expression") << )
 
 		return p;
 	}

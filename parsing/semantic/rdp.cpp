@@ -2,12 +2,13 @@
 
 namespace parsing
 {
-	vector<ASTE>::iterator RDP::findElement(string name)
+	vector<vector<ASTE>::iterator> RDP::findElements(string name)
 	{
+		vector<vector<ASTE>::iterator> rtn;
 		for (vector<ASTE>::iterator i = content.begin(); i != content.end(); i++)
 			if (i->getName().compare(name) == 0)
-				return i;
-		return content.end();
+				rtn.push_back(i);
+		return rtn;
 	}
 
 	AST RDP::parse(AST &ast, ASTE p, unsigned int &ci)
@@ -34,8 +35,8 @@ namespace parsing
 		{
 			if (p[i].getExpectationType() == ASTE::_name)
 			{
-				vector<ASTE>::iterator pi = findElement(p[i].getArgument());
-				if (pi == content.end())
+				vector<vector<ASTE>::iterator> pi = findElements(p[i].getArgument());
+				if (pi.empty())
 				{
 					throw runtime_error("no such pattern '"+p[i].getArgument()+"'");
 				}
@@ -43,20 +44,38 @@ namespace parsing
 				{
 					if (ast[i].getStatus() < AST::statusRDP)
 					{
-						AST tmp = parse(ast[i], *pi, i);
-						TRACE_INDATA(tmp.display());
-						if (getPrecedence(ast.getContent().getType()) >= getPrecedence(tmp.getContent().getType()))
+						bool haveSuccess = false;
+						AST errtmp;
+
+						for (vector<vector<ASTE>::iterator>::iterator j = pi.begin(); j != pi.end(); j++)
 						{
-							ast[i] = tmp;
-							ast.error(ast[i].getErrors());
-							ast[i].setStatus(AST::statusRDP);
+							AST tmp = parse(ast[i], **j, i);
+							TRACE_INDATA(tmp.display());
+
+							if (tmp.containsErrors())
+							{
+								errtmp.error(tmp.getErrors());
+							}
+							else if (getPrecedence(ast.getContent().getType()) >= getPrecedence(tmp.getContent().getType()))
+							{
+								haveSuccess = true;
+								ast[i] = tmp;
+								ast.error(ast[i].getErrors());
+								ast[i].setStatus(AST::statusRDP);
+							}
+							else
+							{
+								haveSuccess = true;
+								tmp.addAtBeginning(ast[i]);
+								ast[i] = tmp;
+								ast.error(ast[i].getErrors());
+								ast[i].setStatus(AST::statusRDP);
+							}
 						}
-						else
+
+						if (haveSuccess == false)
 						{
-							tmp.addAtBeginning(ast[i]);
-							ast[i] = tmp;
-							ast.error(ast[i].getErrors());
-							ast[i].setStatus(AST::statusRDP);
+							ast.error(errtmp.getErrors());
 						}
 					}
 				}

@@ -16,7 +16,7 @@ namespace parsing
 		map<string, unsigned int> precedences;
 		vector<ASTE> content;
 		
-		vector<ASTE>::iterator findElement(string name);
+		vector<vector<ASTE>::iterator> findElements(string name);
 		AST parse(AST &ast, ASTE e, unsigned int &ci);
 		AST parse(AST &ast, unsigned int &ci);
 
