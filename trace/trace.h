@@ -67,13 +67,26 @@ namespace trace
 #define TRACE_IS_DEBUG() (trace::debugTable.find(TRACE_PID)==trace::debugTable.end()?false:trace::debugTable[TRACE_PID])
 #define TRACE_ENABLE_DEBUG() (trace::debugTable[TRACE_PID]=true)
 #define TRACE_DISABLE_DEBUG() (trace::debugTable[TRACE_PID]=false)
+#define TRACE_SHOW_DATA() (trace::flags["show-data"]=true)
+#define TRACE_SHOW_DEBUG() (trace::flags["show-debug"]=true)
+#define TRACE_DISABLE_COLOR() (trace::flags["use-color"]=false)
 
-#define TRACE_RED "\033[0;31m"
-#define TRACE_GREEN "\033[0;32m"
-#define TRACE_YELLOW "\033[0;33m"
-#define TRACE_BLUE "\033[0;34m"
-#define TRACE_MAGENTA "\033[0;35m"
-#define TRACE_CYAN "\033[0;36m"
-#define TRACE_DEFAULT "\033[0;0m"
+#ifndef __TRACE_DISABLE_COLOR
+#define TRACE_RED (trace::flags["use-color"]?"\033[0;31m":"")
+#define TRACE_GREEN (trace::flags["use-color"]?"\033[0;32m":"")
+#define TRACE_YELLOW (trace::flags["use-color"]?"\033[0;33m":"")
+#define TRACE_BLUE (trace::flags["use-color"]?"\033[0;34m":"")
+#define TRACE_MAGENTA (trace::flags["use-color"]?"\033[0;35m":"")
+#define TRACE_CYAN (trace::flags["use-color"]?"\033[0;36m":"")
+#define TRACE_DEFAULT (trace::flags["use-color"]?"\033[0;0m":"")
+#else
+#define TRACE_RED ""
+#define TRACE_GREEN ""
+#define TRACE_YELLOW ""
+#define TRACE_BLUE ""
+#define TRACE_MAGENTA ""
+#define TRACE_CYAN ""
+#define TRACE_DEFAULT ""
+#endif
 
 #endif

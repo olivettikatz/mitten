@@ -6,6 +6,7 @@ using namespace mc;
 int main(int argc, char *argv[])
 {
 	TRACE_INIT(argc, argv);
+	TRACE_MODULE_MAP("parsing/semantic/scope.cpp", "Scope");
 
 	cout << "Creating tokenizer...\n";
 	Tokenizer t = createTokenizer();
@@ -19,11 +20,15 @@ int main(int argc, char *argv[])
 	RDP r = createRDP();
 	cout << "\tdone.\n";
 
+	TRACE_ENABLE_DEBUG();
 	cout << "Tokenizing test 'expr'...\n";	
 	vector<Token> exprToks = t.tokenize("int main(@vector(string) args)\n{\tprint(\"hello, world\\n\");\n}\n", "--");
-	
+	TRACE_DISABLE_DEBUG();
+
+	TRACE_ENABLE_DEBUG();
 	cout << "Scope parsing test 'expr'...\n";
 	AST exprAst = s.parse(exprToks);
+	TRACE_DISABLE_DEBUG();
 
 	TRACE_ENABLE_DEBUG();
 	cout << "Recursive-descent parsing test 'expr'...\n";

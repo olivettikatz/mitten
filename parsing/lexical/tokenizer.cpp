@@ -250,8 +250,6 @@ namespace parsing
 				if ((toksize = j->first.match(s.substr(i))))
 				{
 					TRACE_COUT << "found the beginning of a no-delimination segment (" << TRACE_YELLOW << j->first.display() << TRACE_DEFAULT << " - " << TRACE_YELLOW << j->second.display() << TRACE_DEFAULT << ")... '" << TRACE_GREEN << current(s, i) << TRACE_DEFAULT << "'\n";
-					//if (debug)
-					//	cout << "[Mitten Tokenizer] found the beginning of a no-delimination segment (\033[0;33m" << j->first.display() << "\033[0;0m - \033[0;33m" << j->second.display() << "\033[0;0m)... '\033[0;32m" << current(s, i) << "\033[0;0m'\n";
 					if (i-last > 0)
 					{
 						Token tmp = Token(s.substr(last, i-last), line, column);
@@ -259,8 +257,6 @@ namespace parsing
 						tmp.setFile(f);
 						rtn.push_back(tmp);
 						TRACE_COUT << "  appending last token... '" << TRACE_RED << tmp.get() << TRACE_DEFAULT << "'\n";
-						//if (debug)
-						//	cout << "  appending last token... '\033[0;31m" << tmp.get() << "\033[0;31m'\n";
 					}
 
 					last = i;
@@ -271,16 +267,13 @@ namespace parsing
 						if ((toksize = j->second.match(s.substr(i))))
 						{
 							TRACE_COUT << "found the end of the no-delimination segment... '" << TRACE_GREEN << current(s, i) << TRACE_DEFAULT << "'\n";
-							//if (debug)
-							//	cout << "[Mitten Tokenizer] found the end of the no-delimination segment... '\033[0;32m" << current(s, i) << "\033[0;0m'\n";
 							Token tmp = Token(s.substr(last, i-last+toksize), line, column);
 							tmp.setType(categorize(tmp));
 							tmp.setFile(f);
 							rtn.push_back(tmp);
+							i++;
 							last = i;
 							TRACE_COUT << "  appending segment token... '" << TRACE_RED << tmp.get() << TRACE_DEFAULT << "'\n";
-							//if (debug)
-							//	cout << "  appending segment token... '\033[0;31m" << tmp.get() << "\033[0;0m'\n";
 							break;
 						}
 					}
@@ -294,8 +287,6 @@ namespace parsing
 				if ((toksize = j->first.match(s.substr(i))))
 				{
 					TRACE_COUT << "found the beginning of a skip segment (" << TRACE_YELLOW << j->first.display() << TRACE_DEFAULT << " - " << TRACE_YELLOW << j->second.display() << TRACE_DEFAULT << ")... '" << TRACE_GREEN << current(s, i) << TRACE_DEFAULT << "'\n";
-					//if (debug)
-					//	cout << "[Mitten Tokenizer] found the beginning of a skip segment (\033[0;33m" << j->first.display() << "\033[0;0m - \033[0;33m" << j->second.display() << "\033[0;0m)... '\033[0;32m" << current(s, i) << "\033[0;0m'\n";
 					if (i-last > 0)
 					{
 						Token tmp = Token(s.substr(last, i-last), line, column);
@@ -303,8 +294,6 @@ namespace parsing
 						tmp.setFile(f);
 						rtn.push_back(tmp);
 						TRACE_COUT << "  appending last token... '" << TRACE_RED << tmp.get() << TRACE_DEFAULT << "'\n";
-						//if (debug)
-						//	cout << "  appending last token... '\033[0;31m" << tmp.get() << "\033[0;0m'\n";
 					}
 
 					last = i+1;
@@ -315,8 +304,6 @@ namespace parsing
 						if ((toksize = j->second.match(s.substr(i))))
 						{
 							TRACE_COUT << "found the end of the skip segment... '" << TRACE_GREEN << current(s, i) << TRACE_DEFAULT << "'\n";
-							//if (debug)
-							//	cout << "[Mitten Tokenizer] found the end of the skip segment... '\033[0;32m" << current(s, i) << "\033[0;0m'\n";
 							last = i+toksize;
 							i += toksize;
 							break;
@@ -330,8 +317,6 @@ namespace parsing
 			if ((toksize = isDeliminator(s.substr(i))))
 			{
 				TRACE_COUT << "found a deliminator (token - " << TRACE_YELLOW << s.substr(i, toksize) << TRACE_DEFAULT << ", size - " << toksize << ")... '" << TRACE_GREEN << current(s, i) << TRACE_DEFAULT << "'\n";
-				//if (debug)
-				//	cout << "[Mitten Tokenizer] found a deliminator (token - \033[0;33m" << s.substr(i, toksize) << "\033[0;0m, size - " << toksize << ")... '\033[0;32m" << current(s, i) << "\033[0;0m'\n";;
 				if (i-last > 0)
 				{
 					Token tmp = Token(s.substr(last, i-last), line, column);
@@ -339,8 +324,6 @@ namespace parsing
 					tmp.setFile(f);
 					rtn.push_back(tmp);
 					TRACE_COUT << "  appending last token... '" << TRACE_RED << tmp.get() << TRACE_DEFAULT << "'\n";
-					//if (debug)
-					//	cout << "  appending last token... '\033[0;31m" << tmp.get() << "\033[0;0m'\n";
 				}
 				Token tmp = Token(s.substr(i, toksize), line, column);
 				tmp.setType(categorize(tmp));
@@ -349,14 +332,10 @@ namespace parsing
 				i += toksize-1;
 				last = i+1;
 				TRACE_COUT << "  appending deliminator token... '" << TRACE_RED << tmp.get() << TRACE_DEFAULT << "'\n";
-				//if (debug)
-				//	cout << "  appending deliminator token... '\033[0;31m" << tmp.get() << "\033[0;0m'\n";
 			}
 			else if ((toksize = isWhitespace(s.substr(i))))
 			{
 				TRACE_COUT << "found a piece of whitespace (size - " << toksize << ")... '" << TRACE_GREEN << current(s, i) << TRACE_DEFAULT << "'\n";
-				//if (debug)
-				//	cout << "[Mitten Tokenizer] found a piece of whitespace (size - " << toksize << ")... '\033[0;32m" << current(s, i) << "\033[0;0m'\n";
 				if (i-last > 0)
 				{
 					Token tmp = Token(s.substr(last, i-last), line, column);
@@ -364,8 +343,6 @@ namespace parsing
 					tmp.setFile(f);
 					rtn.push_back(tmp);
 					TRACE_COUT << "  appending last token... '" << TRACE_RED << tmp.get() << TRACE_DEFAULT << "'\n";
-					//if (debug)
-					//	cout << "  appending last token... '\033[0;31m" << tmp.get() << "\033[0;0m'\n";
 				}
 				last = i+toksize;
 			}
@@ -388,8 +365,6 @@ namespace parsing
 				if (j->first.match(rtn[i-1].get()) && j->second.match(rtn[i].get()))
 				{
 					TRACE_COUT << "combining '" << TRACE_RED << rtn[i-1].get() << TRACE_DEFAULT << "' and '" << TRACE_RED << rtn[i].get() << TRACE_DEFAULT << "'\n";
-					//if (debug)
-					//	cout << "[Mitten Tokenizer] combining '\033[0;31m" << rtn[i-1].get() << "\033[0;0m' and '\033[0;31m" << rtn[i].get() << "\033[0;0m'\n";
 					rtn[i-1].set(rtn[i-1].get()+rtn[i].get());
 					rtn.erase(rtn.begin()+i);
 					i--;
@@ -397,13 +372,10 @@ namespace parsing
 			}
 		}
 
-		//if (debug)
-		//{
-			string rslt;
-			for (vector<Token>::iterator i = rtn.begin(); i != rtn.end(); i++)
-				rslt +=  " '"+i->get()+"'";
-			TRACE_OUTDATA(rslt);
-		//}
+		string rslt;
+		for (vector<Token>::iterator i = rtn.begin(); i != rtn.end(); i++)
+			rslt +=  " '"+i->get()+"'";
+		TRACE_OUTDATA(rslt);
 
 		return rtn;
 	}

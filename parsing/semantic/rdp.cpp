@@ -10,7 +10,7 @@ namespace parsing
 		return content.end();
 	}
 
-	AST RDP::parse(AST ast, ASTE p, unsigned int &ci)
+	AST RDP::parse(AST &ast, ASTE p, unsigned int &ci)
 	{
 		TRACE_INDATA(TRACE_GREEN << p.getName() << TRACE_DEFAULT << " (from " << ci << " to " << (p.size() < ast.size() ? p.size() : ast.size()) << ") " << ast.displaySome(2));
 
@@ -41,10 +41,11 @@ namespace parsing
 				}
 				else
 				{
+					// this is where precedence comes into play
 					if (ast[i].getStatus() < AST::statusRDP)
 					{
-						ast[i] = parse(ast[i], *pi, i);
-						TRACE_INDATA(ast[i].display());
+						AST tmp = parse(ast[i], *pi, i);
+						TRACE_INDATA(tmp.display());
 					}
 					ast.error(ast[i].getErrors());
 					ast[i].setStatus(AST::statusRDP);
@@ -118,8 +119,9 @@ namespace parsing
 		return ast;
 	}
 
-	AST RDP::parse(AST ast, unsigned int &ci)
+	AST RDP::parse(AST &ast, unsigned int &ci)
 	{
+		TRACE_COUT << "any-parsing " << ast.displaySome(3) << "\n";
 		for (unsigned int i = 0; i < ast.size(); i++)
 		{
 			if (ast[i].getStatus() < AST::statusRDP && ast[i].size() > 0)
@@ -132,7 +134,6 @@ namespace parsing
 		}
 
 		AST tmp;
-		AST errtmp;
 		bool anyPotentialMatches = false;
 		for (vector<ASTE>::iterator i = content.begin(); i != content.end(); i++)
 		{
@@ -140,10 +141,18 @@ namespace parsing
 
 			TRACE_COUT << "trying " << TRACE_GREEN << i->getName() << TRACE_DEFAULT << " (" << (i-content.begin()) << "/" << content.size() << ", from " << ci << " to " << ast.size() << ") on " << ast.displaySome(2) << "\n";
 
-			if (tmp.getStatus() < AST::statusRDP)
+			if (ci < tmp.size() && tmp[ci].getStatus() < AST::statusRDP)
 			{
 				tmp = parse(tmp, *i, ci);
 				TRACE_INDATA(tmp.display());
+			}
+			else if (ci >= tmp.size())
+			{
+				TRACE_COUT << "there aren't actually any more tokens to parse, skipping...\n";
+			}
+			else
+			{
+				TRACE_COUT << "already parsed, skipping...\n";
 			}
 
 			if (tmp.containsNamedBranch())
@@ -152,7 +161,6 @@ namespace parsing
 			if (tmp.containsErrors())
 			{
 				TRACE_COUT << "contains errors, skipping... " << tmp.displaySome(2) << "\n";
-				errtmp.error(tmp.getErrors());
 			}
 			else
 			{
@@ -167,8 +175,6 @@ namespace parsing
 		{
 			TRACE_COUT << "match found with errors, returning errors...\n";
 			TRACE_OUTDATA(ast.display());
-			ast.error(errtmp.getErrors());
-			ast.error(ASTError(ast.getContent(), "error when parsing scope segment"));
 			ast.setStatusRecursive(AST::statusRDP);
 			return ast;
 		}

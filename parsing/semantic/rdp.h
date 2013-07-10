@@ -17,8 +17,8 @@ namespace parsing
 		vector<ASTE> content;
 		
 		vector<ASTE>::iterator findElement(string name);
-		AST parse(AST ast, ASTE e, unsigned int &ci);
-		AST parse(AST ast, unsigned int &ci);
+		AST parse(AST &ast, ASTE e, unsigned int &ci);
+		AST parse(AST &ast, unsigned int &ci);
 
 	public:
 		RDP() {}

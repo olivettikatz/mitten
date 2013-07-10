@@ -21,8 +21,18 @@ namespace parsing
 		unsigned int masterLevel = 0;
 
 		string inp;
-		for (vector<Token>::iterator i = p.begin(); i != p.end() && i < p.begin()+10; i++)
-			inp += string(" '")+TRACE_GREEN+i->get()+TRACE_DEFAULT+"'";
+		for (vector<Token>::iterator i = p.begin(); i != p.end(); i++)
+		{
+			if (i > p.begin()+10)
+			{
+				inp += "...";
+				break;
+			}
+			else
+			{
+				inp += string(" '")+TRACE_GREEN+i->get()+TRACE_DEFAULT+"'";
+			}
+		}
 		TRACE_INDATA(inp);
 
 		for (vector<Token>::iterator i = p.begin(); i != p.end(); i++)
@@ -56,6 +66,7 @@ namespace parsing
 				{
 					vector<Token> tmp(p.begin()+starts[i->getType()]+1, i);
 					AST ast = parse(tmp, l+1);
+					TRACE_INDATA(ast.display());
 					AST tmpast = AST(p[starts[i->getType()]]);
 					tmpast.setStatus(AST::statusScope);
 					rtn.add(tmpast);
@@ -64,6 +75,8 @@ namespace parsing
 					tmpast = AST(*i);
 					tmpast.setStatus(AST::statusScope);
 					rtn.add(tmpast);
+					levels.erase(levels.find(i->getType()));
+					starts.erase(starts.find(i->getType()));
 				}
 
 				masterLevel--;

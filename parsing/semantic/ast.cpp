@@ -44,6 +44,18 @@ namespace parsing
 		return add(AST(n));
 	}
 
+	AST &AST::addLowerPrecedence(AST a)
+	{
+		if (a.empty() == false)
+		{
+			AST tmp = a;
+			tmp.children.insert(tmp.children.begin(), children.back());
+			children.pop_back();
+			children.push_back(tmp);
+		}
+		return *this;
+	}
+
 	AST &AST::operator << (AST a)
 	{
 		return add(a);
