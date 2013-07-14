@@ -22,8 +22,8 @@ namespace parsing
 
 	public:
 		RDP() {}
-		void setPrecedence(string type, unsigned int level);
-		unsigned int getPrecedence(string type);
+		void setPrecedence(string content, unsigned int level);
+		unsigned int getPrecedence(string content);
 		void addElement(ASTE e);
 		AST parse(AST ast);
 	};

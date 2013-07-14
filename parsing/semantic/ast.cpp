@@ -80,6 +80,17 @@ namespace parsing
 		return add(n);
 	}
 
+	void AST::remove(unsigned int idx)
+	{
+		children.erase(children.begin()+idx);
+	}
+
+	void AST::removeAfter(unsigned int idx)
+	{
+		vector<AST> tmp(children.begin(), children.begin()+idx);
+		children = tmp;
+	}
+
 	string AST::getName()
 	{
 		return name;

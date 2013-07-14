@@ -40,6 +40,8 @@ namespace parsing
 		AST &operator << (AST a);
 		AST &operator << (Token t);
 		AST &operator << (string n);
+		void remove(unsigned int idx);
+		void removeAfter(unsigned int idx);
 		string getName();
 		string setName(string n);
 		Token getContent();

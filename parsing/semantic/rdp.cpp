@@ -29,6 +29,7 @@ namespace parsing
 
 		ast.setName(p.getName());
 		bool fixed = true;
+		unsigned int maxPrec = 0;
 
 		unsigned int i;
 		for (i = ci; i < p.size() && i < ast.size(); i++)
@@ -56,8 +57,9 @@ namespace parsing
 							{
 								errtmp.error(tmp.getErrors());
 							}
-							else if (getPrecedence(ast.getContent().getType()) >= getPrecedence(tmp.getContent().getType()))
+							else if (getPrecedence(ast.getContent().get()) >= getPrecedence(tmp.getContent().get()))
 							{
+								TRACE_COUT << "precedence of root is >= that of child, appending normally...\n";
 								haveSuccess = true;
 								ast[i] = tmp;
 								ast.error(ast[i].getErrors());
@@ -65,6 +67,7 @@ namespace parsing
 							}
 							else
 							{
+								TRACE_COUT << "precedence of root is < that of child, appending stealing latest child...\n";
 								haveSuccess = true;
 								tmp.addAtBeginning(ast[i]);
 								ast[i] = tmp;
@@ -85,7 +88,7 @@ namespace parsing
 				if (ast[i].getContent().getType().compare(p[i].getArgument()) != 0)
 				{
 					fixed = false;
-					TRACE_COUT << TRACE_RED << p[i].getName() << TRACE_DEFAULT << " failed - " << ast[i].displaySome(2) << "\n";
+					TRACE_COUT << TRACE_RED << p[i].getName() << TRACE_DEFAULT << " failed - (" << p[i].getArgument() << " != " << ast[i].getContent().getType() << ") - " << ast[i].displaySome(2) << "\n";
 					ast.error(ASTError(ast[i].getContent(), "expected '"+p[i].getArgument()+"', but got '"+ast[i].getContent().getType()+"'"));
 					ast[i].setStatus(AST::statusRDP);
 				}
@@ -98,6 +101,8 @@ namespace parsing
 				}
 				else
 				{
+					if (getPrecedence(ast[i].getContent().get()) > maxPrec)
+						maxPrec = getPrecedence(ast[i].getContent().get());
 					TRACE_COUT << TRACE_GREEN << p[i].getName() << TRACE_DEFAULT << " succeeded.\n";
 					ast[i].setName(p[i].getName());
 					ast[i].setStatus(AST::statusRDP);
@@ -139,6 +144,16 @@ namespace parsing
 			TRACE_COUT << "more tokens to parse, starting with " << ast[i].displaySome(2) << "\n";
 			ast.setStatus(AST::statusRDP);
 			ast = parse(ast, i);
+			if (maxPrec < getPrecedence(ast[i].getContent().get()))
+			{
+				TRACE_COUT << "time to fix precedence (root " << maxPrec << ", child '" << ast[i].getContent().get() << "' " << getPrecedence(ast[i].getContent().get()) << ")...\n";
+				AST tmp = AST();
+				for (int j = i; j < ast.size(); j++)
+					tmp.add(ast[j]);
+				tmp.addAtBeginning(ast[i-1]);
+				ast[i-1] = tmp;
+				ast.removeAfter(i);
+			}
 			TRACE_INDATA(ast.display());
 		}
 
@@ -163,25 +178,29 @@ namespace parsing
 		}
 
 		AST tmp;
+		unsigned int tmpci;
 		bool anyPotentialMatches = false;
 		for (vector<ASTE>::iterator i = content.begin(); i != content.end(); i++)
 		{
 			tmp = ast;
+			tmpci = ci;
 
 			TRACE_COUT << "trying " << TRACE_GREEN << i->getName() << TRACE_DEFAULT << " (" << (i-content.begin()) << "/" << content.size() << ", from " << ci << " to " << ast.size() << ") on " << ast.displaySome(2) << "\n";
 
-			if (ci < tmp.size() && tmp[ci].getStatus() < AST::statusRDP)
+			if (tmpci < tmp.size() && tmp[tmpci].getStatus() < AST::statusRDP)
 			{
-				tmp = parse(tmp, *i, ci);
+				tmp = parse(tmp, *i, tmpci);
 				TRACE_INDATA(tmp.display());
 			}
-			else if (ci >= tmp.size())
+			else if (tmpci >= tmp.size())
 			{
-				TRACE_COUT << "there aren't actually any more tokens to parse, skipping...\n";
+				TRACE_COUT << "there aren't actually any more tokens to parse, skipping... (" << tmpci << " >= " << tmp.size() << ")\n";
+				continue;
 			}
 			else
 			{
-				TRACE_COUT << "already parsed, skipping...\n";
+				TRACE_COUT << "already parsed, skipping... (" << tmp[tmpci].getStatus() << " < " << AST::statusRDP << ")\n";
+				continue;
 			}
 
 			if (tmp.containsNamedBranch())
@@ -216,17 +235,17 @@ namespace parsing
 		}
 	}
 
-	void RDP::setPrecedence(string type, unsigned int level)
+	void RDP::setPrecedence(string content, unsigned int level)
 	{
-		precedences[type] = level;
+		precedences[content] = level;
 	}
 
-	unsigned int RDP::getPrecedence(string type)
+	unsigned int RDP::getPrecedence(string content)
 	{
-		if (precedences.find(type) == precedences.end())
+		if (precedences.find(content) == precedences.end())
 			return 0;
 		else
-			return precedences[type];
+			return precedences[content];
 	}
 
 	void RDP::addElement(ASTE e)
@@ -242,9 +261,11 @@ namespace parsing
 				if (i->size() < e.size())
 				{
 					content.insert(i, e);
-					break;
+					return ;
 				}
 			}
+
+			content.push_back(e);
 		}
 	}
 

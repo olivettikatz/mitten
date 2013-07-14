@@ -20,24 +20,33 @@ int main(int argc, char *argv[])
 	RDP r = createRDP();
 	cout << "\tdone.\n";
 
-	TRACE_ENABLE_DEBUG();
 	cout << "Tokenizing test 'expr'...\n";	
 	vector<Token> exprToks = t.tokenize("int main(@vector(string) args)\n{\tprint(\"hello, world\\n\");\n}\n", "--");
-	TRACE_DISABLE_DEBUG();
-
-	TRACE_ENABLE_DEBUG();
+	
 	cout << "Scope parsing test 'expr'...\n";
 	AST exprAst = s.parse(exprToks);
-	TRACE_DISABLE_DEBUG();
-
-	TRACE_ENABLE_DEBUG();
+	
 	cout << "Recursive-descent parsing test 'expr'...\n";
 	exprAst = r.parse(exprAst);
-	TRACE_DISABLE_DEBUG();
-
+	
 	cout << "Parsing done.\n";
 	if (exprAst.containsErrors())
 		cout << exprAst.dumpErrors() << "\n";
+
+	cout << "Tokenizing test 'arith'...\n";
+	vector<Token> arithToks = t.tokenize("2+3*1\n", "--");
+
+	cout << "Scope parsing test 'arith'...\n";
+	AST arithAst = s.parse(arithToks);
+
+	TRACE_ENABLE_DEBUG();
+	cout << "Recursive-descent parsing test 'arith'...\n";
+	arithAst = r.parse(arithAst);
+	TRACE_DISABLE_DEBUG();
+
+	cout << "Parsing done.\n";
+	if (arithAst.containsErrors())
+		cout << arithAst.dumpErrors() << "\n";
 
 	return 0;
 }
