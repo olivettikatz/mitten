@@ -1,5 +1,5 @@
 #include "trace.h"
-#include "../parsing/lexical/tokenizer.h"
+#include "tokenizer.h"
 
 namespace trace
 {
