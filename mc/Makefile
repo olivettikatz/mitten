@@ -15,35 +15,14 @@
 #
 # Copyright 2013 Oliver Katz
 
-MAKE=make
-MAKEFLAGS=
+include config.mk
 
-build :
-	$(MAKE) $(MAKEFLAGS) -C trace build
-	$(MAKE) $(MAKEFLAGS) -C parsing build
-	$(MAKE) $(MAKEFLAGS) -C mc build
+build : parsing.o
 
-test :
-	$(MAKE) $(MAKEFLAGS) -C mc test
+test : test_parsing.bin
 
-installbuild :
-	cp config.mk trace
-	cp config.mk parsing
-	cp config.mk mc
-
-install : 
-	$(MAKE) $(MAKEFLAGS) -C trace install
-	$(MAKE) $(MAKEFLAGS) -C parsing install
-
-uninstall :
-	$(MAKE) $(MAKEFLAGS) -C trace uninstall
-	$(MAKE) $(MAKEFLAGS) -C parsing uninstall
-
-doc :
-	$(MAKE) $(MAKEFLAGS) -C trace doc
-	$(MAKE) $(MAKEFLAGS) -C parsing doc
+test_parsing.bin : test_parsing.o parsing.o
+	$(CXX) $(CXXFLAGS) $^ -o $@ -ltrace -lparsing
 
 clean :
-	$(MAKE) $(MAKEFLAGS) -C trace clean
-	$(MAKE) $(MAKEFLAGS) -C parsing clean
-	$(MAKE) $(MAKEFLAGS) -C mc clean
+	$(RM) $(RMFLAGS) parsing.o test_parsing.o test_parsing.bin test_parsing.bin.dSYM doc

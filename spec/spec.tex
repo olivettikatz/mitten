@@ -1,0 +1,1581 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{ccicons}
+\usepackage{hyperref}
+\author{Oliver Katz}
+\title{Mitten Specification}
+\date{\today}
+\begin{document}
+\maketitle
+\begin{center}
+\ccbyncsa \linebreak
+\url{http://creativecommons.org/licenses/by-nc-sa/3.0/}
+\end{center}
+\tableofcontents
+
+\section{Introduction}
+\subsection{How to Read this Specification}
+A leading character or a character at the beginning of a token is assumed to be at the left-hand side for right-to-left alphabets. A following character or a character at the end of a token is assumed to be on the right-hand side. 
+
+An ellipsis means that ambiguous content should take its place.
+
+All "punctuation" tokens (brackets, whitespace, end-of-line tokens) are reprogrammable so that Mitten may be easily typed by anyone on any device. Although the specification must show the token-ambiguous definition of all parsed constructs, the default syntax will be shown also for clarity. 
+
+All character bytes are written in hexadecimal according to the ASCII (8-bit) encoding. 
+
+The coding style used in the examples is not required, nor is it recommended. It is just my coding style.
+
+For best results, tie your hands behind your back and close your eyes.
+
+\section{Paradigm}
+Everything is an object. Even things you don't want to be objects are objects. Mitten is objectified and rightly so, because everything is the object of its desires. Objects are made up of data, methods, and green cheese. The data within objects are objects themselves, so where does it end? It is OK. The snake is not eating its tail; it is safe for another day. There are atomic classes. They are emulated within the compiler. Atomic classes can take the types of integral values ranging from 8-bit to 32-bit, floating-point types either 32-bit or 64-bit, memory address types either 32-bit or 64-bit (depending on architecture), a class "inheriting" the address class for function pointers, a class class (classes themselves are objects), and a highly important green cheese class.
+
+Memory addresses can point to data of many different classes, so in order to solve this problem, the ambiguous class is used. It can be anything; its type is lazily evaluated until it is used. An ambiguous object can take on any type, but must keep the first type assigned to it for the rest of its lifetime. It is a cruel, cruel fate. Take pity upon on the ambiguous type. It does not have a class itself, as it is only a compiler construct. You should not try to objectify the ambiguous type.
+
+\section{Lexing}
+Lexical analysis for Mitten searches the file for specific tokens, looking for diamonds in the rough. Everything in-between are symbols deliminated by whitespace (I do not mean to play the race card, see \ref{sec:whitespace}). Whitespace does not separate tokens within quoted strings (see \ref{sec:strings}) or characters see \ref{sec:characters}).
+
+\subsection{Input Files}
+\subsubsection{Extension}
+The recomended extension to use for Mitten source files is \verb|*.n|. Why not \verb|*.m|? Because it is taken by those evil people over at Objective-C (see \ref{sec:evilPeopleAtObjectiveC}). The idea being that you could have a hypothetical file called \verb|mitte.n|. \footnote{The people over at Objective-C are not completely evil. Completely, no. Partially, yes.}
+
+\subsubsection{Encoding}
+While 8-bit ASCII and UTF-8 are the primary encodings, UTF-16 and UTF-32 can both be converted to the subset of UTF-8 (UTF-16 or UTF-32 specific characters are illegal).
+
+\subsection{Comments}
+\label{sec:comments}
+If there are two forward slashes anywhere except in a string (see \ref{sec:strings}), the rest of the line is ignored (until a newline or a cartridge return, see \ref{sec:strings}).
+\begin{verbatim}
+... // ...
+\end{verbatim}
+
+Block comments are started with a forward slash followed by an asterisk and ended by the reverse. The contents are ignored, as well as the forward slashes and asterisks wrapping the contents.
+\begin{verbatim}
+/* ... */
+\end{verbatim}
+
+These are not reprogrammable, as most tokens are. These are constant across all files and compiler configurations. Otherwise, there would be no standard way to see where comments are. It would be easy to write confusing code where default comment symbols wiped hard drives and the apocalypse would come. Comments wiping hard drives is well known to be one of the four horsemen. It would also be difficult to extract documentation from comments with third-party programs. 
+
+If the first instance of a \verb|*/| in a file is before any instance of \verb|/*|, it is illegal and the sheriff will shoot you dead in the heart. If the last instance of \verb|/*| is not completed with an instance of \verb|*/|, it is illegal. If either boundary of a block comment is within a quoted string (see \ref{sec:strings}) or character (see \ref{sec:characters}) it is ignored (there is no comment). Feel free to comment amongst yourselves. 
+
+\subsection{Token Configuration Files}
+Token configuration files are passed to the compiler to tell it what tokens to search for. The syntax of the token configuration file is very simple. There are lines separated by either newline characters (0A), cartridge returns (0D), or semicolons (';'). The lines begin with a symbol describing what token type should be programmed with the line, followed with a left curly bracket ('{'). A sequence of string tokens separated by commas (','), followed by a right curly bracket ('}') finishes the line. Whitespace around these is ignored, although it deliminates tokens much like the default syntax. The contents of the strings are all the possible values for the token type. Symbols and values are dynamic, and thus cannot be reprogrammed.
+
+The purpose of token configuration files is to make typing easier on keyboards/devices/whatevers where typing the default tokens is difficult to the point where reprogramming these tokens is the only way that programming is possible. It is not to make Mitten into your own custom programming language. The structure of the language and most of the syntax does not change, only the tokens. If you find that certain symbols are difficult to type, then use variable names to alias them.
+
+It is recommended that, when releasing code to audiences outside of your keyboard/device/whatever, that you use the default tokens, instead of packaging the source code with a token configuration file for compilation, even though this is possible and you are, of course, more than free to do whatever you wish. 
+
+\subsubsection{Token Symbol List}
+\label{sec:tokenSymbolList}
+\begin{center}
+\begin{tabular}{|c|c|l|}
+\hline
+Token Type Symbol & Default Values & Description \\
+\hline
+\hline
+\verb|Whitespace| & \verb|" ", "\t", "\n", "\r"| & Ignored deliminators \\
+\hline
+\verb|BoundaryBeginExpression| & \verb|"("| & Begins an expression \\
+\hline
+\verb|BoundaryEndExpression| & \verb|")"| & Ends an expression \\
+\hline
+\verb|BoundaryBeginComplex| & \verb|"["| & Begins a complex value \\
+\hline
+\verb|BoundaryEndComplex| & \verb|"]"| & Ends a complex value \\
+\hline
+\verb|BoundaryBeginScope| & \verb|"{"| & Begins a new scope \\
+\hline
+\verb|BoundaryEndScope| & \verb|"}"| & Ends an existing scope \\
+\hline
+\verb|ArgumentSeparator| & \verb|","| & Separates arguments \\
+\hline
+\verb|OperatorAssign| & \verb|"="| & Assignment operator \\
+\hline
+\verb|OperatorAccess| & \verb|"."| & Element access operator \\
+\hline
+\verb|OperatorAdd| & \verb|"+"| & Addition operator \\
+\hline
+\verb|OperatorSubtract| & \verb|"-"| & Subtraction operator \\
+\hline
+\verb|OperatorMultiply| & \verb|"*"| & Multiplication operator \\
+\hline
+\verb|OperatorDivide| & \verb|"/"| & Division operator \\
+\hline
+\verb|OperatorModulate| & \verb|"%"| & Modulation operator \\
+\hline
+\verb|OperatorAndBitwise| & \verb|"&"| & Bitwise and operator \\
+\hline
+\verb|OperatorAndLogical| & \verb|"&&"| & Logical and operator \\
+\hline
+\verb|OperatorOrBitwise| & \verb!"|"! & Bitwise or operator \\
+\hline
+\verb|OperatorOrLogical| & \verb!"||"! & Logical or operator \\
+\hline
+\verb|OperatorXOrBitwise| & \verb|^| & Bitwise exclusive or operator \\
+\hline
+\verb|OperatorNegateBitwise| & \verb|"~"| & Bitwise negation operator \\
+\hline
+\verb|OperatorNegateLogical| & \verb|"!"| & Logical negation operator \\
+\hline
+\verb|OperatorBitShiftLeft| & \verb|"<<"| & Bit-shift left operator \\
+\hline
+\verb|OperatorBitShiftRight| & \verb|">>"| & Bit-shift right operator \\
+\hline
+\verb|OperatorLessThan| & \verb|"<"| & Less-than comparison \\
+\hline
+\verb|OperatorLessThanOrEqualTo| & \verb|"<="| & Less-than-or-equal-to comparison \\
+\hline
+\verb|OperatorGreaterThan| & \verb|">"| & Greater-than comparison \\
+\hline
+\verb|OperatorGreaterThanOrEqualTo| & \verb|">="| & Greater-than-or-equal-to comparison \\
+\hline
+\verb|OperatorEqualTo| & \verb|"=="| & Equal-to comparison \\
+\hline
+\verb|OperatorNotEqualTo| & \verb|"!="| & Not-equal-to comparison \\
+\hline
+\verb|OperatorAssign| & \verb|"="| & Assignment operator \\
+\hline
+\verb|OperatorAddAssign| & \verb|"+="| & Add and assign operator \\
+\hline
+\verb|OperatorIncrement| & \verb|"++"| & Increment-by-one operator \\
+\hline
+\verb|OperatorSubtractAssign| & \verb|"-="| & Subtract and assign operator \\
+\hline
+\verb|OperatorDecrement| & \verb|"--"| & Decrement-by-one operator \\
+\hline
+\verb|OperatorMultiplyAssign| & \verb|"*="| & Multiply and assign operator \\
+\hline
+\verb|OperatorDivideAssign| & \verb|"/="| & Divide and assign operator \\
+\hline
+\verb|OperatorModulateAssign| & \verb|"%="| & Modulate and assign operator \\
+\hline
+\verb|OperatorAndBitwiseAssign| & \verb|"&="| & Bitwise and and assign operator \\
+\hline
+\verb|OperatorOrBitwiseAssign| & \verb!"|="! & Bitwise or and assign operator \\
+\hline
+\verb|OperatorXOrBitwiseAssign| & \verb|"^="| & Bitwise exclusive-or and assign operator \\
+\hline
+\verb|OperatorNegateBitwiseAssign| & \verb|"~="| & Bitwise negate and assign operator \\
+\hline
+\verb|OperatorBitShiftLeftAssign| & \verb|"<<="| & Bit-shift left and assign operator \\
+\hline
+\verb|OperatorBitShiftRightAssign| & \verb|">>="| & Bit-shift right and assign operator \\
+\hline
+\verb|EndOfLine| & \verb|";"| & End-of-line token \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{Whitespace}
+\label{sec:whitespace}
+Whitespace by default (see \ref{sec:tokenSymbolList}) may be a space (20), a horizontal tab (09), a newline (0A), or a cartridge return (0D). 
+
+\subsection{Tokens}
+\label{sec:operations}
+Many tokens are single characters or strings of characters. Some tokens are more complicated. Some tokens may span multiple lines.
+
+The tokens fall into types (see \ref{sec:tokenSymbolList}). Additional types are \verb|Value|, \verb|Type|, and \verb|Symbol|. 
+
+Value tokens must be either string tokens (see \ref{sec:strings}), character tokens (see \ref{sec:characters}), be numeric values (only containing characters within \verb|"-.0123456789abcdefABCDEF"|), or be boolean values (see \ref{sec:booleans}).
+
+Type tokens can be found in the data type tables (see \ref{sec:dataTypes}).
+
+Symbols, aside from being symbols within the programming language, happen to only be tokens which do not fit into any of the other categories. 
+
+\subsubsection{Data Types}
+\label{sec:dataTypes}
+The following \verb|Type| tokens are all type keywords:
+
+\begin{tabular}{l l}
+\verb|any| & A compile-time construct for an ambiguous type \\
+\verb|bool| & 8-bit boolean type \\
+\verb|byte| & 8-bit integer type \\
+\verb|int| & 32-bit integer type \\
+\verb|float| & 32-bit floating type \\
+\verb|ref| & 32/64-bit reference type \\
+\verb|long| & Double the size of a type (except ref) \\
+\verb|unsigned| & Make the type unsigned (except ref) \\
+\verb|const| & Make the type constant (pass-by-value only) \\
+\verb|void| & A null type \\
+\verb|class| & Used for class definition \\
+\verb|abstract| & Used for class definition \\
+\verb|private| & Used for class member definition \\
+\verb|protected| & Used for class member definition \\
+\verb|public| & Used for class member definition \\
+\verb|variadic| & Used for creating variadic methods \\
+\end{tabular}
+
+The any type can take the place of anything. Once a type is assigned to it in a specific situation, it must keep that type for the rest of its life. It cannot be accessed before it has a type assigned to it without casting (it will result in the null value for that class from \verb|__new__()|). 
+
+The size of the reference type depends on whether the host architecture is 32 or 64 bit. The use of the ref type is not recommended; it is intended for bit compatibility and OS-specific functionality only. 
+
+There are also the pedantic types:
+
+\begin{tabular}{l l}
+\verb|b8| & 8-bit boolean \\
+\verb|i8| & 8-bit integer \\
+\verb|ui8| & 8-bit unsigned integer \\
+\verb|i16| & 16-bit integer \\
+\verb|ui16| & 16-bit unsigned integer \\
+\verb|i32| & 32-bit integer \\
+\verb|ui32| & 32-bit unsigned integer \\
+\verb|f32| & 32-bit float \\
+\verb|f64| & 64-bit float \\
+\end{tabular}
+
+Classes act as types.
+
+\subsubsection{Binary Numbers}
+\label{sec:booleans}
+Binary numbers can be either true or false. A token \verb|true|, \verb|True|, or \verb|TRUE|  either denotes falsehood or I am being incredibly sarcastic. A token \verb|false|, \verb|False|, or \verb|FALSE| denotes actual falsehood. They are value tokens. 
+
+\subsubsection{Integral Numbers}
+\label{sec:integers}
+Integers are at least one character in length. They can only contain numeric characters, although they can be prefixed with a minus sign (\verb|-|) to denote negativity (this takes precedence over the binary operation for subtraction, see \ref{sec:operations}):
+\begin{verbatim}
+0 1 2 3 4 5 6 7 8 9
+\end{verbatim}
+
+You can have leading zeros. They are value tokens. 
+
+\subsubsection{Floating-point Numbers}
+\label{sec:floats}
+Floating-point numbers are identical to integral numbers (see \ref{sec:integers}), except that they contain the floating point:
+\begin{verbatim}
+.
+\end{verbatim}
+
+If the floating point is leading the token, all characters following are decimals. It may not lead the minus sign if one is present in the token. If the floating point is at the end of the token, the content of the token is assumed to be whole-number, but the token is still a floating-point token. They are value tokens.
+
+\subsubsection{Hexadecimal Numbers}
+Hexadecimal numbers have no floating-point, nor are they signed (see \ref{sec:integers} and \ref{sec:floats}). They contain integral characters (see \ref{sec:integers}) as well as the alphabetical characters ranging from a to f:
+\begin{verbatim}
+a b c d e f
+\end{verbatim}
+
+Hexadecimal numbers are case-insensitive and letters of different case are allowed within the same token. They are value tokens.
+
+\subsubsection{Characters}
+\label{sec:characters}
+The following is a character token:
+\begin{verbatim}
+'...'
+\end{verbatim}
+
+It can contain any single character with the exception of escape codes. Escape codes begin with a back-slash and may take up multiple characters. It can contain any symbol that is legal in a string (see \ref{sec:strings}) including single-quotes. These are allowed because there is no such thing as an empty character token: \verb|''|. They are value tokens.
+
+A double forward slash or the beginning or ending of any comment (\verb|//|, \verb|/*|, or \verb|*/|, see \ref{sec:comments}) will be ignored within the boundaries of the character token, however since both are over one character in length and do not fall under the exception for escape codes, they are illegal.
+
+\subsubsection{Strings}
+\label{sec:strings}
+The following is a double-quoted string:
+\begin{verbatim}
+"..."
+\end{verbatim}
+It can contain alphanumeric characters, backslashes for use in escape codes, punctuation characters, and whitespace characters (spaces, tabs, and newlines) . Double-quotation marks (\verb|"|) are not allowed as they would be mistaken for the end of the string token.
+
+Punctuation characters:
+\begin{verbatim}
+` ~ ! @ # $ % ^ & * () - _ = + [ ] { } | ; : ' , . < > / ?
+\end{verbatim}
+
+The length of a string may range from 0 to infinity, although infinite strings are not possible due to computers' historical difficulties with infinite things. 
+
+Escape codes are as follows:
+
+\begin{tabular}{l l}
+\verb|\0| & Null byte (00) \\
+\verb|\a| & Bell character (07) \\
+\verb|\t| & Horizontal tab (09) \\
+\verb|\n| & Newline character (0A) \\
+\verb|\v| & Vertical tab (0B) \\
+\verb|\f| & Form feed (0C) \\
+\verb|\r| & Cartridge return character (0D) \\
+\verb|\\| & Backslash character (5C) \\
+\verb|\x...| & Hex byte (...) \\
+\end{tabular}
+
+The hex byte may be followed by a two digit hex code to insert that hexadecimal value directly into the string. Please do not overdose on cartridge returns; take a new line with your life. 
+
+The end result will be suffixed with a null byte. They are value tokens.
+
+These tokens are brought into the program as \verb|string| classes (see \ref{sec:stringClass})
+
+\subsubsection{Hex Strings}
+Hex strings are used to perform magical hexes on programs that we do not like. They are, obviously, incredibly useful on a level most muggles do not understand.
+
+They are identical to strings with the following differences.
+
+They are prefixed with the alphabetical character '\verb|x|':
+\begin{verbatim}
+x"..."
+\end{verbatim}
+
+They store sequences of hexadecimal numbers, each being two characters long. This is because two-character hexadecimal numbers denote 8-bit values. These numbers are separated by any whitespace (see \ref{sec:whitespace}). 
+
+The end result will not be suffixed with a null byte, unlike strings (see \ref{sec:strings}). They are value tokens.
+
+These tokens are brought into the program as \verb|ref|s to data blocks.
+
+\subsubsection{Special Tokens}
+\label{sec:specialTokens}
+There are some tokens which are replaced with other tokens after parsing as follows (they must be replaced after parsing, due to the tokens dependency on knowing the current and parent functions):
+
+{\footnotesize\begin{tabular}{l p{8cm}}
+\verb|__FILE__| & A string containing the file path (as given to the compiler) \\
+\verb|__HEADER__| & True if the current file is a header file, otherwise false \\
+\verb|__FUNCTION_NAME__| & A string containing the name of the current function (empty if no current function) \\
+\verb|__FUNCTION_RETURN__| & A reference to the class used for the return of the current function (null if no current function) \\
+\verb|__FUNCTION_ARGUMENT_SIZE__| & An integer containing the number of arguments of the current function (\verb|-1| if no current function) \\
+\verb|__FUNCTION_ARGUMENTS__| & A string containing the arguments (as written in the source code) \\
+\verb|__PARENT_FUNCTION_NAME__| & Like \verb|__FUNCTION_NAME__|, but for the function calling the current function. \\
+\verb|__PARENT_FUNCTION_RETURN__| & Like \verb|__FUNCTION_RETURN__|, but for the function calling the current function. \\
+\verb|__PARENT_FUNCTION_ARGUMENT_SIZE__| & Like \verb|__FUNCTION_ARGUMENT_SIZE__|, but for the function calling the current function. \\
+\verb|__PARENT_FUNCTION_ARGUMENTS__| & Like \verb|__FUNCTION_ARGUMENTS__|, but for the function calling the current function. \\
+\verb|__DATE__| & A string containing the date at compile time (formatted as \verb|"MM/DD/YY"|) \\
+\verb|__DATE_YEAR__| & An integer containing the year at compile time (2000 C.E. giving a value of 2000) \\
+\verb|__DATE_MONTH__| & An integer ranging from 1 to 12 representing the date at compile time \\
+\verb|__DATE_DAY__| & An integer representing the day of the month at compile time \\
+\verb|__DATE_WEEKDAY__| & An integer representing the day of the week at compile time (0 being Sunday, ranging up to Saturday at 6) \\
+\verb|__TIME__| & A string containing the time at compile time (formatted as \verb|"HH:MM:SS TIMEZONE"| in 24-hour) \\
+\verb|__TIME_HOUR__| & An integer containing the 24-hour time at compile time \\
+\verb|__TIME_MINUTE__| & An integer containing the minute at compile time \\
+\verb|__TIME_SECOND__| & An integer containing the second at compile time \\
+\verb|__TIME_ZONE__| & A string containing the timezone at compile time (i.e. \verb|"UTC"| or \verb|"EST"|) \\
+\verb|__OS__| & An integer representing the operating system (see the \verb|__OS_...__| tokens for possible values of \verb|__OS__|) \\
+\verb|__OS_UNIX__| & An integer valued at 0 \\
+\verb|__OS_LINUX__| & An integer valued at 1 \\
+\verb|__OS_OSX__| & An integer valued at 2 \\
+\verb|__OS_WINDOWS__| & An integer valued at 3 \\
+\verb|__OS_OTHER__| & An integer valued at 4 \\
+\verb|__ARCH_BITS__| & An integer representing the number of bits in the architecture (can be 32 or 64) \\
+\verb|__ARCH__| & An integer representing the architecture (see the \verb|__ARCH_...__| tokens for possible values of \verb|__ARCH__|) \\
+\verb|__ARCH_X86__| & An integer valued at 0 \\
+\verb|__ARCH_X86_64__| & An integer valued at 1 \\
+\verb|__ARCH_ARM__| & An integer valued at 2 \\
+\verb|__ARCH_AMD32__| & An integer valued at 3 \\
+\verb|__ARCH_AMD64__| & An integer valued at 4 \\
+\end{tabular}}
+
+{\footnotesize\begin{tabular}{l p{8cm}}
+\verb|__REGISTERS__| & An integer representing the number of registers in the architecture \\
+\verb|__REGISTER_LOW_BOUND__| & The ID of the lowest register for general use \\
+\verb|__REGISTER_HIGH_BOUND__| & The ID of the highest register for general use \\
+\verb|__REGISTER_RETURN__| & The ID of the register used for returning \\
+\verb|__REGISTER_SYSCALL__| & The ID of the register used for the argument of the syscall interrupt \\
+\verb|__REGISTER_EAX__| & The ID of the EAX register \\
+\verb|__REGISTER_ECX__| & The ID of the ECX register \\
+\verb|__REGISTER_EDX__| & The ID of the EDX register \\
+\verb|__REGISTER_EBX__| & The ID of the EBX register \\
+\verb|__REGISTER_ESP__| & The ID of the ESP register \\
+\verb|__REGISTER_EBP__| & The ID of the EBP register \\
+\verb|__REGISTER_ESI__| & The ID of the ESI register \\
+\verb|__REGISTER_EDI__| & The ID of the EDI register \\
+\verb|__AP_INIT__| & The initial offset of the argument pointer \\
+\end{tabular}}
+
+Architecture specific special token values by default:
+\begin{verbatim}
+__REGISTERS__ = 8
+__REGISTER_LOW_BOUND = __REGISTER_EAX__
+__REGISTER_HIGH_BOUND = __REGISTER_EBX__
+__REGISTER_RETURN__ = __REGISTER_EAX__
+__REGISTER_SYSCALL = __REGISTER_EBX__
+__REGISTER_EAX__ = 0
+__REGISTER_ECX__ = 1
+__REGISTER_EDX__ = 2
+__REGISTER_EBX__ = 3
+__REGISTER_ESP__ = 4
+__REGISTER_EBP__ = 5
+__REGISTER_ESI__ = 6
+__REGISTER_EDI__ = 7
+__AP_INIT__ = 8
+\end{verbatim}
+
+The \verb|__OS__|, \verb|__OS_...__|, \verb|__ARCH__|, \verb|__ARCH_...__|, \verb|__REGISTER...__|, \verb|__FPU_...__|, and \verb|__AP_...__| tokens should be allowed to be specified by the compiler so that more operating systems and architectures may be supported. They are value tokens.
+
+\section{Parsing}
+
+\subsection{Inline Assembly}
+\label{sec:inlineAssembly}
+The body of a special expression (see \ref{sec:expressions}) with the symbol "\verb|asm|" contains a mini-language for generating assembly code to be directly inserted into the compilation. The mini-language contains the following operands (assembly commands):
+\begin{verbatim}
+nop const mov mov_disp ld st add sub mul and or xor pusharg poparg
+leave ret int cmp breq brne brlt brle brgt brge jmp call fld fst
+fadd fsub fmul fdiv fcmp fchs fst_rot fnop ftan fatan fsin fcos
+fsincos fsqrt
+\end{verbatim}
+
+The instructions are separated by \verb|EndOfLine| tokens (see \ref{sec:tokenSymbolList}). The instructions can take up to three arguments separated by \verb|Whitespace|. They can be either registers, symbols, or integer tokens.
+
+The registers are as follows:
+\begin{verbatim}
+eax ecx edx ebx esp ebp esi edi
+ax cx dx bx
+al cl dl bl
+\end{verbatim}
+
+The instructions follow the following formats:
+\begin{verbatim}
+nop
+const REGISTER SYMBOL|INTEGER
+mov8 REGISTER REGISTER
+mov16 REGISTER REGISTER
+mov32 REGISTER REGISTER
+mov64 REGISTER REGISTER
+mov32_disp REGISTER REGISTER SYMBOL|INTEGER
+mov64_disp REGISTER REGISTER SYMBOL|INTEGER
+ld8 REGISTER SYMBOL
+ld16 REGISTER SYMBOL
+ld32 REGISTER SYMBOL
+ld64 REGISTER SYMBOL
+st8 REGISTER SYMBOL
+st16 REGISTER SYMBOL
+st32 REGISTER SYMBOL
+st64 REGISTER SYMBOL
+add8 REGISTER REGISTER
+add16 REGISTER REGISTER
+add32 REGISTER REGISTER
+add64 REGISTER REGISTER
+sub8 REGISTER REGISTER
+sub16 REGISTER REGISTER
+sub32 REGISTER REGISTER
+sub64 REGISTER REGISTER
+mul8 REGISTER REGISTER
+mul16 REGISTER REGISTER
+mul32 REGISTER REGISTER
+mul64 REGISTER REGISTER
+and8 REGISTER REGISTER
+and16 REGISTER REGISTER
+and32 REGISTER REGISTER
+and64 REGISTER REGISTER
+or8 REGISTER REGISTER
+or16 REGISTER REGISTER
+or32 REGISTER REGISTER
+or64 REGISTER REGISTER
+xor8 REGISTER REGISTER
+xor16 REGISTER REGISTER
+xor32 REGISTER REGISTER
+xor64 REGISTER REGISTER
+pusharg8 REGISTER
+pusharg16 REGISTER
+pusharg32 REGISTER
+pusharg64 REGISTER
+poparg8 REGISTER
+poparg16 REGISTER
+poparg32 REGISTER
+poparg64 REGISTER
+leave
+ret
+int SYMBOL|INTEGER
+cmp8 REGISTER SYMBOL|INTEGER
+cmp16 REGISTER SYMBOL|INTEGER
+cmp32 REGISTER SYMBOL|INTEGER
+cmp64 REGISTER SYMBOL|INTEGER
+breq SYMBOL
+brne SYMBOL
+brlt SYMBOL
+brle SYMBOL
+brgt SYMBOL
+brge SYMBOL
+jmp SYMBOL
+call SYMBOL
+fld SYMBOL
+fst SYMBOL
+fadd REGISTER REGISTER
+fsub REGISTER REGISTER
+fmul REGISTER REGISTER
+fdiv REGISTER REGISTER
+fcmp REGISTER REGISTER
+fchs REGISTER
+fst_rot
+fnop
+ftan
+fatan
+fsin
+fcos
+fsincos
+fsqrt
+\end{verbatim}
+
+There is one more instruction: \verb|label SYMBOL|. It creates a new symbol containing the integer value of the code pointer within the assembly code. Labels are generated in place before the rest of the code and thus can be used to create relocatable code.
+
+For example (assuming a 32-bit integer variable \verb|x| has already been declared),
+\begin{verbatim}
+asm
+{
+    const eax 1; const ecx 2;
+    
+    add8 eax ecx;
+    st32 eax x;
+}
+\end{verbatim}
+will add 1 to 2 and store the result in the variable \verb|x|.
+
+\subsection{Type Expressions}
+\label{sec:typeExpressions}
+\begin{verbatim}
+... type
+... type BoundaryBeginExpression ... BoundaryEndExpression
+... ... OperatorAccess type BoundaryBeginExpression ... BoundaryEndExpression
+\end{verbatim}
+
+by default,
+\begin{verbatim}
+... type
+... type ( ... )
+... ... . type ( ... )
+\end{verbatim}
+
+They begin with a set of global type qualifiers. These can be \verb|long|, \verb|unsigned|, \verb|const|, \verb|abstract|, \verb|private|, \verb|protected|, \verb|public|, and \verb|variadic|. They can only be used as global type qualifiers.
+The type name is a \verb|Type| symbol, describing either an atomic type class or a defined class. The defined class may belong to an object or a class, so a sequence of element access operators may be used. The contents of the type expression may only be other type expressions. Arguments for types are not required.
+
+For example,
+\begin{verbatim}
+int
+unsigned int
+vector(int)
+vector(unsigned int)
+\end{verbatim}
+
+\subsection{Complex Values}
+\label{sec:complexValues}
+Complex values begin with a \verb|BoundaryBeginComplex| (see \ref{sec:tokenSymbolList}). They contain a sequence of any constructs separated with \verb|ArgumentSeparator|. They end with a \verb|BoundaryEndComplex|.
+
+For example,
+\begin{verbatim}
+[1, 2]
+\end{verbatim}
+
+or,
+\begin{verbatim}
+[1+2, [1, 2]]
+\end{verbatim}
+
+\subsection{Operations}
+\label{sec:operations}
+All operations are to be evaluated before their parent is evaluated.
+
+An element access operation consists of a \verb|Symbol| (see \ref{sec:tokenSymbolList}) followed by an \verb|ElementAccess|, the operator for element access in the previous symbol.
+\begin{verbatim}
+SYMBOL .
+\end{verbatim}
+
+For example (assuming an object \verb|o| has already been declared with member \verb|x|),
+\begin{verbatim}
+o.x
+\end{verbatim}
+
+A unary right operation (either '\verb|!|' or '\verb|~|') is followed by an any construct. For example,
+\begin{verbatim}
+~o.x
+\end{verbatim}
+
+You will notice the use of precedence (one operation must be parsed "first", before the other - see \ref{sec:precedence}).
+
+A unary left operation (either '\verb|++|' or '\verb|--|') is an any construct followed by an operation token. For example,
+\begin{verbatim}
+o.x++
+\end{verbatim}
+
+A binary operation starts with an any construct followed by an operator token. It then ends with another any construct. For example,
+\begin{verbatim}
+o.x = 5
+\end{verbatim}
+or,
+\begin{verbatim}
+o.x + 10
+\end{verbatim}
+
+\subsubsection{Expression Boundaries}
+Expressions may be bound by \verb|BoundaryBeginExpression| and \verb|BoundaryEndExpression| to directly specify a higher precedence (see \ref{sec:precedence}). For example in,
+\begin{verbatim}
+1 + 2 * 3
+\end{verbatim}
+the precedence is automatically generated based on the precedence levels of the operations. However, in the following example,
+\begin{verbatim}
+(1 + 2) * 3
+\end{verbatim}
+
+The first operation is given higher precedence by direct specification using parenthesis. 
+
+\subsubsection{Precedence}
+\label{sec:precedence}
+Some operations have precedence over other operations, which means that they have the illusion of being parsed before lower precedence operations. When parsing two binary operations where precedence is not specified by parenthesis, precedence goes by the following order (lowest to highest, ranging from \verb|=| at 0 to \verb|>>| at 12 - 32 binary operations):
+\begin{verbatim}
+= 0
++= 1
+-= 1
+*= 2
+/= 3
+%= 4
+&= 4
+|= 4
+^= 4
+~= 4
+<<= 4
+>>= 4
+&& 5
+|| 5
+< 6
+> 6
+<= 6
+>= 6
+== 6
+!= 6
++ 7
+- 7
+* 8
+/ 9
+% 10
+& 10
+| 10
+^ 10
+<< 11
+>> 11
+. 12
+\end{verbatim}
+
+Unary operations all have higher precedence than binary operations, but do not have any precedence amongst themselves.
+
+When parsing two operations following each other with no parenthesis to denote precedence directly (such as \verb|1 + 2 + 3|), if the first operation has a higher precedence than the other (such as \verb|1 * 2 + 3|) then the first operation is parsed and used as a member of the second operation. However, if the second operation has a higher precedence than the first (such as \verb|1 + 2 * 3|) then the first operation starts to be parsed, but is only completed when the second operation is parsed and added as a member.
+
+For example, \verb|1 + 2 * 3| is the same as \verb|1 + (2 * 3)|, while \verb|(1 + 2) * 3| is the same as \verb|1 * 3 + 2 * 3|.
+
+\subsection{Expressions}
+\label{sec:expressions}
+Expressions are the most complex parsing constructs, but are the most used within Mitten. They are of the structure:
+\begin{verbatim}
+Expression
+    Type expression
+    Symbol
+    Complex value argument
+    Argument vector
+    Body
+    Where body
+\end{verbatim}
+
+The type expression denotes the type of the expression. The symbol is a single \verb|Symbol|. The complex value argument consists of a single \verb|ComplexValue| (optional). The argument vector (optional) is a sequence of any constructs separated by \verb|ArgumentSeparator| tokens and bound with expression boundaries \verb|BoundaryBeginExpression| and \verb|BoundaryEndExpression|. The body (optional) is a sequence of expressions separated by \verb|EndOfLine| tokens (including one at the end of the sequence) and bound by scope boundaries \verb|BoundaryBeginScope| and \verb|BoundaryEndScope|. The where body (optional) is identical to the body except that it is prefixed by the symbol "\verb|where|".
+
+Expressions with no body (or where body) must be followed with an \verb|EndOfLine| token to denote their ending. Extra \verb|EndOfLine| tokens after the body (or where body) will not cause problems, but are not necessary. 
+
+If there is both a where expression and a body, the where expression is generally executed prior to the body, but in the same manner. 
+
+Either a \verb|Type| token or a \verb|Symbol| must begin an expression. An expression must contain at least a complex value argument, an argument vector, or a body. It may contain all three. The ordering of the components is required. All of the following formats are legal expressions:
+\begin{verbatim}
+Symbol ComplexValue
+Symbol ArgumentVector
+Symbol Body
+Symbol ComplexValue ArgumentVector
+Symbol ArgumentVector Body
+Symbol ComplexValue ArgumentVector Body
+TypeVector Symbol ComplexValue
+TypeVector Symbol ArgumentVector
+TypeVector Symbol Body
+TypeVector Symbol ComplexValue ArgumentVector
+TypeVector Symbol ArgumentVector Body
+TypeVector Symbol ComplexValue ArgumentVector Body
+\end{verbatim}
+
+\subsection{Any}
+An any construct can be either a single value, a symbol, a type expression, a complex value construct, an operation, or an expression.
+
+\section{Special Expressions and Classes}
+\subsection{Casts}
+\begin{verbatim}
+cast BoundaryBeginComplex ... BoundaryEndComplex BoundaryBeginExpression ... BoundaryEndExpression EndOfLine
+\end{verbatim}
+
+by default,
+\begin{verbatim}
+cast [ ... ] ( ... ) ;
+\end{verbatim}
+
+The complex value argument is a type expression (see \ref{sec:typeExpressions}) denoting the type to cast to. The single argument is the value to be casted.
+
+For example,
+\begin{verbatim}
+cast [bool] (1) == true
+cast [int] ("5") == 5
+cast [string] (5) == "5"
+cast [vector(int)] (5) == [5]
+\end{verbatim}
+
+\subsubsection{Casting between Internal Data Types}
+Integers may be casted around freely, although data may be lost in truncation from higher-precision types to lower-precision ones. Floats may be casted to integers with truncation. Integers may be casted to floats as whole numbers. Floats may be casted around freely, but again with the data loss in truncations between precisions. Unsigned data types and signed data types are casted directly: the same bits are used. Class definition tokens cannot be used within casts. A cast to an any type has no effect on the value. A value's type object can also be used for casting (see \ref{sec:dataModel}), for example,
+\begin{verbatim}
+int x = 5;
+x = cast [typeobj(x)] ("5");
+\end{verbatim}
+
+\subsection{Returns}
+\begin{verbatim}
+return BoundaryBeginExpression ... BoundaryEndExpression EndOfLine
+\end{verbatim}
+
+by default,
+\begin{verbatim}
+return ( ... ) ;
+\end{verbatim}
+
+Return statements denote the value of an expression. Expression values by default have the any type unless otherwise specified, so the return type is often auto-detected by the return type of the contents of the single return argument and automatically casted if such a cast exists.
+
+For example,
+\begin{verbatim}
+int x = if (5 > 4)
+{
+    return (1);
+}
+else
+{
+    return ("0"); // still returns an integer, because a cast exists from 'string' to 'int'
+}
+\end{verbatim}
+\verb|x| should equal \verb|1|.
+
+\subsection{If-Statements}
+\label{sec:ifStatements}
+\begin{verbatim}
+if BoundaryBeginExpression ... BoundaryEndExpression BoundaryBeginScope ... BoundaryEndScope
+\end{verbatim}
+
+by default,
+\begin{verbatim}
+if ( ... ) { ... }
+\end{verbatim}
+
+If-statements are conditional on the boolean value of the single argument (automatically casted to boolean). If the value is true, the body will be executed, otherwise, execution will continue past the end of the body. Returns are legal within the body; upon falsehood a null value will be returned.
+
+For example,
+\begin{verbatim}
+if (5 > 4 && 1 < 2)
+{
+    // this code will run because the condition is met
+}
+
+// this code will also run because it is outside the if-statement and
+// does not rely on the condition. 
+\end{verbatim}
+
+\subsection{Else-If-Statements}
+\begin{verbatim}
+elif BoundaryBeginExpression ... BoundaryEndExpression BoundaryBeginScope ... BoundaryEndScope
+\end{verbatim}
+
+by default,
+\begin{verbatim}
+elif ( ... ) { ... }
+\end{verbatim}
+
+For example,
+\begin{verbatim}
+if (5 < 4)
+{
+    // this shouldn't run
+}
+elif (1 < 2)
+{
+    // this should run
+}
+\end{verbatim}
+
+The last expression must be an if-statement or another else-if-statement. It is identical to an if-statement, except that it will only execute upon the falsehood of all the previous if and else-if statements. Returns are legal within the body; upon falsehood a null value will be returned.
+
+\subsection{Else-Statements}
+\begin{verbatim}
+else BoundaryBeginScope ... BoundaryEndScope
+\end{verbatim}
+
+by default,
+\begin{verbatim}
+else { ... }
+\end{verbatim}
+
+The last expression must be an if-statement or an else-if-statement. It will only execute upon the falsehood of all the previous if and else-if statements. Returns are legal within the body; upon falsehood a null value is returned.
+
+For example,
+\begin{verbatim}
+if (5 < 4)
+{
+    // this shouldn't run
+}
+elif (1 > 2)
+{
+    // neither should this
+}
+else
+{
+    // but this should
+}
+\end{verbatim}
+
+\subsection{While Loops}
+\label{sec:whileLoops}
+\begin{verbatim}
+while BoundaryBeginExpression ... BoundaryEndExpression BoundaryBeginScope ... BoundaryEndScope
+\end{verbatim}
+
+by default,
+\begin{verbatim}
+while ( ... ) { ... }
+\end{verbatim}
+
+As long as the condition within the single argument (see \ref{sec:ifStatements}) is true, execute the body in repetition. Returns are legal within the body; if the body is never executed a null value is returned. If the value of the expression is assigned to a vector, all of the return values generated in the repetition will be appended to the vector. If the expression is assigned to a non-vector type, the last returned value will be used.
+
+For example,
+\begin{verbatim}
+while (true)
+{
+    diamonds();
+}
+
+// diamonds are forever
+\end{verbatim}
+
+\subsection{For Loops}
+\begin{verbatim}
+for BoundaryBeginExpression ... ArgumentSeparator ... ArgumentSeparator ... BoundaryEndExpression BoundaryBeginScope ... BoundaryEndScope
+\end{verbatim}
+
+by default,
+\begin{verbatim}
+for ( ... , ... , ... ) { ... }
+\end{verbatim}
+
+The first argument of the for loop is an expression to be run at the beginning of the loop. The second argument is a conditional expression (see \ref{sec:ifStatements}) on whether the loop repeats. The last argument is executed at the end of every cycle. Returns are legal within the body and are identical to while loops in nature (see \ref{sec:whileLoops}). All arguments may be left empty.
+
+For example,
+\begin{verbatim}
+for (int i = 0, i < 10, i++)
+{
+    get_an_apple();
+}
+// you should have be able to keep the doctor away for 10 days
+
+for (,,)
+{
+	get_an_apple();
+}
+// you will have an infinite number of apples, possibly solving world hunger
+
+// did I just solve world hunger?
+\end{verbatim}
+
+\subsection{For-Each Loops}
+\begin{verbatim}
+for BoundaryBeginExpression ... ArgumentSeparator ... BoundaryEndExpression BoundaryBeginScope ... BoundaryEndScope
+\end{verbatim}
+
+by default,
+\begin{verbatim}
+for ( ... , ... ) { ... }
+\end{verbatim}
+
+The first argument of the for-each loop is a variable declaration (see \ref{sec:simpleVariableDeclarations} and \ref{sec:complexVariableDeclarations}), although it may be empty. The second argument is a vector value. The body of the loop will be executed for each value of the type of the variable within the vector value. Returns are handled the same way as with for-loops (and while loops, see \ref{sec:whileLoops}).
+
+For-each loops only work on strings (using a character variable - see \ref{sec:stringClass}), vectors (using an element-type variable - see \ref{sec:vectorClass}), or maps (using a key-type variable - see \ref{sec:mapClass}).
+
+For example (see \ref{sec:complexVariableDeclarations}),
+\begin{verbatim}
+for (byte c, "hello, world")
+{
+}
+
+for (int i, [1, 2, 3])
+{
+}
+
+for (int i, [[1, "a"], [2, "b"], [3, "c"]])
+{
+}
+\end{verbatim}
+
+\subsection{Continue and Break}
+\label{sec:continueAndBreak}
+\begin{verbatim}
+continue BoundaryBeginExpression BoundaryEndExpression
+break BoundaryBeginExpression BoundaryEndExpression
+\end{verbatim}
+
+by default,
+\begin{verbatim}
+continue ( )
+break ( )
+\end{verbatim}
+
+If you run continue in a loop, it skips the rest of the code in the loop body. It can only be run in a loop. A call to break is equivalent to a null return in a loop. It, also, can only be run in a loop.
+
+For example,
+\begin{verbatim}
+while (true) // this loop does nothing and is not infinite
+{
+    break();
+}
+
+int i = 0;
+for (, i < 10, i++)
+{
+    continue();
+    this_displays_something();
+}
+// nothing is displayed and i == 10
+\end{verbatim}
+
+\subsection{Simple Variable Declarations}
+\label{sec:simpleVariableDeclarations}
+\begin{verbatim}
+... ...
+\end{verbatim}
+
+The first part of the declaration is a type expression. The second part is a symbol denoting the variable's name. If no value expression is provided by an \verb|OperatorAssign|, a null value is assigned. You cannot declare a variable twice (with the same name) in the same scope.
+
+For example,
+\begin{verbatim}
+int x; // will be 0
+int y = 5;
+vector(int) z = [1, 2];
+\end{verbatim}
+
+\subsection{Method Declarations}
+\label{sec:methodDeclarations}
+\begin{verbatim}
+... ... BoundaryBeginExpression ... BoundaryEndExpression EndOfLine
+... ... BoundaryBeginExpression ... BoundaryEndExpression BoundaryBeginScope ... BoundaryEndScope
+... OperatorAccess ... BoundaryBeginExpression ... BoundaryEndExpression EndOfLine
+... OperatorAccess ... BoundaryBeginExpression ... BoundaryEndExpression BoundaryBeginScope ... BoundaryEndScope
+\end{verbatim}
+
+\begin{verbatim}
+... ... ( ... ) ;
+... ... ( ... ) { ... }
+... . ... ( ... ) ;
+... . ... ( ... ) { ... }
+\end{verbatim}
+
+You will notice the two main forms: with no body and with body. When entering the body of a method, the \verb|__FUNCTION...__| token's values must be assigned for use in the method. It is possible to declare a method within a method declaration, although the declared functions are only accessible within the parent function's body and cannot be made public in a class. Returns are legal; if no return is specified, the method is assumed to return a null value. The return type must match the type specified within the declaration.
+
+The arguments are identical to variable declarations (see \ref{sec:simpleVariableDeclarations}). The declarations must not have value expressions.
+
+A function without a body is only a prototype and is assumed to be externally linked unless a re-declaration with a body is specified. The re-declaration must not differ from the prototype in any way (including argument names).
+
+Functions can be overloaded by argument number and type as well as return type.
+
+You will notice that the last two forms contain a period, the operator for class member access. Instead of a symbol denoting the member's name an operation expression (see \ref{sec:operations}) can be used. The method will be declared within the scope of the class. Only one period may be used; you cannot declare methods within a member of a specified class. You can think of these two forms as a \verb|Type Symbol| expression in an \verb|OperatorAccess| operation with a typeless method declaration.
+
+You can use the variadic type token to create variadic methods (see \ref{sec:variadic} and \ref{sec:internalMethods}). If the variadic type token is used, then no argument may be specified (empty argument list).
+
+For example,
+\begin{verbatim}
+int max(int a, int b);
+
+int max(int a, int b)
+{
+    return (if (a > b)
+    {
+        return (a);
+    }
+    else
+    {
+        return (b);
+    });
+}
+
+variadic int first()
+{
+	return (if (variadic_length() > 0)
+	{
+    	return (variadic_arg(0));
+    }
+    else
+    {
+    	return (0);
+    });
+}
+\end{verbatim}
+
+\subsection{Method Calls}
+\label{sec:methodCalls}
+\begin{verbatim}
+... BoundaryBeginExpression ... BoundaryEndExpression
+... BoundaryBeginComplex ... BoundaryEndComplex BoundaryBeginExpression ... BoundaryEndExpression
+... OperatorAccess ... BoundaryBeginExpression ... BoundaryEndExpression
+... OperatorAccess ... BoundaryBeginComplex ... BoundaryEndComplex BoundaryBeginExpression ... BoundaryEndExpression
+\end{verbatim}
+
+by default,
+\begin{verbatim}
+... ( ... )
+... [ ... ] ( ... )
+... . ... ( ... )
+... . ... [ ... ] ( ... )
+\end{verbatim}
+
+The first part of the call is the symbol denoting the method's name. It may be preceded by a list of period-separated object names followed by another period. This denotes the object of which the method called is a member. The second part is a list of arguments to be passed to the function. They are expressions. If they are assignment operator expressions (see \ref{sec:operations}) and the variable being assigned is declared within the method, its declaration within the method is asserted for this call only to have the value specified in the argument. Otherwise, if the variable being assigned is declared outside the method but within the scope of the method call, the variable outside the method is assigned and the value is also passed as an argument to the method.
+
+If a complex value argument is passed, it must contain the type of the return of the method. If the method is overloaded, a method is chosen based on its return type. If no overloaded method exists with that return type, it is assumed to be a cast of the first overloaded declaration of the method with the specified arguments.
+
+The value of the expression is identical to the return of the declaration.
+
+Classes within method calls are all pass-by-reference, unless the argument uses the const type token, in which case it is pass-by-value. The same goes for return types. 
+
+The arguments must match the arguments within the method declaration. Variadic methods must have no arguments.
+
+For example (assuming there is an object \verb|o| with a method \verb|m| and a standalone method \verb|f|),
+\begin{verbatim}
+f(5)
+f [int] (5)
+o.m(5)
+o.m [int] (5)
+\end{verbatim}
+
+\subsection{Variadic}
+\label{sec:variadic}
+\begin{verbatim}
+... variadic_length BoundaryBeginExpression BoundaryEndExpression
+... variadic_arg BoundaryBeginExpression ... BoundaryEndExpression
+\end{verbatim}
+
+\begin{verbatim}
+... variadic_length ( )
+... variadic_arg ( ... )
+\end{verbatim}
+
+These expressions, which act much like a method calls, can only be used within variadic method declaration bodies. The first returns the number of arguments. The second returns the argument the integral index passed it. For example,
+\begin{verbatim}
+variadic int first()
+{
+	return (if (variadic_length() > 0)
+	{
+    	return (variadic_arg(0));
+    }
+    else
+    {
+    	return (0);
+    });
+}
+\end{verbatim}
+
+\subsection{Class Declarations}
+\begin{verbatim}
+class ... BoundaryBeginExpression ... BoundaryEndExpression BoundaryBeginScope ... BoundaryEndScope
+class ... BoundaryBeginScope ... BoundaryEndScope
+\end{verbatim}
+
+by default,
+\begin{verbatim}
+class ... ( ... ) { ... }
+class ... { ... }
+\end{verbatim}
+
+Class declarations take only a single argument: the class to inherit from. If no class is given to inherit from, it inherits from the zygote class. The body contains a series of variable declarations and method declarations (with or without bodies, see \ref{sec:simpleVariableDeclarations}, \ref{sec:complexVariableDeclarations}, and \ref{sec:methodDeclarations}). The use of the type tokens private and public come into use here.
+
+If a member (a variable or method within the class) is private, it is only accessible by other members within the class within the scope of the class. It will not be accessible by members of the classes inheriting the current class.
+
+If a member is protected, it is identical to the private members except that it will be accessible by the members of the classes inheriting the current class.
+
+If a member is public, it may be accessible from any scope. 
+
+If a member is declared only within a source file and not in a header file (methods only), it is assumed to be protected unless otherwise specified.
+
+Classes may not be declared inside class declarations. You cannot declare a class twice.
+
+With every class declared, a new method is also declared with the same name as the class. It takes no arguments by default (it can be overridden using the \verb|__new__| method within the class declaration, see \ref{sec:dataModel}) and returns a newly created object.
+
+Every class contains a special method called \verb|any __complex__ [ ... ]|. If this method is declared, calling an object with only a complex argument (no member specified) will call the \verb|__complex__| method.
+
+For example,
+\begin{verbatim}
+class pair_of_numbers
+{
+    private int a = 0;
+    private int b = 0;
+    
+    void __new__();
+    void __new__(int x, int y);
+    
+    int max();
+}
+
+void pair_of_numbers.__new__()
+{
+}
+
+void pair_of_numbers.__new__(int x, int y)
+{
+    a = x;
+    b = y;
+}
+
+int pair_of_numbers.max()
+{
+    return (if (a > b)
+    {
+        return (a);
+    }
+    else
+    {
+        return (b);
+    });
+}
+\end{verbatim}
+
+You could use this class as follows:
+\begin{verbatim}
+pair_of_numbers p = pair_of_numbers(1, 2);
+// p.max() == 2
+\end{verbatim}
+
+\subsection{Address and Deference}
+\begin{verbatim}
+... addr BoundaryBeginExpression ... BoundaryEndExpression
+\end{verbatim}
+
+by default,
+\begin{verbatim}
+... addr ( ... )
+\end{verbatim}
+
+\verb|addr| gets the address in memory of any element that you pass to it. For example,
+\begin{verbatim}
+int x = 5;
+ref ptr = addr(x);
+
+ref another_ptr = addr(if(true){return(5);}));
+\end{verbatim}
+
+Then there is \verb|deref|:
+\begin{verbatim}
+... deref BoundaryBeginComplex ... BoundaryEndComplex BoundaryBeginExpression ... BoundaryEndExpression
+\end{verbatim}
+
+by default,
+\begin{verbatim}
+... deref [ ... ] ( ... )
+\end{verbatim}
+
+which dereferences the reference or memory location that you pass to it in the type specified in the complex value argument. For example (building off the \verb|addr| examples),
+\begin{verbatim}
+int y = deref [int] (ptr);
+// y == 5
+
+int z = deref [int] (another_ptr);
+// z == 5
+
+int w = deref [int] (addr(5));
+// w == 5
+\end{verbatim}
+
+If you attempt to dereference a null reference or memory location, a \verb|null_exception| will be thrown (see \ref{sec:exceptions}).
+
+\subsection{Try/Catch/Throw Statements}
+\label{sec:tryCatch}
+\begin{verbatim}
+try BoundaryBeginScope ... BoundaryEndScope
+catch BoundaryBeginExpression ... ... BoundaryEndExpression BoundaryBeginScope ... BoundaryEndScope
+throw BoundaryBeginExpression ... ... BoundaryEndExpression
+\end{verbatim}
+
+by default,
+\begin{verbatim}
+try { ... }
+catch ( ... ... ) { ... }
+throw ( ... ... )
+\end{verbatim}
+
+The contents of the try body are executed normally. If a throw statement is executed within the try body, the catch statement is executed with a single argument. Each try statement may be suffixed with multiple catch statements, each with a unique type for its only argument. The argument is an exception passed to the body. If a throw statement's type does not match any of the catch statements or no try/catch statements are surrounding the throw, the exception handler method is called. It can be overloaded with the following declaration:
+\begin{verbatim}
+void __handle_exception__(exception e);
+\end{verbatim}
+
+All exception types inherit the exception class.
+
+Exceptions (with the default handler) kill the current thread. 
+
+For example,
+\begin{verbatim}
+try
+{
+    ref pointer = null;
+    deref(pointer);
+}
+catch(null_exception e)
+{
+    // this will only catch null_exceptions
+}
+catch(exception e)
+{
+    // this will catch all other exceptions
+}
+\end{verbatim}
+
+\subsection{Imports}
+\label{sec:imports}
+\begin{verbatim}
+import BoundaryBeginExpression ... BoundaryEndExpression EndOfLine
+import_multi BoundaryBeginExpression ... BoundaryEndExpression EndOfLine
+\end{verbatim}
+
+by default,
+\begin{verbatim}
+import ( ... ) ;
+import_multi ( ... ) ;
+\end{verbatim}
+
+Imports take a single argument: a string of the path to the file you are importing. The result of the import is that a public object will be created containing the contents of the module. It will have members according to the modules that it, in turn, imports.
+
+Any given file can only be imported once. Any subsequent imports will be ignored. \verb|import_multi| does not provide this functionality. A file imported with \verb|import_multi| can be imported an infinite number of times.
+
+If the path starts with a period, then it is relative. Otherwise the import path is searched for the file. Paths must not start with slashes for safety.
+
+\subsection{Compatibility}
+\label{sec:compatibilityExpressions}
+\begin{verbatim}
+compatibility BoundaryBeginComplex "c" BoundaryEndComplex BoundaryBeginExpression ... BoundaryEndExpression EndOfLine
+compatibility BoundaryBeginComplex "c" BoundaryEndComplex BoundaryBeginExpression ... ArgumentSeparator ... BoundaryEndExpression EndOfLine
+\end{verbatim}
+
+by default,
+\begin{verbatim}
+compatibility [ "c" ] ( ... ) ;
+compatibility [ "c" ] ( ... , ... ) ;
+\end{verbatim}
+
+You will notice the only language that Mitten is compatible with is C. If you chose to use a combination of Objective-C alongside Mitten, then you are not connected with the good-idea energy field.
+
+The one-argument compatibility expression must contain a single string literal containing a pure-C prototype. Types are converted between C and Mitten as follows:
+
+\begin{tabular}{l l}
+C & Mitten \\
+\hline
+\verb|void| & void \\
+\verb|char| & byte \\
+\verb|short| & long byte \\
+\verb|int| & int \\
+\verb|long| & long int \\
+\verb|float| & float \\
+\verb|double| & long float \\
+\verb|void *| & ref \\
+\verb|char *| & string (with a class wrapper) \\
+\verb|short *| & vector(long byte) \\
+\verb|int *| & vector(int) \\
+\verb|long *| & vector(long int) \\
+\verb|float *| & vector(float) \\
+\verb|double *| & vector(double) \\
+\end{tabular}
+
+Structs, unions, and enums are not supported. Use \verb|void *| instead and convert manually with pointer arithmetic and casting.
+
+The two-argument compatibility expression must contain two literals: a string path to a pure-C header file and a vector of string literals containing the list of functions to import as externally-linked prototypes. The prototypes are searched for in the header file and imported in the same manner as with the one-argument compatibility expression. The prototypes must be on one line for this to work and must be suffixed by semicolons. For example, this would work:
+\begin{verbatim}
+int max(int a, int b);
+\end{verbatim}
+
+while these would not,
+\begin{verbatim}
+int
+max(int a, int b);
+
+int max (
+    int a,
+    int b
+);
+
+int max(int a, int b)
+{
+    return (a > b ? a : b);
+}
+\end{verbatim}
+
+\subsection{Inline Debugging}
+\label{sec:inlineDebugging}
+\begin{verbatim}
+track BoundaryBeginExpression ... BoundaryEndExpression
+debug BoundaryBeginExpression ... BoundaryEndExpression
+\end{verbatim}
+
+by default,
+\begin{verbatim}
+track ( ... )
+debug ( ... )
+\end{verbatim}
+
+If you call \verb|track| with a symbol as an argument, it tracks the usage of that argument. If it is a method, it prints debug messages stating the arguments that it is called with, the overloaded version used, and what the return value is. If it is a variable, it prints debug messages on every value change. Whether these messages are visible or not should be able to be set at compile time.
+
+\subsection{Printing}
+\label{sec:printing}
+The display of data to the command line is an important feature. It is done with the originally-named \verb|print| methods:
+\begin{verbatim}
+void print ( ... )
+string print ( ... )
+void print_error ( ... )
+string print_error ( ... )
+\end{verbatim}
+
+For example,
+\begin{verbatim}
+string message = "hello, world";
+// I want to print message to the whole world:
+print(message);
+
+string buffer;
+// I want to print message into this buffer (it will not display on the command line):
+buffer = print [string] (message);
+
+// I want to print a number after the message:
+print(message, 7);
+// this will print "hello, world7"
+
+// I want to print to stderr
+print_error(message);
+\end{verbatim}
+
+\section{Data Model}
+\label{sec:dataModel}
+
+If any class has the following methods, they can override the default operators:
+\begin{verbatim}
+... __add__(... other); // +
+... __sub__(... other); // -
+... __mul__(... other); // *
+... __div__(... other); // /
+... __mod__(... other); // %
+... __and__(... other); // &
+... __logical_and__(... other); // &&
+... __or__(... other); // |
+... __logical_or__(... other); // ||
+... __xor__(... other); // ^
+... __neg__(... other); // ~
+... __logical_neg__(... other); // !
+... __left__(... other); // <<
+... __right__(... other); // >>
+... __lt__(... other); // <
+... __le__(... other); // <=
+... __gt__(... other); // >
+... __ge__(... other); // >=
+... __eq__(... other); // ==
+... __ne__(... other); // !=
+... __assign__(... other); // =
+... __assign_add__(... other); // +=
+... __assign_sub__(... other); // -=
+... __assign_mul__(... other); // *=
+... __assign_div__(... other); // /=
+... __assign_mod__(... other); // %=
+... __assign_and__(... other); // &=
+... __assign_or__(... other); // |=
+... __assign_xor__(... other); // ^=
+... __assign_neg__(... other); // ~=
+... __assign_left__(... other); // <<=
+... __assign_right__(... other); // >>=
+\end{verbatim}
+
+If an \verb|__assign_...__| method is not defined, the \verb|__...__| and \verb|__assign__| methods are called in sequence.
+
+If a \verb|... __cast__ [ ... ] ()| method is defined, casting will try it first. If it returns null, casting will automatically attempt to cast.
+
+You can override creation and destruction with:
+\begin{verbatim}
+... __new__( ... );
+void __del__();
+\end{verbatim}
+
+Polymorphism is completely allowed for all classes.
+
+\subsection{Serialization}
+Two methods which cannot be overloaded are \verb|ref __serialize__()| and \linebreak
+\verb|void __unserialize__(ref block)|. They save and load objects to raw data reference. Each of the members is recursively serialized and appended to the data block. References to these members are relocated using a symbol table at the beginning of the serialization. Symbols within the table consist of an unsigned integer type containing the offset of the memory block of the symbol from the beginning of the serialization followed by another unsigned integer type containing the unique ID of the member and the unique ID of the parent object. The serialization is of the following format:
+\begin{verbatim}
+unsigned int - number of symbols
+unsigned int - size of serialization in total (in bytes)
+symbol table - sequence of:
+    unsigned int - offset of symbol data block
+    unsigned int - member ID
+    unsigned int - parent object ID
+data segment - sequence of data blocks
+\end{verbatim}
+
+The \verb|__unserialize__| method overwrites the current object.
+
+\subsection{Object Lifetimes}
+Objects begin life when they are created and end life when they exit the scope. They are deallocated when they exit the scope, unless they are returned from within the scope to the outside scope. If they are not used or placed into a new variable after being returned, they are deallocated. Variables which are definitely null (no matter what path execution takes) must not be accessed. Variables which are accessed which are null should throw a \verb|null_exception|.
+
+The \verb|__del__| method, by default, simply calls all deletion methods of the members of the class. The \verb|__new__| method, by default, calls all initialization methods of the members with no arguments (if such methods exist). Otherwise, it sets the members to null.
+
+\subsection{Atomic Classes}
+All atomic classes still inherit the zygote class. 
+
+The only atomic class which overloads the logical operators is the bool class. It overloads the logical operators, the assignment operators, and the equal to and not equal to operators.
+
+Atomic classes are the classes that are emulated by the compiler for integer, float, and reference types. Integer types, although varying in size and signedness, all have classes with the same methods. All operators are overloaded (see \ref{sec:dataModel}). A new value can be created from a reference by taking on the first integer value stored in the memory of the reference. They declare a set of extra method for integral operations:
+\begin{verbatim}
+int __pow__(int e);
+\end{verbatim}
+
+Floats are identical, except that do not overload bit operations and they also declare a set of other methods for floating-point operations:
+\begin{verbatim}
+float __pow__(float e);
+float __tan__();
+float __atan__();
+float __sin__();
+float __asin__();
+float __cos__();
+float __acos__();
+float __sqrt__();
+\end{verbatim}
+
+References only overload the addition, subtraction, assignment, and comparation operators. They also have a \verb|any __deref__()| method which dereferences the reference. They overload the complex value argument method to provide indexes:
+\begin{verbatim}
+any __complex__ [int idx];
+any __complex__ [int tid, int idx];
+\end{verbatim}
+
+The second complex value argument method uses the index to describe a reference to a block of objects with type ID tid, as opposed to bytes. 
+
+\subsection{Zygote}
+The zygote class (type ID 14) has the following methods by default:
+\begin{verbatim}
+int __typeid__();
+int __sizeof__();
+string __typestr__();
+string __filepath__();
+int __inherits__();
+\end{verbatim}
+
+\verb|__typeid__| returns a type ID number unique to the class (zygote's should be 14). \verb|__sizeof__| returns the size of an object in bytes. \verb|__typestr__| returns a string containing the name of the class denoted by the declaration. \verb|__filepath__| returns a string containing the value of the \verb|__FILE__| token that the class was declared in. \verb|__inherits__| returns the typeid of the class inherited from.
+
+All classes that do not specify which class they inherit from inherit from zygote by default.
+
+\subsection{Type Objects}
+\label{sec:typeObjects}
+
+
+\subsection{Exception}
+\label{sec:exceptions}
+The exception class (type ID 15) has the following methods:
+\begin{verbatim}
+string __message__();
+int __line__();
+string __file__();
+string __function_name__();
+string __function_return__();
+int __function_argument_size__();
+string __function_arguments__();
+string __timestamp__();
+void __attach__(string title, any value);
+map __attachments__();
+exception __parent__();
+\end{verbatim}
+
+The \verb|__message__| method returns a message for use in displaying the exception. The \verb|__line__| method returns the line number the exception occurred on. The \verb|__function_...__| methods return the values of the corresponding special tokens (see \ref{sec:specialTokens}). \verb|__timestamp__| return a string timestamp of the format "\verb|HH:MM:SS MM:DD:YY|" (24-hour time, see \ref{sec:specialTokens}). \verb|__attach__| attaches a piece of data to the exception. \verb|__attachments__| returns a map of attached data (the titles as the keys and the values as the values). \verb|__parent__| returns the parent exception in the stack trace (null if none exists).
+
+There are a number of internal exceptions:
+\begin{verbatim}
+null_exception allocation_exception outside_set_exception
+cast_exception
+\end{verbatim}
+
+\verb|allocation_exception|s are used when there is not enough memory to allocate an object. \verb|outside_set_exception|s are used when an index or key that is not valid was used. \verb|cast_exception|s are used when dynamic casts result in null values.
+
+\subsection{String}
+\label{sec:stringClass}
+The string class (type ID 16) has the following methods:
+\begin{verbatim}
+string __new__();
+string __new__(byte c);
+string __new__(byte c, unsigned int repeat);
+string __new__(ref r);
+void __del__();
+ref __complex__(unsigned int idx);
+ref data();
+unsigned int size();
+void append(byte c);
+void append(string other);
+string substr(unsigned int start);
+string substr(unsigned int start, unsigned int end);
+unsigned int find(byte pattern);
+unsigned int find(string pattern);
+unsigned int rfind(byte pattern);
+unsigned int rfind(string pattern);
+bool endswith(string pattern);
+bool startswith(string pattern);
+void remove(unsigned int idx);
+void remove(unsigned int start, unsigned int end);
+void insert(unsigned int idx, string other);
+void replace(unsigned int start, unsigned int end, string with);
+\end{verbatim}
+
+\verb|__new__| allows you to create a string with a single byte, a single byte repeated a number of times, or a reference to a memory location containing a string. You can access character references with \verb|__complex__|. \verb|data| returns a reference to the raw C-compatible data of the string. The other functions are relatively self-explanatory. If a find method cannot find the pattern, the size of the string is returned.
+
+\subsection{Vector}
+\label{sec:vectorClass}
+The vector class (type ID 17) has the following methods:
+\begin{verbatim}
+vector __new__();
+vector __new__(any elem);
+void __del__();
+ref __complex__(unsigned int idx);
+ref data();
+unsigned int size();
+vector subvector(unsigned int start);
+vector subvector(unsigned int start, unsigned int end();
+void append(any elem);
+void append(vector other);
+void insert(unsigned int idx, vector other);
+void remove(unsigned int idx);
+void remove(unsigned int start, unsigned int end);
+\end{verbatim}
+
+\subsection{Map}
+\label{sec:mapClass}
+The map class (type ID 18) has the following methods:
+\begin{verbatim}
+map __new__();
+void __del__();
+ref __complex__(any key);
+unsigned int size();
+void insert(map other);
+void remove(any key);
+vector values();
+\end{verbatim}
+
+\subsection{Method Reference}
+The methodref class (type ID 19) has the following methods:
+\begin{verbatim}
+methodref __new__();
+methodref __new__(ref method);
+void pusharg(any arg);
+any call [int tid] ();
+\end{verbatim}
+
+You create it from making references from methods. Then you use \verb|pusharg| to add arguments to a call. Once you run \verb|call|, all of the arguments are popped (the stack is cleared for the next call) and the result of the method is returned. You have to supply the type ID of the return of the function to the call for it to return correctly.
+
+\subsection{Internal Methods}
+\label{sec:internalMethods}
+The following all call internally defined methods within objects.
+\begin{verbatim}
+any new(int tid);
+variadic any new();
+void del(any obj);
+int typeid(any obj);
+int sizeof(any obj);
+string typestr(any obj);
+string filepath(any obj);
+int inherits(any obj);
+any pow(any obj, any exp);
+any tan(any obj);
+any atan(any obj);
+any sin(any obj);
+any asin(any obj);
+any cos(any obj);
+any acos(any obj);
+any sqrt(any obj);
+void attach(exception exc, string title, any value);
+ref serialize(any obj);
+any unserialize(ref serial);
+\end{verbatim}
+
+\verb|new| always takes a type ID argument and calls the \verb|__new__| method of the corresponding class. \verb|del| calls the \verb|__del__| method of the object. \verb|typeid| returns the type ID of the object. \verb|sizeof| returns the size in memory of the object. \verb|typestr| returns a string containing the name of the class of the object (as declared). \verb|filepath| returns the file path, as passed to the compiler, in which the object's class was declared. \verb|inherits| returns the type ID of the parent class of the class of the object. \verb|pow| calls \verb|__pow__|. \verb|tan| calls \verb|__tan__|. \verb|atan| calls \verb|__atan__|. \verb|sin| calls \verb|__sin__|. \verb|asin| calls \verb|__asin__|. \verb|cos| calls \verb|__cos__|. \verb|acos| calls \verb|__acos__|. \verb|sqrt| calls \verb|__sqrt__|. \verb|attach| calls \verb|__attach__|. \verb|serialize| calls \verb|__serialize__|. \verb|unserialize| calls \verb|__unserialize__|.
+
+\end{document}

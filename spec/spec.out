@@ -1,0 +1,62 @@
+\BOOKMARK [1][-]{section.1}{Introduction}{}% 1
+\BOOKMARK [2][-]{subsection.1.1}{How to Read this Specification}{section.1}% 2
+\BOOKMARK [1][-]{section.2}{Paradigm}{}% 3
+\BOOKMARK [1][-]{section.3}{Lexing}{}% 4
+\BOOKMARK [2][-]{subsection.3.1}{Input Files}{section.3}% 5
+\BOOKMARK [3][-]{subsubsection.3.1.1}{Extension}{subsection.3.1}% 6
+\BOOKMARK [3][-]{subsubsection.3.1.2}{Encoding}{subsection.3.1}% 7
+\BOOKMARK [2][-]{subsection.3.2}{Comments}{section.3}% 8
+\BOOKMARK [2][-]{subsection.3.3}{Token Configuration Files}{section.3}% 9
+\BOOKMARK [3][-]{subsubsection.3.3.1}{Token Symbol List}{subsection.3.3}% 10
+\BOOKMARK [2][-]{subsection.3.4}{Whitespace}{section.3}% 11
+\BOOKMARK [2][-]{subsection.3.5}{Tokens}{section.3}% 12
+\BOOKMARK [3][-]{subsubsection.3.5.1}{Data Types}{subsection.3.5}% 13
+\BOOKMARK [3][-]{subsubsection.3.5.2}{Binary Numbers}{subsection.3.5}% 14
+\BOOKMARK [3][-]{subsubsection.3.5.3}{Integral Numbers}{subsection.3.5}% 15
+\BOOKMARK [3][-]{subsubsection.3.5.4}{Floating-point Numbers}{subsection.3.5}% 16
+\BOOKMARK [3][-]{subsubsection.3.5.5}{Hexadecimal Numbers}{subsection.3.5}% 17
+\BOOKMARK [3][-]{subsubsection.3.5.6}{Characters}{subsection.3.5}% 18
+\BOOKMARK [3][-]{subsubsection.3.5.7}{Strings}{subsection.3.5}% 19
+\BOOKMARK [3][-]{subsubsection.3.5.8}{Hex Strings}{subsection.3.5}% 20
+\BOOKMARK [3][-]{subsubsection.3.5.9}{Special Tokens}{subsection.3.5}% 21
+\BOOKMARK [1][-]{section.4}{Parsing}{}% 22
+\BOOKMARK [2][-]{subsection.4.1}{Inline Assembly}{section.4}% 23
+\BOOKMARK [2][-]{subsection.4.2}{Type Expressions}{section.4}% 24
+\BOOKMARK [2][-]{subsection.4.3}{Complex Values}{section.4}% 25
+\BOOKMARK [2][-]{subsection.4.4}{Operations}{section.4}% 26
+\BOOKMARK [3][-]{subsubsection.4.4.1}{Expression Boundaries}{subsection.4.4}% 27
+\BOOKMARK [3][-]{subsubsection.4.4.2}{Precedence}{subsection.4.4}% 28
+\BOOKMARK [2][-]{subsection.4.5}{Expressions}{section.4}% 29
+\BOOKMARK [2][-]{subsection.4.6}{Any}{section.4}% 30
+\BOOKMARK [1][-]{section.5}{Special Expressions and Classes}{}% 31
+\BOOKMARK [2][-]{subsection.5.1}{Casts}{section.5}% 32
+\BOOKMARK [3][-]{subsubsection.5.1.1}{Casting between Internal Data Types}{subsection.5.1}% 33
+\BOOKMARK [2][-]{subsection.5.2}{Returns}{section.5}% 34
+\BOOKMARK [2][-]{subsection.5.3}{If-Statements}{section.5}% 35
+\BOOKMARK [2][-]{subsection.5.4}{Else-If-Statements}{section.5}% 36
+\BOOKMARK [2][-]{subsection.5.5}{Else-Statements}{section.5}% 37
+\BOOKMARK [2][-]{subsection.5.6}{While Loops}{section.5}% 38
+\BOOKMARK [2][-]{subsection.5.7}{For Loops}{section.5}% 39
+\BOOKMARK [2][-]{subsection.5.8}{For-Each Loops}{section.5}% 40
+\BOOKMARK [2][-]{subsection.5.9}{Continue and Break}{section.5}% 41
+\BOOKMARK [2][-]{subsection.5.10}{Simple Variable Declarations}{section.5}% 42
+\BOOKMARK [2][-]{subsection.5.11}{Method Declarations}{section.5}% 43
+\BOOKMARK [2][-]{subsection.5.12}{Method Calls}{section.5}% 44
+\BOOKMARK [2][-]{subsection.5.13}{Variadic}{section.5}% 45
+\BOOKMARK [2][-]{subsection.5.14}{Class Declarations}{section.5}% 46
+\BOOKMARK [2][-]{subsection.5.15}{Address and Deference}{section.5}% 47
+\BOOKMARK [2][-]{subsection.5.16}{Try/Catch/Throw Statements}{section.5}% 48
+\BOOKMARK [2][-]{subsection.5.17}{Imports}{section.5}% 49
+\BOOKMARK [2][-]{subsection.5.18}{Compatibility}{section.5}% 50
+\BOOKMARK [2][-]{subsection.5.19}{Inline Debugging}{section.5}% 51
+\BOOKMARK [1][-]{section.6}{Data Model}{}% 52
+\BOOKMARK [2][-]{subsection.6.1}{Serialization}{section.6}% 53
+\BOOKMARK [2][-]{subsection.6.2}{Object Lifetimes}{section.6}% 54
+\BOOKMARK [2][-]{subsection.6.3}{Atomic Classes}{section.6}% 55
+\BOOKMARK [2][-]{subsection.6.4}{Zygote}{section.6}% 56
+\BOOKMARK [2][-]{subsection.6.5}{Exception}{section.6}% 57
+\BOOKMARK [2][-]{subsection.6.6}{String}{section.6}% 58
+\BOOKMARK [2][-]{subsection.6.7}{Vector}{section.6}% 59
+\BOOKMARK [2][-]{subsection.6.8}{Map}{section.6}% 60
+\BOOKMARK [2][-]{subsection.6.9}{Method Reference}{section.6}% 61
+\BOOKMARK [2][-]{subsection.6.10}{Internal Methods}{section.6}% 62

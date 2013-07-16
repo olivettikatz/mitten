@@ -37,11 +37,18 @@ install :
 	mkdir -p /usr/lib/mitten
 	cp lexical/pattern.h lexical/tokenizer.h /usr/include/mitten/parsing/lexical
 	cp semantic/ast.h semantic/asterror.h semantic/scope.h semantic/rdp.h /usr/include/mitten/parsing/semantic
-	[ -f libmittenparsing.dylib ] && cp libmittenparsing.dylib /usr/lib/mitten/libparsing.dylib
-	[ -f libmittenparsing.so ] && cp libmittenparsing.dylib /usr/lib/mitten/libparsing.so
+ifeq ($(SYSTEM),Darwin)
+	cp libparsing.dylib /usr/lib/mitten/libparsing.dylib
+else
+	cp libparsing.dylib /usr/lib/mitten/libparsing.so
+endif
 
 uninstall :
-	rm -r /usr/include/mitten /usr/lib/mitten
+ifeq ($(SYSTEM),Darwin)
+	rm -r /usr/include/mitten/parsing /usr/lib/mitten/libparsing.dylib
+else
+	rm -r /usr/include/mitten/parsing /usr/lib/mitten/libparsing.so
+endif
 
 doc :
 	doxygen Doxyfile

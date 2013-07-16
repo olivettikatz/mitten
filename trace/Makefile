@@ -33,11 +33,18 @@ install :
 	mkdir -p /usr/include/mitten/trace
 	mkdir -p /usr/lib/mitten
 	cp trace.h /usr/include/mitten/trace
-	[ -f libtrace.dylib ] && cp libtrace.dylib /usr/lib/mitten
-	[ -f libtrace.so ] && cp libtrace.so /usr/lib/mitten
+ifeq ($(SYSTEM),Darwin)
+	cp libtrace.dylib /usr/lib/mitten
+else
+	cp libtrace.so /usr/lib/mitten
+endif
 
 uninstall :
-	rm -r /usr/include/mitten /usr/lib/mitten
+ifeq ($(SYSTEM),Darwin)
+	rm -r /usr/include/mitten/trace /usr/lib/mitten/libtrace.dylib
+else
+	rm -r /usr/include/mitten/trace /usr/lib/mitten/libtrace.so
+endif
 
 doc :
 	doxygen Doxyfile
