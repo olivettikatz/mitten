@@ -18,23 +18,27 @@
 include config.mk
 
 ifeq ($(SYSTEM),Darwin)
-build : libtrace.dylib
+build : libparsing.dylib
 else
-build : libtrace.so
+build : libparsing.so
 endif
 
-libtrace.dylib : pattern.o tokenizer.o trace.o
-	$(CXX) $(CXXFLAGS) $(CXXSHAREDFLAGS) $^ -o $@
+OBJ=lexical/pattern.o lexical/tokenizer.o semantic/ast.o semantic/asterror.o semantic/scope.o semantic/rdp.o
 
-libtrace.so : pattern.o tokenizer.o trace.o
-	$(CXX) $(CXXFLAGS) $(CXXSHAREDFLAGS) $^ -o $@
+libparsing.dylib : $(OBJ)
+	$(CXX) $(CXXFLAGS) $(CXXSHAREDFLAGS) $^ -o $@ -ltrace
+
+libparsing.so : $(OBJ)
+	$(CXX) $(CXXFLAGS) $(CXXSHAREDFLAGS) $^ -o $@ -ltrace
 
 install :
-	mkdir -p /usr/include/mitten/trace
+	mkdir -p /usr/include/mitten/parsing/lexical
+	mkdir -p /usr/include/mitten/parsing/semantic
 	mkdir -p /usr/lib/mitten
-	cp trace.h /usr/include/mitten/trace
-	[ -f libtrace.dylib ] && cp libtrace.dylib /usr/lib/mitten
-	[ -f libtrace.so ] && cp libtrace.so /usr/lib/mitten
+	cp lexical/pattern.h lexical/tokenizer.h /usr/include/mitten/parsing/lexical
+	cp semantic/ast.h semantic/asterror.h semantic/scope.h semantic/rdp.h /usr/include/mitten/parsing/semantic
+	[ -f libmittenparsing.dylib ] && cp libmittenparsing.dylib /usr/lib/mitten/libparsing.dylib
+	[ -f libmittenparsing.so ] && cp libmittenparsing.dylib /usr/lib/mitten/libparsing.so
 
 uninstall :
 	rm -r /usr/include/mitten /usr/lib/mitten
@@ -43,4 +47,4 @@ doc :
 	doxygen Doxyfile
 
 clean :
-	$(RM) $(RMFLAGS) pattern.o tokenizer.o trace.o libtrace.dylib libtrace.so doc
+	$(RM) $(RMFLAGS) $(OBJ) libparsing.dylib libparsing.so doc
