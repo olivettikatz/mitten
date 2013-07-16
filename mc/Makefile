@@ -22,7 +22,7 @@ build : parsing.o
 test : test_parsing.bin
 
 test_parsing.bin : test_parsing.o parsing.o
-	$(CXX) $(CXXFLAGS) $^ -o $@ -ltrace -lparsing
+	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -ltrace -lparsing
 
 clean :
 	$(RM) $(RMFLAGS) parsing.o test_parsing.o test_parsing.bin test_parsing.bin.dSYM doc

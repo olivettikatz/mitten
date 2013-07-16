@@ -26,10 +26,10 @@ endif
 OBJ=lexical/pattern.o lexical/tokenizer.o semantic/ast.o semantic/asterror.o semantic/scope.o semantic/rdp.o
 
 libparsing.dylib : $(OBJ)
-	$(CXX) $(CXXFLAGS) $(CXXSHAREDFLAGS) $^ -o $@ -ltrace
+	$(CXX) $(CXXFLAGS) $(CXXSHAREDFLAGS) $^ -o $@ $(LDFLAGS) -ltrace
 
 libparsing.so : $(OBJ)
-	$(CXX) $(CXXFLAGS) $(CXXSHAREDFLAGS) $^ -o $@ -ltrace
+	$(CXX) $(CXXFLAGS) $(CXXSHAREDFLAGS) $^ -o $@ $(LDFLAGS) -ltrace
 
 install :
 	mkdir -p /usr/include/mitten/parsing/lexical
