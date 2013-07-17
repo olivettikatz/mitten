@@ -24,7 +24,7 @@
 #include <vector>
 #include <sstream>
 
-#ifdef __OSX__
+#ifdef _MITTEN_PLATFORM_DARWIN
 #include <llvm/IR/DerivedTypes.h>
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>

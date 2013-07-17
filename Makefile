@@ -21,27 +21,33 @@ MAKEFLAGS=
 build :
 	$(MAKE) $(MAKEFLAGS) -C trace build
 	$(MAKE) $(MAKEFLAGS) -C parsing build
+	$(MAKE) $(MAKEFLAGS) -C runcfg build
 	$(MAKE) $(MAKEFLAGS) -C mc build
 
 installbuild :
 	cp config.mk trace
 	cp config.mk parsing
+	cp config.mk runcfg
 	cp config.mk mc
 
 install : 
 	$(MAKE) $(MAKEFLAGS) -C trace install
 	$(MAKE) $(MAKEFLAGS) -C parsing install
+	$(MAKE) $(MAKEFLAGS) -C runcfg install
 
 uninstall :
 	$(MAKE) $(MAKEFLAGS) -C trace uninstall
 	$(MAKE) $(MAKEFLAGS) -C parsing uninstall
+	$(MAKE) $(MAKEFLAGS) -C runcfg install
 
 doc :
 	$(MAKE) $(MAKEFLAGS) -C trace doc
 	$(MAKE) $(MAKEFLAGS) -C parsing doc
+	$(MAKE) $(MAKEFLAGS) -C runcfg doc
 	$(MAKE) $(MAKEFLAGS) -C mc doc
 
 clean :
 	$(MAKE) $(MAKEFLAGS) -C trace clean
 	$(MAKE) $(MAKEFLAGS) -C parsing clean
+	$(MAKE) $(MAKEFLAGS) -C runcfg clean
 	$(MAKE) $(MAKEFLAGS) -C mc clean

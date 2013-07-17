@@ -32,22 +32,22 @@ libparsing.so : $(OBJ)
 	$(CXX) $(CXXFLAGS) $(CXXSHAREDFLAGS) -Wl,-soname,libparsing.so$^ -o $@ $(LDFLAGS) -ltrace
 
 install :
-	mkdir -p /usr/include/mitten/parsing/lexical
-	mkdir -p /usr/include/mitten/parsing/semantic
-	mkdir -p /usr/lib/mitten
-	cp lexical/pattern.h lexical/tokenizer.h /usr/include/mitten/parsing/lexical
-	cp semantic/ast.h semantic/asterror.h semantic/scope.h semantic/rdp.h /usr/include/mitten/parsing/semantic
+	$(MKDIR) $(MKDIRFLAGS) /usr/include/mitten/parsing/lexical
+	$(MKDIR) $(MKDIRFLAGS) /usr/include/mitten/parsing/semantic
+	$(MKDIR) $(MKDIRFLAGS) /usr/lib/mitten
+	$(CP) $(CPFLAGS) lexical/pattern.h lexical/tokenizer.h /usr/include/mitten/parsing/lexical
+	$(CP) $(CPFLAGS) semantic/ast.h semantic/asterror.h semantic/scope.h semantic/rdp.h /usr/include/mitten/parsing/semantic
 ifeq ($(SYSTEM),Darwin)
-	cp libparsing.dylib /usr/lib/mitten/libparsing.dylib
+	$(CP) $(CPFLAGS) libparsing.dylib /usr/lib/mitten/libparsing.dylib
 else
-	cp libparsing.so /usr/lib/mitten/libparsing.so
+	$(CP) $(CPFLAGS) libparsing.so /usr/lib/mitten/libparsing.so
 endif
 
 uninstall :
 ifeq ($(SYSTEM),Darwin)
-	rm -r /usr/include/mitten/parsing /usr/lib/mitten/libparsing.dylib
+	$(RM) $(RMFLAGS) /usr/include/mitten/parsing /usr/lib/mitten/libparsing.dylib
 else
-	rm -r /usr/include/mitten/parsing /usr/lib/mitten/libparsing.so
+	$(RM) $(RMFLAGS) /usr/include/mitten/parsing /usr/lib/mitten/libparsing.so
 endif
 
 doc :

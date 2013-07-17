@@ -18,36 +18,38 @@
 include config.mk
 
 ifeq ($(SYSTEM),Darwin)
-build : libtrace.dylib
+build : libruncfg.dylib
 else
-build : libtrace.so
+build : libruncfg.so
 endif
 
-libtrace.dylib : pattern.o tokenizer.o trace.o
+OBJ=runcfg.o
+
+libruncfg.dylib : $(OBJ)
 	$(CXX) $(CXXFLAGS) $(CXXSHAREDFLAGS) $^ -o $@ $(LDFLAGS)
 
-libtrace.so : pattern.o tokenizer.o trace.o
-	$(CXX) $(CXXFLAGS) $(CXXSHAREDFLAGS) -Wl,-soname,libtrace.so $^ -o $@ $(LDFLAGS)
+libruncfg.so : $(OBJ)
+	$(CXX) $(CXXFLAGS) $(CXXSHAREDFLAGS) -Wl,-soname,libruncfg.so $^ -o $@ $(LDFLAGS)
 
-install :
-	$(MKDIR) $(MKDIRFLAGS) /usr/include/mitten/trace
+install : 
+	$(MKDIR) $(MKDIRFLAGS) /usr/include/mitten/runcfg
 	$(MKDIR) $(MKDIRFLAGS) /usr/lib/mitten
-	$(CP) $(CPFLAGS) trace.h /usr/include/mitten/trace
+	$(CP) $(CPFLAGS) runcfg.h /usr/include/mitten/runcfg
 ifeq ($(SYSTEM),Darwin)
-	$(CP) $(CPFLAGS) libtrace.dylib /usr/lib/mitten
+	$(CP) $(CPFLAGS) libruncfg.dylib /usr/lib/mitten
 else
-	$(CP) $(CPFLAGS) libtrace.so /usr/lib/mitten
+	$(CP) $(CPFLAGS) libruncfg.so /usr/lib/mitten
 endif
 
 uninstall :
 ifeq ($(SYSTEM),Darwin)
-	$(RM) $(RMFLAGS) /usr/include/mitten/trace /usr/lib/mitten/libtrace.dylib
+	$(RM) $(RMFLAGS) /usr/include/mitten/runcfg /usr/lib/mitten/libruncfg.dylib
 else
-	$(RM) $(RMFLAGS) /usr/include/mitten/trace /usr/lib/mitten/libtrace.so
+	$(RM) $(RMFLAGS) /usr/include/mitten/runcfg /usr/lib/mitten/libruncfg.so
 endif
 
 doc :
 	doxygen Doxyfile
 
 clean :
-	$(RM) $(RMFLAGS) pattern.o tokenizer.o trace.o libtrace.dylib libtrace.so doc
+	$(RM) $(RMFLAGS) $(OBJ) libruncfg.dylib libruncfg.so doc
