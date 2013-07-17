@@ -31,12 +31,13 @@ CXXFLAGS+=-D_DEBUG -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS
 OBJ=core/vm.o parsing.o
 
 build : $(OBJ) main.o
-	$(CXX) $(CXXFLAGS) $(OBJ) main.o -o mc $(LDFLAGS) -ltrace -lparsing -lruncfg $(LLVM_LIB) -ldl -lc++
 ifeq ($(SYSTEM),Darwin)
+	$(CXX) $(CXXFLAGS) $(OBJ) main.o -o mc $(LDFLAGS) -ltrace -lparsing -lruncfg $(LLVM_LIB) -ldl -lc++
 	$(LN) $(LNFLAGS) ../trace/libtrace.dylib .
 	$(LN) $(LNFLAGS) ../parsing/libparsing.dylib .
 	$(LN) $(LNFLAGS) ../runcfg/libruncfg.dylib .
 else
+	$(CXX) $(CXXFLAGS) $(OBJ) main.o -o mc $(LDFLAGS) -ltrace -lparsing -lruncfg $(LLVM_LIB) -ldl
 	$(LN) $(LNFLAGS) ../trace/libtrace.so .
 	$(LN) $(LNFLAGS) ../parsing/libparsing.so .
 	$(LN) $(LNFLAGS) ../runcfg/libruncfg.so .
@@ -52,4 +53,4 @@ doc :
 	doxygen Doxyfile
 
 clean :
-	$(RM) $(RMFLAGS) doc $(OBJ) main.o mc
+	$(RM) $(RMFLAGS) doc $(OBJ) main.o mc libtrace.dylib libtrace.so libparsing.dylib libparsing.so libruncfg.dylib libruncfg.so
