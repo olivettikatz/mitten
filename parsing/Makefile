@@ -29,7 +29,7 @@ libparsing.dylib : $(OBJ)
 	$(CXX) $(CXXFLAGS) $(CXXSHAREDFLAGS) $^ -o $@ $(LDFLAGS) -ltrace
 
 libparsing.so : $(OBJ)
-	$(CXX) $(CXXFLAGS) $(CXXSHAREDFLAGS) $^ -o $@ $(LDFLAGS) -ltrace
+	$(CXX) $(CXXFLAGS) $(CXXSHAREDFLAGS) -Wl,-soname,libparsing.so$^ -o $@ $(LDFLAGS) -ltrace
 
 install :
 	mkdir -p /usr/include/mitten/parsing/lexical
@@ -40,7 +40,7 @@ install :
 ifeq ($(SYSTEM),Darwin)
 	cp libparsing.dylib /usr/lib/mitten/libparsing.dylib
 else
-	cp libparsing.dylib /usr/lib/mitten/libparsing.so
+	cp libparsing.so /usr/lib/mitten/libparsing.so
 endif
 
 uninstall :

@@ -17,7 +17,10 @@
 
 include config.mk
 
-CXXFLAGS+=-I$(shell llvm-config --includedir) -D_DEBUG -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS
+LLVM_DIR=$(shell llvm-config --includedir)
+LLVM_INC=-I$(LLVM_DIR)
+
+CXXFLAGS+=-D_DEBUG -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS $(LLVM_INC)
 
 OBJ=core/vm.o parsing.o
 
