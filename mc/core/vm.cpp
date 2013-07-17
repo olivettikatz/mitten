@@ -530,11 +530,11 @@ namespace vm
 	LiteralAddress LiteralValue::castAddress()
 	{
 		if (type->get() == LiteralType::_char)
-			return LiteralAddress(LiteralType::_char, (void *)(int)_char->get());
+			return LiteralAddress(LiteralType::_char, (void *)(long int)_char->get());
 		else if (type->get() == LiteralType::_int)
-			return LiteralAddress(LiteralType::_int, (void *)_int->get());
+			return LiteralAddress(LiteralType::_int, (void *)(long int)_int->get());
 		else if (type->get() == LiteralType::_double)
-			return LiteralAddress(LiteralType::_double, (void *)(int)_double->get());
+			return LiteralAddress(LiteralType::_double, (void *)(long int)_double->get());
 		else if (type->get() == LiteralType::_addr)
 			return LiteralAddress(*_addr);
 		else
