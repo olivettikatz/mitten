@@ -20,7 +20,7 @@
 #define __MC_PARSING_H
 
 #include <iostream>
-#include "../parsing/parsing.h"
+#include <parsing/parsing.h>
 
 namespace mc
 {

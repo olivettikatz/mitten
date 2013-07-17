@@ -34,11 +34,13 @@ install :
 	$(MAKE) $(MAKEFLAGS) -C trace install
 	$(MAKE) $(MAKEFLAGS) -C parsing install
 	$(MAKE) $(MAKEFLAGS) -C runcfg install
+	$(MAKE) $(MAKEFLAGS) -C mc install
 
 uninstall :
 	$(MAKE) $(MAKEFLAGS) -C trace uninstall
 	$(MAKE) $(MAKEFLAGS) -C parsing uninstall
-	$(MAKE) $(MAKEFLAGS) -C runcfg install
+	$(MAKE) $(MAKEFLAGS) -C runcfg uninstall
+	$(MAKE) $(MAKEFLAGS) -C mc uninstall
 
 doc :
 	$(MAKE) $(MAKEFLAGS) -C trace doc

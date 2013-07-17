@@ -24,10 +24,17 @@ CXXFLAGS+=-D_DEBUG -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS
 
 OBJ=core/vm.o parsing.o
 
-build : $(OBJ)
+build : $(OBJ) main.o
+	$(CXX) $(CXXFLAGS) $(OBJ) main.o -o mc $(LDFLAGS) -ltrace -lparsing -lruncfg $(shell llvm-config --ldflags)
+
+install : 
+	$(CP) $(CPFLAGS) mc /usr/bin
+
+uninstall : 
+	$(RM) $(RMFLAGS) /usr/bin/mc
 
 doc :
 	doxygen Doxyfile
 
 clean :
-	$(RM) $(RMFLAGS) doc $(OBJ)
+	$(RM) $(RMFLAGS) doc $(OBJ) main.o mc

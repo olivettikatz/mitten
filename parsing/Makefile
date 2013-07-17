@@ -17,6 +17,8 @@
 
 include config.mk
 
+CXXFLAGS+=-I../..
+
 ifeq ($(SYSTEM),Darwin)
 build : libparsing.dylib
 else

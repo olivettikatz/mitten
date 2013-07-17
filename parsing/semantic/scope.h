@@ -23,7 +23,7 @@
 #include <map>
 #include "../lexical/tokenizer.h"
 #include "ast.h"
-#include "../../trace/trace.h"
+#include <trace/trace.h>
 
 namespace parsing
 {
