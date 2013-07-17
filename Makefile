@@ -23,9 +23,6 @@ build :
 	$(MAKE) $(MAKEFLAGS) -C parsing build
 	$(MAKE) $(MAKEFLAGS) -C mc build
 
-test :
-	$(MAKE) $(MAKEFLAGS) -C mc test
-
 installbuild :
 	cp config.mk trace
 	cp config.mk parsing
@@ -42,6 +39,7 @@ uninstall :
 doc :
 	$(MAKE) $(MAKEFLAGS) -C trace doc
 	$(MAKE) $(MAKEFLAGS) -C parsing doc
+	$(MAKE) $(MAKEFLAGS) -C mc doc
 
 clean :
 	$(MAKE) $(MAKEFLAGS) -C trace clean

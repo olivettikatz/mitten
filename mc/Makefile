@@ -17,12 +17,14 @@
 
 include config.mk
 
-build : parsing.o
+CXXFLAGS+=-I$(shell llvm-config --includedir) -D_DEBUG -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS
 
-test : test_parsing.bin
+OBJ=core/vm.o parsing.o
 
-test_parsing.bin : test_parsing.o parsing.o
-	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) -ltrace -lparsing
+build : $(OBJ)
+
+doc :
+	doxygen Doxyfile
 
 clean :
-	$(RM) $(RMFLAGS) parsing.o test_parsing.o test_parsing.bin test_parsing.bin.dSYM doc
+	$(RM) $(RMFLAGS) doc $(OBJ)
