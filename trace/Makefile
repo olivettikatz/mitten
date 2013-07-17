@@ -27,7 +27,7 @@ libtrace.dylib : pattern.o tokenizer.o trace.o
 	$(CXX) $(CXXFLAGS) $(CXXSHAREDFLAGS) $^ -o $@ $(LDFLAGS)
 
 libtrace.so : pattern.o tokenizer.o trace.o
-	$(CXX) $(CXXFLAGS) $(CXXSHAREDFLAGS) $^ -o $@ $(LDFLAGS)
+	$(CXX) $(CXXFLAGS) $(CXXSHAREDFLAGS) -Wl,-soname,libtrace.so $^ -o $@ $(LDFLAGS)
 
 install :
 	mkdir -p /usr/include/mitten/trace
