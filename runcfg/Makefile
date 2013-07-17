@@ -33,19 +33,18 @@ libruncfg.so : $(OBJ)
 
 install : 
 	$(MKDIR) $(MKDIRFLAGS) /usr/include/mitten/runcfg
-	$(MKDIR) $(MKDIRFLAGS) /usr/lib/mitten
 	$(CP) $(CPFLAGS) runcfg.h /usr/include/mitten/runcfg
 ifeq ($(SYSTEM),Darwin)
-	$(CP) $(CPFLAGS) libruncfg.dylib /usr/lib/mitten
+	$(CP) $(CPFLAGS) libruncfg.dylib /usr/lib
 else
-	$(CP) $(CPFLAGS) libruncfg.so /usr/lib/mitten
+	$(CP) $(CPFLAGS) libruncfg.so /usr/lib
 endif
 
 uninstall :
 ifeq ($(SYSTEM),Darwin)
-	$(RM) $(RMFLAGS) /usr/include/mitten/runcfg /usr/lib/mitten/libruncfg.dylib
+	$(RM) $(RMFLAGS) /usr/include/mitten/runcfg /usr/lib/libruncfg.dylib
 else
-	$(RM) $(RMFLAGS) /usr/include/mitten/runcfg /usr/lib/mitten/libruncfg.so
+	$(RM) $(RMFLAGS) /usr/include/mitten/runcfg /usr/lib/libruncfg.so
 endif
 
 doc :

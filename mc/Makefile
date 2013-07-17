@@ -17,7 +17,13 @@
 
 include config.mk
 
+ifeq ($(SYSTEM),Darwin)
+LLVM_DIR=/opt/local/libexec/llvm-3.2/include
+LLVM_LIB=-L/opt/local/libexec/llvm-3.2/lib -lLLVM-3.2svn
+else
 LLVM_DIR=$(shell llvm-config --includedir)
+LLVM_LIB=$(shell llvm-config --ldflags --libs)
+endif
 LLVM_INC=-I$(LLVM_DIR)
 
 CXXFLAGS+=-D_DEBUG -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS $(LLVM_INC)
@@ -25,7 +31,16 @@ CXXFLAGS+=-D_DEBUG -D_GNU_SOURCE -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS
 OBJ=core/vm.o parsing.o
 
 build : $(OBJ) main.o
-	$(CXX) $(CXXFLAGS) $(OBJ) main.o -o mc $(LDFLAGS) -ltrace -lparsing -lruncfg $(shell llvm-config --ldflags)
+	$(CXX) $(CXXFLAGS) $(OBJ) main.o -o mc $(LDFLAGS) -ltrace -lparsing -lruncfg $(LLVM_LIB) -ldl -lc++
+ifeq ($(SYSTEM),Darwin)
+	$(LN) $(LNFLAGS) ../trace/libtrace.dylib .
+	$(LN) $(LNFLAGS) ../parsing/libparsing.dylib .
+	$(LN) $(LNFLAGS) ../runcfg/libruncfg.dylib .
+else
+	$(LN) $(LNFLAGS) ../trace/libtrace.so .
+	$(LN) $(LNFLAGS) ../parsing/libparsing.so .
+	$(LN) $(LNFLAGS) ../runcfg/libruncfg.so .
+endif
 
 install : 
 	$(CP) $(CPFLAGS) mc /usr/bin

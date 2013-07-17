@@ -11,9 +11,11 @@ CP=cp
 CPFLAGS=-f
 MKDIR=mkdir
 MKDIRFLAGS=-p
+LN=ln
+LNFLAGS=-s
 else
 CXX=g++
-CXXFLAGS=-std=c++11 -ggdb -O0 -I/usr/include/mitten -fPIC -D_MITTEN_PLATFORM_OTHER
+CXXFLAGS=-std=c++11 -ggdb -O0 -I/usr/include/mitten -I.. -fPIC -D_MITTEN_PLATFORM_OTHER
 CXXSHAREDFLAGS=-shared
 LDFLAGS=-L/usr/lib/mitten -L../trace -L../parsing -L../runcfg
 RM=rm
@@ -22,6 +24,8 @@ CP=cp
 CPFLAGS=-f
 MKDIR=mkdir
 MKDIRFLAGS=-p
+LN=ln
+LNFLAGS=-s
 endif
 
 %.o : %.cpp %.h

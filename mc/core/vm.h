@@ -24,7 +24,7 @@
 #include <vector>
 #include <sstream>
 
-#ifdef _MITTEN_PLATFORM_DARWIN
+/*#ifdef _MITTEN_PLATFORM_DARWIN
 #include <llvm/IR/DerivedTypes.h>
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
@@ -36,7 +36,7 @@
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/Support/TargetSelect.h>
 #include <llvm/ExecutionEngine/JIT.h>
-#else
+#else*/
 #include <llvm/DerivedTypes.h>
 #include <llvm/LLVMContext.h>
 #include <llvm/Module.h>
@@ -48,7 +48,7 @@
 #include <llvm/IRBuilder.h>
 #include <llvm/Support/TargetSelect.h>
 #include <llvm/ExecutionEngine/JIT.h>
-#endif
+//#endif
 
 #define VM_WARN cout<<"[Mitten VM] "
 

@@ -31,19 +31,18 @@ libtrace.so : pattern.o tokenizer.o trace.o
 
 install :
 	$(MKDIR) $(MKDIRFLAGS) /usr/include/mitten/trace
-	$(MKDIR) $(MKDIRFLAGS) /usr/lib/mitten
 	$(CP) $(CPFLAGS) trace.h /usr/include/mitten/trace
 ifeq ($(SYSTEM),Darwin)
-	$(CP) $(CPFLAGS) libtrace.dylib /usr/lib/mitten
+	$(CP) $(CPFLAGS) libtrace.dylib /usr/lib
 else
-	$(CP) $(CPFLAGS) libtrace.so /usr/lib/mitten
+	$(CP) $(CPFLAGS) libtrace.so /usr/lib
 endif
 
 uninstall :
 ifeq ($(SYSTEM),Darwin)
-	$(RM) $(RMFLAGS) /usr/include/mitten/trace /usr/lib/mitten/libtrace.dylib
+	$(RM) $(RMFLAGS) /usr/include/mitten/trace /usr/lib/libtrace.dylib
 else
-	$(RM) $(RMFLAGS) /usr/include/mitten/trace /usr/lib/mitten/libtrace.so
+	$(RM) $(RMFLAGS) /usr/include/mitten/trace /usr/lib/libtrace.so
 endif
 
 doc :

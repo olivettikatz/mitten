@@ -36,20 +36,19 @@ libparsing.so : $(OBJ)
 install :
 	$(MKDIR) $(MKDIRFLAGS) /usr/include/mitten/parsing/lexical
 	$(MKDIR) $(MKDIRFLAGS) /usr/include/mitten/parsing/semantic
-	$(MKDIR) $(MKDIRFLAGS) /usr/lib/mitten
 	$(CP) $(CPFLAGS) lexical/pattern.h lexical/tokenizer.h /usr/include/mitten/parsing/lexical
 	$(CP) $(CPFLAGS) semantic/ast.h semantic/asterror.h semantic/scope.h semantic/rdp.h /usr/include/mitten/parsing/semantic
 ifeq ($(SYSTEM),Darwin)
-	$(CP) $(CPFLAGS) libparsing.dylib /usr/lib/mitten/libparsing.dylib
+	$(CP) $(CPFLAGS) libparsing.dylib /usr/lib/libparsing.dylib
 else
-	$(CP) $(CPFLAGS) libparsing.so /usr/lib/mitten/libparsing.so
+	$(CP) $(CPFLAGS) libparsing.so /usr/lib/libparsing.so
 endif
 
 uninstall :
 ifeq ($(SYSTEM),Darwin)
-	$(RM) $(RMFLAGS) /usr/include/mitten/parsing /usr/lib/mitten/libparsing.dylib
+	$(RM) $(RMFLAGS) /usr/include/mitten/parsing /usr/lib/libparsing.dylib
 else
-	$(RM) $(RMFLAGS) /usr/include/mitten/parsing /usr/lib/mitten/libparsing.so
+	$(RM) $(RMFLAGS) /usr/include/mitten/parsing /usr/lib/libparsing.so
 endif
 
 doc :
