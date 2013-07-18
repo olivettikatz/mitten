@@ -24,10 +24,24 @@
 #include "../lexical/tokenizer.h"
 #include "ast.h"
 #include <trace/trace.h>
+#include <pthread.h>
 
 namespace parsing
 {
 	using namespace std;
+
+	class TokenStream
+	{
+	private:
+		pthread_mutex_t *mutex;
+		pthread_cond_t *cond;
+		vector<Token> buffer;
+
+	public:
+		TokenStream() : mutex(NULL), cond(NULL) {}
+		TokenStream(pthread_mutex_t *m, pthread_cond_t *c) : mutex(m), cond(c) {}
+		void push();
+	};
 
 	/*! for parsing scopes in token vectors into ASTs. */
 	class ScopeParser
@@ -50,6 +64,8 @@ namespace parsing
 		/*! performs actual parsing. */
 		AST parse(vector<Token> p);
 	};
+
+	extern "C" void *parseAsyncWrapper(void *ptr);
 }
 
 #endif

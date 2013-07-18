@@ -27,6 +27,11 @@
 #include "pattern.h"
 #include <trace/trace.h>
 
+#include <unistd.h>
+#include <pthread.h>
+
+#define MITTEN_EOT 4
+
 namespace parsing
 {
 	using namespace std;
@@ -136,6 +141,23 @@ namespace parsing
 		bool operator != (string other);
 	};
 
+	class CharStream
+	{
+	private:
+		pthread_mutex_t *mutex;
+		pthread_cond_t *cond;
+		string buffer;
+
+	public:
+		CharStream() : cond(NULL) {}
+		CharStream(pthread_mutex_t *m, pthread_cond_t *c) : mutex(m), cond(c) {}
+		void push(string s);
+		bool push(ifstream f, size_t s);
+		string peek(size_t s);
+		string pop(size_t s);
+		char pop();
+	};
+
 	/*! for performing tokenization of a string. */
 	class Tokenizer
 	{
@@ -146,6 +168,10 @@ namespace parsing
 		vector<Pattern> _deliminator;
 		vector<pair<string, Pattern> > categorizers;
 		vector<pair<Pattern, Pattern> > combinators;
+
+		CharStream _cs;
+		string _f;
+		vector<Token> _rtn;
 
 		void appendPatternToVectorSorted(vector<Pattern> &v, Pattern p);
 		unsigned int fitsPatternVector(string s, vector<Pattern> v);
@@ -202,12 +228,17 @@ namespace parsing
 		*/
 		Tokenizer &combine(Pattern pa, Pattern pb);
 
+		/*! tokenizes a stream with a given filename. */
+		void tokenizeAsync();
+
 		/*! tokenizes a string with a given filename. */
 		vector<Token> tokenize(string s, string f);
 
 		/*! reads a file and calls `tokenize(s, path)' where `s' is the contents of the file. */
 		vector<Token> tokenizeFile(string path);
 	};
+
+	extern "C" void *tokenizeAsyncWrapper(void *ptr);
 }
 
 #endif
