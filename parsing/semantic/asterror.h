@@ -16,8 +16,8 @@
  *
  * Copyright 2013 Oliver Katz */
 
-#ifndef __PARSING_ERROR_H
-#define __PARSING_ERROR_H
+#ifndef __MITTEN_PARSING_SEMANTIC_ASTERROR_H
+#define __MITTEN_PARSING_SEMANTIC_ASTERROR_H
 
 #include "../lexical/tokenizer.h"
 #include <sstream>

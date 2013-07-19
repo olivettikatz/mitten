@@ -16,40 +16,18 @@
  *
  * Copyright 2013 Oliver Katz */
 
-#ifndef __MITTEN_PARSING_SEMANTIC_SCOPE_H
-#define __MITTEN_PARSING_SEMANTIC_SCOPE_H
+#ifndef __MITTEN_PARSING_LEXICAL_ESCAPE_H
+#define __MITTEN_PARSING_LEXICAL_ESCAPE_H
 
-#include <stdexcept>
-#include <map>
-#include "../lexical/tokenizer.h"
-#include "ast.h"
-#include <trace/trace.h>
+#include <iostream>
+#include <string>
+#include <sstream>
 
 namespace parsing
 {
 	using namespace std;
 
-	/*! for parsing scopes in token vectors into ASTs. */
-	class ScopeParser
-	{
-	private:
-		map<string, string> bounds;
-		string pad(unsigned int l);
-		AST parse(vector<Token> p, unsigned int l);
-
-	public:
-		/*! initializes an empty parser. */
-		ScopeParser() {}
-
-		/*! creates a new scope.
-		\param b the beginning token type of a scope
-		\param e the end token type of that scope
-		*/
-		void bindScope(string b, string e);
-
-		/*! performs actual parsing. */
-		AST parse(vector<Token> p);
-	};
+	string escape(string s);
 }
 
 #endif

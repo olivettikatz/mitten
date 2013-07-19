@@ -16,8 +16,8 @@
  *
  * Copyright 2013 Oliver Katz */
 
-#ifndef __KITTEN_PARSING_LEXICAL_PATTERN_H
-#define __KITTEN_PARSING_LEXICAL_PATTERN_H
+#ifndef __MITTEN_PARSING_LEXICAL_PATTERN_H
+#define __MITTEN_PARSING_LEXICAL_PATTERN_H
 
 #include <iostream>
 #include <string>

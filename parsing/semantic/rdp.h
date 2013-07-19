@@ -16,8 +16,8 @@
  *
  * Copyright 2013 Oliver Katz */
 
-#ifndef __MITTEN_PARSING_RDP_H
-#define __MITTEN_PARSING_RDP_H
+#ifndef __MITTEN_PARSING_SEMANTIC_RDP_H
+#define __MITTEN_PARSING_SEMANTIC_RDP_H
 
 #include <stdexcept>
 #include "scope.h"

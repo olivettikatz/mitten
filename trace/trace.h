@@ -16,8 +16,8 @@
  *
  * Copyright 2013 Oliver Katz */
 
-#ifndef __TRACE_H
-#define __TRACE_H
+#ifndef __MITTEN_TRACE_H
+#define __MITTEN_TRACE_H
 
 #include <iostream>
 #include <string>

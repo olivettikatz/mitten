@@ -16,39 +16,37 @@
  *
  * Copyright 2013 Oliver Katz */
 
-#ifndef __MITTEN_PARSING_SEMANTIC_SCOPE_H
-#define __MITTEN_PARSING_SEMANTIC_SCOPE_H
+#ifndef __MITTEN_PARSING_BUILDER_H
+#define __MITTEN_PARSING_BUILDER_H
 
-#include <stdexcept>
-#include <map>
-#include "../lexical/tokenizer.h"
-#include "ast.h"
-#include <trace/trace.h>
+#include "parsing.h"
 
 namespace parsing
 {
 	using namespace std;
 
-	/*! for parsing scopes in token vectors into ASTs. */
-	class ScopeParser
+	class Builder
 	{
 	private:
-		map<string, string> bounds;
-		string pad(unsigned int l);
-		AST parse(vector<Token> p, unsigned int l);
+		Tokenizer resultTokenizer;
+		ScopeParser resultScopeParser;
+		RDP resultRDP;
+
+		Tokenizer internalCommandTokenizer;
+		Tokenizer internalLineTokenizer;
 
 	public:
-		/*! initializes an empty parser. */
-		ScopeParser() {}
-
-		/*! creates a new scope.
-		\param b the beginning token type of a scope
-		\param e the end token type of that scope
-		*/
-		void bindScope(string b, string e);
-
-		/*! performs actual parsing. */
-		AST parse(vector<Token> p);
+		Builder();
+		vector<Token> tokenize(string s);
+		Pattern buildPattern(vector<Token> p);
+		vector<Pattern> buildMultiPatterns(vector<Token> p);
+		void build(string page);
+		void buildFromFile(string path);
+		Tokenizer getTokenizer();
+		ScopeParser getScopeParser();
+		RDP getRDP();
+		AST parsePage(string page, string file);
+		AST parseFile(string path);
 	};
 }
 

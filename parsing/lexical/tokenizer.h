@@ -16,8 +16,8 @@
  *
  * Copyright 2013 Oliver Katz */
 
-#ifndef __KITTEN_PARSING_LEXICAL_TOKENIZER_H
-#define __KITTEN_PARSING_LEXICAL_TOKENIZER_H
+#ifndef __MITTEN_PARSING_LEXICAL_TOKENIZER_H
+#define __MITTEN_PARSING_LEXICAL_TOKENIZER_H
 
 #include <iostream>
 #include <string>

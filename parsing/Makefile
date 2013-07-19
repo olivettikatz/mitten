@@ -25,7 +25,7 @@ else
 build : libparsing.so
 endif
 
-OBJ=lexical/pattern.o lexical/tokenizer.o semantic/ast.o semantic/asterror.o semantic/scope.o semantic/rdp.o
+OBJ=lexical/pattern.o lexical/tokenizer.o lexical/escape.o semantic/ast.o semantic/asterror.o semantic/scope.o semantic/rdp.o
 
 libparsing.dylib : $(OBJ)
 	$(CXX) $(CXXFLAGS) $(CXXSHAREDFLAGS) $^ -o $@ $(LDFLAGS) -ltrace

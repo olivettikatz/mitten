@@ -16,27 +16,14 @@
  *
  * Copyright 2013 Oliver Katz */
 
-#ifndef __CORE_VM_H
-#define __CORE_VM_H
+#ifndef __MITTEN_MC_CORE_VM_H
+#define __MITTEN_MC_CORE_VM_H
 
 #include <iostream>
 #include <string>
 #include <vector>
 #include <sstream>
 
-/*#ifdef _MITTEN_PLATFORM_DARWIN
-#include <llvm/IR/DerivedTypes.h>
-#include <llvm/IR/LLVMContext.h>
-#include <llvm/IR/Module.h>
-#include <llvm/PassManager.h>
-#include <llvm/Analysis/Verifier.h>
-#include <llvm/Analysis/Passes.h>
-#include <llvm/ExecutionEngine/ExecutionEngine.h>
-#include <llvm/Transforms/Scalar.h>
-#include <llvm/IR/IRBuilder.h>
-#include <llvm/Support/TargetSelect.h>
-#include <llvm/ExecutionEngine/JIT.h>
-#else*/
 #include <llvm/DerivedTypes.h>
 #include <llvm/LLVMContext.h>
 #include <llvm/Module.h>
@@ -48,7 +35,6 @@
 #include <llvm/IRBuilder.h>
 #include <llvm/Support/TargetSelect.h>
 #include <llvm/ExecutionEngine/JIT.h>
-//#endif
 
 #define VM_WARN cout<<"[Mitten VM] "
 

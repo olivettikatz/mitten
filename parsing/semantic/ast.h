@@ -16,8 +16,8 @@
  *
  * Copyright 2013 Oliver Katz */
 
-#ifndef __KITTEN_PARSING_SEMANTIC_AST_H
-#define __KITTEN_PARSING_SEMANTIC_AST_H
+#ifndef __MITTEN_PARSING_SEMANTIC_AST_H
+#define __MITTEN_PARSING_SEMANTIC_AST_H
 
 #include "../lexical/tokenizer.h"
 #include "asterror.h"

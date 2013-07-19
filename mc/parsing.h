@@ -16,8 +16,8 @@
  *
  * Copyright 2013 Oliver Katz */
 
-#ifndef __MC_PARSING_H
-#define __MC_PARSING_H
+#ifndef __MITTEN_MC_PARSING_H
+#define __MITTEN_MC_PARSING_H
 
 #include <iostream>
 #include <parsing/parsing.h>
