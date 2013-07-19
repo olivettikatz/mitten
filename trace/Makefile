@@ -23,10 +23,10 @@ else
 build : libtrace.so
 endif
 
-libtrace.dylib : pattern.o tokenizer.o trace.o
+libtrace.dylib : trace.o
 	$(CXX) $(CXXFLAGS) $(CXXSHAREDFLAGS) $^ -o $@ $(LDFLAGS)
 
-libtrace.so : pattern.o tokenizer.o trace.o
+libtrace.so : trace.o
 	$(CXX) $(CXXFLAGS) $(CXXSHAREDFLAGS) -Wl,-soname,libtrace.so $^ -o $@ $(LDFLAGS)
 
 install :
@@ -49,4 +49,4 @@ doc :
 	doxygen Doxyfile
 
 clean :
-	$(RM) $(RMFLAGS) pattern.o tokenizer.o trace.o libtrace.dylib libtrace.so doc
+	$(RM) $(RMFLAGS) trace.o libtrace.dylib libtrace.so doc

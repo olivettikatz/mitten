@@ -20,9 +20,9 @@
 
 namespace mc
 {
-	Tokenizer createTokenizer()
+	parsing::Tokenizer createTokenizer()
 	{
-		Tokenizer t = Tokenizer();
+		parsing::Tokenizer t = parsing::Tokenizer();
 		t.noDelim(t() == "\"", t() == "\"");
 		t.noDelim(t() == "'", t() == "'");
 		t.skip(t() == "//", t() == "\n" || t() == "\r");
@@ -118,7 +118,7 @@ namespace mc
 		t.token("ValueString", t() < "\"" && t() > "\"");
 		t.token("ValueInt", t() += "0123456789-");
 		t.token("ValueFloat", t() += "0123456789-.");
-		t.token("Symbol", t() += lettersLower+lettersUpper+digits+"_");
+		t.token("Symbol", t() += parsing::lettersLower+parsing::lettersUpper+parsing::digits+"_");
 		t.combine(t() == "-", t() == ".");
 		t.combine(t() == "-.", t() += "-.0123456789");
 		t.combine(t() == "-", t() += "-.0123456789");
@@ -129,9 +129,9 @@ namespace mc
 		return t;
 	}
 
-	ScopeParser createScopeParser()
+	parsing::ScopeParser createScopeParser()
 	{
-		ScopeParser p;
+		parsing::ScopeParser p;
 
 		p.bindScope("BoundaryBeginScope", "BoundaryEndScope");
 		p.bindScope("BoundaryBeginComplex", "BoundaryEndComplex");
@@ -140,24 +140,24 @@ namespace mc
 		return p;
 	}
 
-	RDP createRDP()
+	parsing::RDP createRDP()
 	{
-		RDP p;
+		parsing::RDP p;
 
 		p.setPrecedence("+", 1);
 		p.setPrecedence("*", 2);
 
-		p.addElement(ASTE("TypeExpression") << ASTE("Prefix", "TypeExpressionPrefix") << ASTE("Name", "Symbol") << ASTE("BoundaryBegin", "BoundaryBeginExpression") << ASTE("Arguments", ASTE::_scope) << ASTE("BoundaryEnd", "BoundaryEndExpression"));
+		p.addElement(parsing::ASTE("TypeExpression") << parsing::ASTE("Prefix", "TypeExpressionPrefix") << parsing::ASTE("Name", "Symbol") << parsing::ASTE("BoundaryBegin", "BoundaryBeginExpression") << parsing::ASTE("Arguments", parsing::ASTE::_scope) << parsing::ASTE("BoundaryEnd", "BoundaryEndExpression"));
 
-		p.addElement(ASTE("Operation") << ASTE("Value", "ValueInt") << ASTE("Operator", "OperatorUnaryLeft"));
-		p.addElement(ASTE("Operation") << ASTE("Operator", "OperatorUnaryRight") << ASTE("Value", "ValueInt"));
-		p.addElement(ASTE("Operation") << ASTE("Value", "ValueInt") << ASTE("Operator", "OperatorBinary") << ASTE("Value", "ValueInt"));
+		p.addElement(parsing::ASTE("Operation") << parsing::ASTE("Value", "ValueInt") << parsing::ASTE("Operator", "OperatorUnaryLeft"));
+		p.addElement(parsing::ASTE("Operation") << parsing::ASTE("Operator", "OperatorUnaryRight") << parsing::ASTE("Value", "ValueInt"));
+		p.addElement(parsing::ASTE("Operation") << parsing::ASTE("Value", "ValueInt") << parsing::ASTE("Operator", "OperatorBinary") << parsing::ASTE("Value", "ValueInt"));
 
-		p.addElement(ASTE("Operation") << ASTE("Value", ASTE::_scope) << ASTE("Operator", "OperatorUnaryLeft"));
-		p.addElement(ASTE("Operation") << ASTE("Operator", "OperatorUnaryRight") << ASTE("Value", ASTE::_scope));
-		p.addElement(ASTE("Operation") << ASTE("Value", ASTE::_scope) << ASTE("Operator", "OperatorBinary") << ASTE("Value", ASTE::_scope));
-		p.addElement(ASTE("Operation") << ASTE("Value", ASTE::_scope) << ASTE("Operator", "OperatorBinary") << ASTE("Value", "ValueInt"));
-		p.addElement(ASTE("Operation") << ASTE("Value", "ValueInt") << ASTE("Operator", "OperatorBinary") << ASTE("Value", ASTE::_scope));
+		p.addElement(parsing::ASTE("Operation") << parsing::ASTE("Value", parsing::ASTE::_scope) << parsing::ASTE("Operator", "OperatorUnaryLeft"));
+		p.addElement(parsing::ASTE("Operation") << parsing::ASTE("Operator", "OperatorUnaryRight") << parsing::ASTE("Value", parsing::ASTE::_scope));
+		p.addElement(parsing::ASTE("Operation") << parsing::ASTE("Value", parsing::ASTE::_scope) << parsing::ASTE("Operator", "OperatorBinary") << parsing::ASTE("Value", parsing::ASTE::_scope));
+		p.addElement(parsing::ASTE("Operation") << parsing::ASTE("Value", parsing::ASTE::_scope) << parsing::ASTE("Operator", "OperatorBinary") << parsing::ASTE("Value", "ValueInt"));
+		p.addElement(parsing::ASTE("Operation") << parsing::ASTE("Value", "ValueInt") << parsing::ASTE("Operator", "OperatorBinary") << parsing::ASTE("Value", parsing::ASTE::_scope));
 
 		return p;
 	}

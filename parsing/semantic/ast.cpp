@@ -129,6 +129,74 @@ namespace parsing
 		return children[idx];
 	}
 
+	int AST::findLeafContent(string c)
+	{
+		for (int i = 0; i < size(); i++)
+		{
+			if (children[i].size() == 0 && children[i].getContent().get().compare(c) == 0)
+			{
+				return i;
+			}
+		}
+
+		return npos;
+	}
+
+	int AST::findLeafContent(string c, int after)
+	{
+		for (int i = after; i < size(); i++)
+		{
+			if (children[i].size() == 0 && children[i].getContent().get().compare(c) == 0)
+			{
+				return i;
+			}
+		}
+
+		return npos;
+	}
+
+	int AST::findLeafType(string t)
+	{
+		for (int i = 0; i < size(); i++)
+		{
+			if (children[i].size() == 0 && children[i].getContent().getType().compare(t) == 0)
+			{
+				return i;
+			}
+		}
+
+		return npos;
+	}
+
+	int AST::findLeafType(string t, int after)
+	{
+		for (int i = after; i < size(); i++)
+		{
+			if (children[i].size() == 0 && children[i].getContent().getType().compare(t) == 0)
+			{
+				return i;
+			}
+		}
+
+		return npos;
+	}
+
+	AST AST::subtree(int start)
+	{
+		AST rtn = AST(name, content);
+		for (int i = start; i < size(); i++)
+			rtn.add(children[i]);
+		return rtn;
+	}
+
+	AST AST::subtree(int start, int length)
+	{
+		AST rtn = AST(name, content);
+		for (int i = start; i < start+length; i++)
+			rtn.add(children[i]);
+		return rtn;
+	}
+
 	string AST::display(unsigned int l)
 	{
 		string c;

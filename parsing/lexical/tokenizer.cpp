@@ -382,8 +382,21 @@ namespace parsing
 
 	vector<Token> Tokenizer::tokenizeFile(string path)
 	{
+		TRACE_COUT << "reading " << path << "\n";
 		ifstream f(path.c_str());
+		if (f.good() == false)
+		{
+			cerr << "error: cannot open " << path << "\n";
+			_exit(1);
+		}
+
 		string s((istreambuf_iterator<char>(f)), istreambuf_iterator<char>());
+		if (s.size() <= 1)
+		{
+			cerr << "error: " << path << " is empty\n";
+			_exit(1);
+		}
+
 		return tokenize(s, path);
 	}
 }

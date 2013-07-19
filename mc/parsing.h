@@ -25,11 +25,10 @@
 namespace mc
 {
 	using namespace std;
-	using namespace parsing;
 
-	Tokenizer createTokenizer();
-	ScopeParser createScopeParser();
-	RDP createRDP();
+	parsing::Tokenizer createTokenizer();
+	parsing::ScopeParser createScopeParser();
+	parsing::RDP createRDP();
 }
 
 #endif

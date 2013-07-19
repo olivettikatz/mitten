@@ -38,6 +38,7 @@ namespace parsing
 		int status;
 
 	public:
+		const static int npos = -1;
 		const static int statusRaw = 0;
 		const static int statusScope = 1;
 		const static int statusRDP = 2;
@@ -119,6 +120,13 @@ namespace parsing
 
 		/*! gets the AST child at a certain index. */
 		AST &operator [] (unsigned int idx);
+
+		int findLeafContent(string c);
+		int findLeafContent(string c, int after);
+		int findLeafType(string t);
+		int findLeafType(string t, int after);
+		AST subtree(int start);
+		AST subtree(int start, int length);
 
 		string display(unsigned int l);
 

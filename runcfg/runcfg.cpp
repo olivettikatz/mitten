@@ -168,7 +168,7 @@ namespace runcfg
 			{
 				if (a.find("=") != string::npos)
 				{
-					k = a.substr(2, a.find("="));
+					k = a.substr(2, a.find("=")-2);
 					v = a.substr(a.find("=")+1);
 				}
 				else

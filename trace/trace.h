@@ -50,6 +50,8 @@ namespace trace
 		unsigned int framesToCapture;
 		vector<traceElement> data;
 
+		vector<string> tokenize(string s);
+
 	public:
 		/*! an initializer. */
 		Backtrace() : framesToCapture(128) {}
@@ -112,7 +114,7 @@ namespace trace
 	\param argc pass 'argc' from the main function
 	\param argv pass 'argv' from the main function
 	*/
-	void initFlags(int argc, char *argv[]);
+	void initFlags(int *argc, char *argv[]);
 }
 
 /*! initializer for the library. 
@@ -120,7 +122,7 @@ namespace trace
 \param argv pass 'argv' from the main function
 \sa initFlags
 */
-#define TRACE_INIT(argc, argv) trace::initFlags(argc,argv)
+#define TRACE_INIT(argc, argv) trace::initFlags(&argc,argv)
 
 /*! current line number in file. */
 #define TRACE_LINE __LINE__
@@ -148,7 +150,7 @@ namespace trace
 
 /*! gets the Backtrace object of the current stack in this thread. */
 #define TRACE_STACK (trace::stackTable.find(TRACE_PID)==trace::stackTable.end()?trace::Backtrace():trace::stackTable[TRACE_PID])
-#define TRACE_COUT_SHOW if(TRACE_IS_DEBUG())cout<<"["<<TRACE_MODULE<<":"<<TRACE_LINE<<"] "<<string(TRACE_STACK.size()+(TRACE_LINE<10?1:0)+(TRACE_LINE<100?1:0)+(TRACE_LINE<1000?1:0),' ')
+#define TRACE_COUT_SHOW if(TRACE_IS_DEBUG())std::cout<<"["<<TRACE_MODULE<<":"<<TRACE_LINE<<"] "<<string(TRACE_STACK.size()+(TRACE_LINE<10?1:0)+(TRACE_LINE<100?1:0)+(TRACE_LINE<1000?1:0),' ')
 
 /*! sends a debug message to stdout with prefix if `--trace-show-debug' is enabled (acts like `cout'). */
 #define TRACE_COUT if(trace::flags["show-debug"])TRACE_COUT_SHOW

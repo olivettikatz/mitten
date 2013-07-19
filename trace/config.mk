@@ -12,7 +12,7 @@ CPFLAGS=-f
 MKDIR=mkdir
 MKDIRFLAGS=-p
 LN=ln
-LNFLAGS=-s
+LNFLAGS=-sf
 else
 CXX=g++
 CXXFLAGS=-std=c++11 -ggdb -O0 -I/usr/include/mitten -I.. -fPIC -D_MITTEN_PLATFORM_OTHER
@@ -25,7 +25,7 @@ CPFLAGS=-f
 MKDIR=mkdir
 MKDIRFLAGS=-p
 LN=ln
-LNFLAGS=-s
+LNFLAGS=-sf
 endif
 
 %.o : %.cpp %.h

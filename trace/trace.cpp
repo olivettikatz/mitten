@@ -17,11 +17,11 @@
  * Copyright 2013 Oliver Katz */
 
 #include "trace.h"
-#include "tokenizer.h"
+//#include "tokenizer.h"
 
 namespace trace
 {
-	using namespace parsing;
+	//using namespace parsing;
 
 	map<string, string> moduleTable;
 	map<pid_t, Backtrace> stackTable;
@@ -33,28 +33,51 @@ namespace trace
 		framesToCapture = f;
 	}
 
+	vector<string> Backtrace::tokenize(string s)
+	{
+		vector<string> rtn;
+		string buf;
+
+		for (string::iterator i = s.begin(); i != s.end(); i++)
+		{
+			if (string(" \t\r\n").find(*i) != string::npos)
+			{
+				if (buf.empty() == false)
+				{
+					rtn.push_back(buf);
+					buf = "";
+				}
+			}
+			else
+			{
+				buf += *i;
+			}
+		}
+
+		if (buf.empty() == false)
+		{
+			rtn.push_back(buf);
+		}
+
+		return rtn;
+	}
+
 	void Backtrace::capture()
 	{
 		void *stack[framesToCapture];
 		int frames = backtrace(stack, framesToCapture);
 		char **symbols = backtrace_symbols(stack, frames);
 
-		Tokenizer t = Tokenizer();
-		t.whitespace(t() == " ");
-		t.whitespace(t() == "\t");
-		t.whitespace(t() == "\n");
-		t.whitespace(t() == "\r");
-
 		for (int i = 0; i < frames; i++)
 		{
-			vector<Token> toks = t.tokenize(string(symbols[i]), "--");
+			vector<string> toks = tokenize(string(symbols[i]));
 			traceElement e;
-			e.exec = toks[1].get();
-			e.addr = toks[2].get();
+			e.exec = toks[1];
+			e.addr = toks[2];
 			size_t namebufsize = 1024;
 			int status;
 			char *namebuf = (char *)malloc(namebufsize);
-			if ((namebuf = abi::__cxa_demangle(toks[3].get().c_str(), namebuf, &namebufsize, &status)) && status == 0)
+			if ((namebuf = abi::__cxa_demangle(toks[3].c_str(), namebuf, &namebufsize, &status)) && status == 0)
 			{
 				if (string(namebuf).find("trace::") != string::npos)
 					continue;
@@ -62,7 +85,7 @@ namespace trace
 			}
 			else
 			{
-				e.sym = toks[3].get();
+				e.sym = toks[3];
 			}
 			//free(namebuf);
 			data.push_back(e);
@@ -128,20 +151,28 @@ namespace trace
 		return b[0].sym;
 	}
 
-	void initFlags(int argc, char *argv[])
+	void initFlags(int *argc, char *argv[])
 	{
 		flags["show-data"] = false;
 		flags["show-debug"] = false;
 		flags["use-color"] = true;
 
-		for (int i = 1; i < argc; i++)
+		vector<char *> newargv;
+
+		for (int i = 1; i < *argc; i++)
 		{
 			if (string(argv[i]).compare("--trace-show-data") == 0)
+			{
 				flags["show-data"] = true;
+			}
 			else if (string(argv[i]).compare("--trace-show-debug") == 0)
+			{
 				flags["show-debug"] = true;
+			}
 			else if (string(argv[i]).compare("--trace-disable-color") == 0)
+			{
 				flags["use-color"] = false;
+			}
 			else if (string(argv[i]).compare("--trace-help") == 0)
 			{
 				cout << TRACE_GREEN << "Trace 0.01 Alpha\n\n" << TRACE_DEFAULT;
@@ -155,6 +186,22 @@ namespace trace
 				cout.flush();
 				_exit(0);
 			}
+			else
+			{
+				newargv.push_back(argv[i]);
+			}
 		}
+
+		for (int i = 0; i < newargv.size(); i++)
+		{
+			argv[i+1] = newargv[i];
+		}
+
+		for (int i = newargv.size()+1; i < *argc; i++)
+		{
+			argv[i] = NULL;
+		}
+
+		*argc = newargv.size()+1;
 	}
 }
