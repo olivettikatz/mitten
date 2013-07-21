@@ -3,3 +3,9 @@ import("math");
 
 int x;
 int y = 5;
+
+int main(@vector(string) args)
+{
+	print("hello, world");
+	return (0);
+}

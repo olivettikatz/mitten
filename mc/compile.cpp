@@ -61,6 +61,21 @@ namespace mc
 		return (t.getType().compare("Symbol") == 0);
 	}
 
+	bool Compiler::isOperatorToken(parsing::Token t)
+	{
+		return (t.getType().find("Operator") != string::npos);
+	}
+
+	string Compiler::getLineFromPage(string page, unsigned int linenum)
+	{
+		size_t i = 0;
+		for (; linenum > 1; linenum--)
+		{
+			i = page.find("\n", i+1);
+		}
+		return page.substr(i+1, page.find("\n", i+1)-i-1);
+	}
+
 	Compiler::Compiler()
 	{
 		addSymbol("import");
@@ -120,6 +135,10 @@ namespace mc
 				{
 					TRACE_COUT << "  line ends...\n";
 				}
+				else if (ast[i+1].size() == 0 && ast[i+1].getContent().get().compare("=") == 0)
+				{
+					TRACE_COUT << "found assignment of expression - " << ast[i+1].getContent().get() << "\n";
+				}
 				else
 				{
 					errors.push_back(parsing::ASTError(ast[i+1].getContent(), "unexpected token"));
@@ -162,8 +181,6 @@ namespace mc
 							errors.push_back(parsing::ASTError(ast[i].getContent(), "no semicolon at the end of the line"));
 							return llvmObjectNull();
 						}
-						parsing::AST tmp = ast.subtree(i, ast.findLeafContent(";", i)+1-i);
-						llvmObject res = compile(tmp);
 						break;
 					}
 					else
@@ -177,6 +194,22 @@ namespace mc
 			{
 				TRACE_COUT << "found value - " << ast[i].getContent().get() << "\n";
 			}
+			else if (ast[i].size() == 0 && isOperatorToken(ast[i].getContent()))
+			{
+				TRACE_COUT << "found operator - " << ast[i].getContent().get() << "\n";
+				if (ast[i].getContent().get().compare("!") == 0 || ast[i].getContent().get().compare("~") == 0)
+				{
+					TRACE_COUT << "  unary right operation\n";
+				}
+				else if (ast[i].getContent().get().compare("++") == 0 || ast[i].getContent().get().compare("--") == 0)
+				{
+					TRACE_COUT << "  unary left operation\n";
+				}
+				else
+				{
+					TRACE_COUT << "  binary operation\n";
+				}
+			}
 		}
 
 		return llvmObjectNull();
@@ -187,12 +220,15 @@ namespace mc
 		return errors.size();
 	}
 
-	string Compiler::dumpErrors()
+	string Compiler::dumpErrors(string page)
 	{
 		stringstream ss;
 		for (vector<parsing::ASTError>::iterator i = errors.begin(); i != errors.end(); i++)
 		{
-			ss << i->display() << "\n";
+			ss << i->display();
+			string tmp = getLineFromPage(page, i->getSource().getLine());
+			ss << "  " << tmp.substr(0, i->getSource().getColumn()-1) << "\033[0;31m" << tmp.substr(i->getSource().getColumn()-1, i->getSource().get().size()) << "\033[0;0m" << tmp.substr(i->getSource().getColumn()-1+i->getSource().get().size()) << "\n";
+			ss << string(i->getSource().getColumn()+1, ' ') << "\033[1;28m^\033[0;0m\n";
 		}
 		return ss.str();
 	}

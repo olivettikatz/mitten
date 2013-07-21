@@ -169,6 +169,11 @@ namespace trace
 			{
 				flags["show-debug"] = true;
 			}
+			else if (string(argv[i]).compare("--trace-show-all") == 0)
+			{
+				flags["show-data"] = true;
+				flags["show-debug"] = true;
+			}
 			else if (string(argv[i]).compare("--trace-disable-color") == 0)
 			{
 				flags["use-color"] = false;
@@ -180,6 +185,7 @@ namespace trace
 				cout << "  TRACE OPTIONS:\n";
 				cout << "--trace-show-data      show data flow messages from TRACE_INDATA and TRACE_OUTDATA\n";
 				cout << "--trace-show-debug     show debug messages from TRACE_COUT\n";
+				cout << "--trace-show-all       show all messages\n";
 				cout << "--trace-disable-color  disable use of terminal colors\n";
 				cout << "--trace-help           show this help screen\n\n";
 				cout << TRACE_GREEN << "* * *\n" << TRACE_DEFAULT;

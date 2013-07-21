@@ -175,6 +175,26 @@ namespace parsing
 		return rtn;
 	}
 
+	void Tokenizer::calcLocation(vector<unsigned int> ll, int off, Token &rtn)
+	{
+		unsigned int line = 0, column = 0;
+		for (vector<unsigned int>::iterator i = ll.begin(); i != ll.end(); i++)
+		{
+			off -= *i;
+			if (off <= 0 && *i > 0)
+			{
+				column = off+*i+1;
+				line = i-ll.begin()+1;
+				break;
+			}
+			line++;
+			off--;
+		}
+
+		rtn.setLine(line);
+		rtn.setColumn(column);
+	}
+
 	Pattern Tokenizer::operator () ()
 	{
 		return Pattern();
@@ -251,13 +271,46 @@ namespace parsing
 		return *this;
 	}
 
+	string Tokenizer::readFile(string path)
+	{
+		TRACE_COUT << "reading " << path << "\n";
+		ifstream f(path.c_str());
+		if (f.good() == false)
+		{
+			cerr << "error: cannot open " << path << "\n";
+			_exit(1);
+		}
+
+		string s((istreambuf_iterator<char>(f)), istreambuf_iterator<char>());
+		if (s.size() <= 1)
+		{
+			cerr << "error: " << path << " is empty\n";
+			_exit(1);
+		}
+
+		return s;
+	}
+
 	vector<Token> Tokenizer::tokenize(string s, string f)
 	{
 		TRACE_INDATA("'" << s << "', from '" << f << "'");
 		vector<Token> rtn;
 		unsigned int last = 0;
-		unsigned int line = 0;
-		unsigned int column = 0;
+
+		vector<unsigned int> lineLengths;
+		unsigned int ll = 0;
+		for (string::iterator i = s.begin(); i != s.end(); i++)
+		{
+			if (*i == '\n' || *i == '\r')
+			{
+				lineLengths.push_back(ll);
+				ll = 0;
+			}
+			else
+			{
+				ll++;
+			}
+		}
 
 		for (unsigned int i = 0; i < s.size(); i++)
 		{
@@ -270,7 +323,8 @@ namespace parsing
 					TRACE_COUT << "found the beginning of a no-delimination segment (" << TRACE_YELLOW << j->first.display() << TRACE_DEFAULT << " - " << TRACE_YELLOW << j->second.display() << TRACE_DEFAULT << ")... '" << TRACE_GREEN << current(s, i) << TRACE_DEFAULT << "'\n";
 					if (i-last > 0)
 					{
-						Token tmp = Token(s.substr(last, i-last), line, column);
+						Token tmp = Token(s.substr(last, i-last), 0, 0);
+						calcLocation(lineLengths, last, tmp);
 						tmp.setType(categorize(tmp));
 						tmp.setFile(f);
 						rtn.push_back(tmp);
@@ -285,11 +339,12 @@ namespace parsing
 						if ((toksize = j->second.match(s.substr(i))))
 						{
 							TRACE_COUT << "found the end of the no-delimination segment... '" << TRACE_GREEN << current(s, i) << TRACE_DEFAULT << "'\n";
-							Token tmp = Token(s.substr(last, i-last+toksize), line, column);
+							i += toksize;
+							Token tmp = Token(s.substr(last, i-last), 0, 0);
+							calcLocation(lineLengths, last, tmp);
 							tmp.setType(categorize(tmp));
 							tmp.setFile(f);
 							rtn.push_back(tmp);
-							i++;
 							last = i;
 							TRACE_COUT << "  appending segment token... '" << TRACE_RED << tmp.get() << TRACE_DEFAULT << "'\n";
 							break;
@@ -307,7 +362,8 @@ namespace parsing
 					TRACE_COUT << "found the beginning of a skip segment (" << TRACE_YELLOW << j->first.display() << TRACE_DEFAULT << " - " << TRACE_YELLOW << j->second.display() << TRACE_DEFAULT << ")... '" << TRACE_GREEN << current(s, i) << TRACE_DEFAULT << "'\n";
 					if (i-last > 0)
 					{
-						Token tmp = Token(s.substr(last, i-last), line, column);
+						Token tmp = Token(s.substr(last, i-last), 0, 0);
+						calcLocation(lineLengths, last, tmp);
 						tmp.setType(categorize(tmp));
 						tmp.setFile(f);
 						rtn.push_back(tmp);
@@ -337,13 +393,15 @@ namespace parsing
 				TRACE_COUT << "found a deliminator (token - " << TRACE_YELLOW << s.substr(i, toksize) << TRACE_DEFAULT << ", size - " << toksize << ")... '" << TRACE_GREEN << current(s, i) << TRACE_DEFAULT << "'\n";
 				if (i-last > 0)
 				{
-					Token tmp = Token(s.substr(last, i-last), line, column);
+					Token tmp = Token(s.substr(last, i-last), 0, 0);
+					calcLocation(lineLengths, last, tmp);
 					tmp.setType(categorize(tmp));
 					tmp.setFile(f);
 					rtn.push_back(tmp);
 					TRACE_COUT << "  appending last token... '" << TRACE_RED << tmp.get() << TRACE_DEFAULT << "'\n";
 				}
-				Token tmp = Token(s.substr(i, toksize), line, column);
+				Token tmp = Token(s.substr(i, toksize), 0, 0);
+				calcLocation(lineLengths, i, tmp);
 				tmp.setType(categorize(tmp));
 				tmp.setFile(f);
 				rtn.push_back(tmp);
@@ -356,23 +414,14 @@ namespace parsing
 				TRACE_COUT << "found a piece of whitespace (size - " << toksize << ")... '" << TRACE_GREEN << current(s, i) << TRACE_DEFAULT << "'\n";
 				if (i-last > 0)
 				{
-					Token tmp = Token(s.substr(last, i-last), line, column);
+					Token tmp = Token(s.substr(last, i-last), 0, 0);
+					calcLocation(lineLengths, last, tmp);
 					tmp.setType(categorize(tmp));
 					tmp.setFile(f);
 					rtn.push_back(tmp);
 					TRACE_COUT << "  appending last token... '" << TRACE_RED << tmp.get() << TRACE_DEFAULT << "'\n";
 				}
 				last = i+toksize;
-			}
-
-			if (s[i] == '\n')
-			{
-				column = 0;
-				line++;
-			}
-			else
-			{
-				column++;
 			}
 		}
 
@@ -400,21 +449,6 @@ namespace parsing
 
 	vector<Token> Tokenizer::tokenizeFile(string path)
 	{
-		TRACE_COUT << "reading " << path << "\n";
-		ifstream f(path.c_str());
-		if (f.good() == false)
-		{
-			cerr << "error: cannot open " << path << "\n";
-			_exit(1);
-		}
-
-		string s((istreambuf_iterator<char>(f)), istreambuf_iterator<char>());
-		if (s.size() <= 1)
-		{
-			cerr << "error: " << path << " is empty\n";
-			_exit(1);
-		}
-
-		return tokenize(s, path);
+		return tokenize(readFile(path), path);
 	}
 }

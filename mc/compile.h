@@ -54,6 +54,9 @@ namespace mc
 		vector<parsing::AST> tokenizeAST(parsing::AST ast, string delim);
 		bool isValueToken(parsing::Token t);
 		bool isSymbolToken(parsing::Token t);
+		bool isOperatorToken(parsing::Token t);
+
+		string getLineFromPage(string page, unsigned int linenum);
 
 	public:
 		Compiler();
@@ -61,7 +64,7 @@ namespace mc
 		int addSymbol(string n);
 		llvmObject compile(parsing::AST ast);
 		int errorNumber();
-		string dumpErrors();
+		string dumpErrors(string page);
 	};
 }
 

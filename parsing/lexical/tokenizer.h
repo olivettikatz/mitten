@@ -153,6 +153,7 @@ namespace parsing
 		unsigned int isDeliminator(string s);
 		string categorize(Token t);
 		string current(string s, unsigned int i);
+		void calcLocation(vector<unsigned int> ll, int off, Token &rtn);
 
 	public:
 		/*! initializes an empty tokenizer. */
@@ -201,6 +202,8 @@ namespace parsing
 		\param pb the second pattern to combine by
 		*/
 		Tokenizer &combine(Pattern pa, Pattern pb);
+
+		string readFile(string path);
 
 		/*! tokenizes a string with a given filename. */
 		vector<Token> tokenize(string s, string f);

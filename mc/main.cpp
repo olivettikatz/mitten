@@ -149,14 +149,15 @@ void usage()
 void compile(string path)
 {
 	TRACE_COUT << "compiling " << path << "...\n";
-	vector<parsing::Token> toks = tokenizer.tokenizeFile(path);
+	string page = tokenizer.readFile(path);
+	vector<parsing::Token> toks = tokenizer.tokenize(page, path);
 	parsing::AST ast = scopeParser.parse(toks);
 	ast = rdp.parse(ast);
 	compiler.compile(ast);
 
 	if (compiler.errorNumber() > 0)
 	{
-		cerr << compiler.dumpErrors();
+		cerr << compiler.dumpErrors(page);
 		if (compiler.errorNumber() == 1)
 			cerr << "1 error.\n";
 		else

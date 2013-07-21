@@ -20,6 +20,11 @@
 
 namespace parsing
 {
+	Token ASTError::getSource()
+	{
+		return src;
+	}
+
 	string ASTError::format(string fmt)
 	{
 		string tmp = fmt;
