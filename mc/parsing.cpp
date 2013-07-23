@@ -144,6 +144,12 @@ namespace mc
 	{
 		parsing::RDP p;
 
+		p.setTag("int", "type");
+		p.setTag("string", "type");
+		p.setTag("vector", "type");
+
+		p.setTag("import", "symbol");
+
 		p.setPrecedence("+", 1);
 		p.setPrecedence("*", 2);
 

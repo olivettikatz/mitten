@@ -61,6 +61,8 @@ namespace parsing
 		/*! adds multiple errors. */
 		void error(vector<ASTError> e);
 
+		void pullUpErrors();
+
 		/*! returns `true' if there are errors. */
 		bool containsErrors();
 
@@ -171,7 +173,8 @@ namespace parsing
 		{
 			_name,
 			_type,
-			_scope
+			_scope,
+			_tag
 		} expectationType;
 
 	private:

@@ -176,11 +176,6 @@ namespace mc
 					{
 						TRACE_COUT << "found symbol after types - " << ast[i].getContent().get() << "\n";
 						addSymbol(ast[i].getContent().get());
-						if (ast.findLeafContent(";", i) == parsing::AST::npos)
-						{
-							errors.push_back(parsing::ASTError(ast[i].getContent(), "no semicolon at the end of the line"));
-							return llvmObjectNull();
-						}
 						break;
 					}
 					else

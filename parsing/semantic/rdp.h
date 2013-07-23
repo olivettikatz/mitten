@@ -31,13 +31,39 @@ namespace parsing
 	/*! for recursive-descent parsing existing ASTs. */
 	class RDP
 	{
+	public:
+		typedef enum
+		{
+			_beginning,
+			_end
+		} relativeTo;
+
 	private:
 		map<string, unsigned int> precedences;
 		vector<ASTE> content;
+		map<string, string> tags;
+
+		typedef struct
+		{
+			ASTE condition;
+			relativeTo relative;
+			int position;
+			string tag;
+		} tagCondition;
+
+		vector<tagCondition> tagConditionList;
+		void addTagsFromAST(AST &ast);
 		
 		vector<vector<ASTE>::iterator> findElements(string name);
-		AST parse(AST &ast, ASTE e, unsigned int &ci);
-		AST parse(AST &ast, unsigned int &ci);
+		AST parse(AST ast, ASTE e, unsigned int &ci);
+		AST parse(AST ast, unsigned int &ci);
+		bool verifyASTForParsing(AST &ast);
+		AST reorganizeOnPrecedence(AST ast, AST subast, unsigned int prec);
+		AST subparse(AST ast, ASTE e, unsigned int &i, unsigned int prec);
+		AST subparse(AST ast, unsigned int &i, unsigned int prec);
+		unsigned int getMaxPrecedence(AST ast);
+		bool verifyExpectation(ASTE e);
+		bool verifyExpectation(ASTE e, AST ast, unsigned int ci);
 
 	public:
 		/*! initializes an empty parser. */
@@ -51,9 +77,16 @@ namespace parsing
 
 		/*! gets the precedence of a token with a certain content. */
 		unsigned int getPrecedence(string content);
+		unsigned int getPrecedence(AST content);
+
+		string setTag(string symbol, string tag);
+
+		string getTag(string symbol);
 
 		/*! adds a new ASTE. */
 		void addElement(ASTE e);
+
+		void addTagCondition(ASTE cond, relativeTo rel, int pos, string tag);
 
 		/*! performs the actual parsing. */
 		AST parse(AST ast);
