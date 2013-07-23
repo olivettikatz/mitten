@@ -203,6 +203,7 @@ namespace parsing
 		*/
 		Tokenizer &combine(Pattern pa, Pattern pb);
 
+		/*! reads the contents of a file and returns them. */
 		string readFile(string path);
 
 		/*! tokenizes a string with a given filename. */

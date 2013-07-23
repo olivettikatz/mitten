@@ -34,6 +34,8 @@ namespace parsing
 		Token src;
 		string msg;
 
+		string format(string fmt);
+
 	public:
 		/*! initializes an empty error. */
 		ASTError() {}
@@ -41,9 +43,8 @@ namespace parsing
 		/*! initializes an error with a source token and a message. */
 		ASTError(Token s, string m) : src(s), msg(m) {}
 
+		/*! returns the token from which the error originated. */
 		Token getSource();
-
-		string format(string fmt);
 
 		/*! returns a formatted string in a specified format. */
 		string display(string fmt);

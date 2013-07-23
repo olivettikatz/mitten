@@ -32,6 +32,7 @@ namespace parsing
 	class RDP
 	{
 	public:
+		/*! for auto-tagging. */
 		typedef enum
 		{
 			_beginning,
@@ -77,15 +78,25 @@ namespace parsing
 
 		/*! gets the precedence of a token with a certain content. */
 		unsigned int getPrecedence(string content);
+
+		/*! gets the precedence of a root token of an AST with a certian content. */
 		unsigned int getPrecedence(AST content);
 
+		/*! sets the tag of a symbol. */
 		string setTag(string symbol, string tag);
 
+		/*! gets the tag of a symbol if one exists, or an empty string if not. */
 		string getTag(string symbol);
 
 		/*! adds a new ASTE. */
 		void addElement(ASTE e);
 
+		/*! adds an auto-tagging condition.
+		\param cond the condition to expect
+		\param rel what `pos' is relative to
+		\param pos the offset of the symbol to be tagged
+		\param tag the tag to use
+		*/
 		void addTagCondition(ASTE cond, relativeTo rel, int pos, string tag);
 
 		/*! performs the actual parsing. */

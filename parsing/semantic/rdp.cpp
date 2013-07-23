@@ -95,14 +95,14 @@ namespace parsing
 				{
 					fixed = false;
 					TRACE_COUT << TRACE_RED << p[i].getName() << TRACE_DEFAULT << " failed - (" << p[i].getArgument() << " != " << ast[i].getContent().getType() << ") - " << ast[i].displaySome(2) << "\n";
-					ast.error(ASTError(ast[i].getContent(), "expected '"+p[i].getArgument()+"', but got '"+ast[i].getContent().getType()+"'"));
+					ast[i].error("expected '"+p[i].getArgument()+"', but got '"+ast[i].getContent().getType()+"'");
 					ast[i].setStatus(AST::statusRDP);
 				}
 				else if (ast[i].size() > 0)
 				{
 					fixed = false;
 					TRACE_COUT << TRACE_RED << p[i].getName() << TRACE_DEFAULT << " failed - " << ast[i].displaySome(2) << "\n";
-					ast.error(ASTError(ast[i].getContent(), "expected a leaf, but got a branch with now-orphaned children"));
+					ast.error("expected a leaf, but got a branch with now-orphaned children");
 					ast[i].setStatus(AST::statusRDP);
 				}
 				else
@@ -124,14 +124,14 @@ namespace parsing
 				{
 					fixed = false;
 					TRACE_COUT << TRACE_RED << p[i].getName() << TRACE_DEFAULT << " failed - (" << p[i].getArgument() << " != " << getTag(ast[i].getContent().get()) << ") - " << ast[i].displaySome(2) << "\n";
-					ast.error(ASTError(ast[i].getContent(), "expected '"+p[i].getArgument()+"', but got '"+getTag(ast[i].getContent().get())+"'"));
+					ast[i].error("expected '"+p[i].getArgument()+"', but got '"+getTag(ast[i].getContent().get())+"'");
 					ast[i].setStatus(AST::statusRDP);
 				}
 				else if (ast[i].size() > 0)
 				{
 					fixed = false;
 					TRACE_COUT << TRACE_RED << p[i].getName() << TRACE_DEFAULT << " failed - " << ast[i].displaySome(2) << "\n";
-					ast.error(ASTError(ast[i].getContent(), "expected a leaf, but got a branch with now-orphaned children"));
+					ast[i].error("expected a leaf, but got a branch with now-orphaned children");
 					ast[i].setStatus(AST::statusRDP);
 				}
 				else
@@ -248,7 +248,7 @@ namespace parsing
 	{
 		if (ast.size() == 0)
 		{
-			ast.error(ASTError(ast.getContent(), "expected a scope, but got a leaf"));
+			ast.error("expected a scope, but got a leaf");
 			ast.setStatus(AST::statusRDP);
 			return false;
 		}

@@ -27,6 +27,7 @@ namespace parsing
 {
 	using namespace std;
 
+	/*! converts backslash escape codes to ASCII characters and returns the result. */
 	string escape(string s);
 }
 

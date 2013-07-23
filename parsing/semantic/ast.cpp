@@ -20,6 +20,11 @@
 
 namespace parsing
 {
+	void AST::error(string msg)
+	{
+		errors.push_back(ASTError(content, msg));
+	}
+
 	void AST::error(ASTError e)
 	{
 		errors.push_back(e);

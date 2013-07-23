@@ -37,6 +37,10 @@ namespace parsing
 		vector<ASTError> errors;
 		int status;
 
+		string display(unsigned int l);
+		AST flatten(vector<AST> &rtn);
+		string displaySome(unsigned int l, unsigned int limit);
+
 	public:
 		const static int npos = -1;
 		const static int statusRaw = 0;
@@ -54,6 +58,8 @@ namespace parsing
 
 		/*! initializes an AST with only a token content. */
 		AST(Token c) : content(c), status(statusRaw) {}
+
+		void error(string msg);
 
 		/*! adds an error. */
 		void error(ASTError e);
@@ -123,27 +129,32 @@ namespace parsing
 		/*! gets the AST child at a certain index. */
 		AST &operator [] (unsigned int idx);
 
+		/*! finds the index of the first leaf with content matching `c'. */
 		int findLeafContent(string c);
-		int findLeafContent(string c, int after);
-		int findLeafType(string t);
-		int findLeafType(string t, int after);
-		AST subtree(int start);
-		AST subtree(int start, int length);
 
-		string display(unsigned int l);
+		/*! finds the index of the first leaf with content matching `c' after `after'. */
+		int findLeafContent(string c, int after);
+
+		/*! finds the index of the first leaf with type matching `t'. */
+		int findLeafType(string t);
+
+		/*! finds the index of the first leaf with type matching `t' after `after'. */
+		int findLeafType(string t, int after);
+
+		/*! returns an AST with the same root as the current AST, but containing only children after index `start'. */
+		AST subtree(int start);
+
+		/*! returns an AST with the same root as the current AST, but containing only `length' children after index `start'. */
+		AST subtree(int start, int length);
 
 		/*! displays the current AST. */
 		string display();
-
-		string displaySome(unsigned int l, unsigned int limit);
 
 		/*! displays some of the current AST. */
 		string displaySome(unsigned int limit);
 
 		/*! displays the errors in the current AST. */
 		string dumpErrors();
-
-		AST flatten(vector<AST> &rtn);
 
 		/*! returns a flat version of the current AST. */
 		AST flatten();
