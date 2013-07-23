@@ -78,6 +78,11 @@ namespace parsing
 
 		/*! gets the precedence of a token with a certain content. */
 		unsigned int getPrecedence(string content);
+		unsigned int getPrecedence(AST content);
+
+		string setTag(string symbol, string tag);
+
+		string getTag(string symbol);
 
 		/*! gets the precedence of a root token of an AST with a certian content. */
 		unsigned int getPrecedence(AST content);
