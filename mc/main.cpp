@@ -153,9 +153,10 @@ void compile(string path)
 	vector<parsing::Token> toks = tokenizer.tokenize(page, path);
 	parsing::AST ast = scopeParser.parse(toks);
 	ast = rdp.parse(ast);
-	compiler.compile(ast);
+	ast.pullUpErrors();
+	//compiler.compile(ast);
 
-	if (compiler.errorNumber() > 0)
+	/*if (compiler.errorNumber() > 0)
 	{
 		cerr << compiler.dumpErrors(page);
 		if (compiler.errorNumber() == 1)
@@ -163,5 +164,5 @@ void compile(string path)
 		else
 			cerr << compiler.errorNumber() << " errors.\n";
 		_exit(1);
-	}
+	}*/
 }

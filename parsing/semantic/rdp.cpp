@@ -20,6 +20,32 @@
 
 namespace parsing
 {
+	void RDP::addTagsFromAST(AST &ast)
+	{
+		for (unsigned int i = 0; i < ast.size()-1; i++)
+		{
+			for (vector<tagCondition>::iterator j = tagConditionList.begin(); j != tagConditionList.end(); j++)
+			{
+				AST astdup = ast;
+				unsigned int ci = i;
+				AST tmp = parse(astdup, j->condition, ci);
+				if (tmp.containsErrors() == false)
+				{
+					if (j->relative == _beginning)
+					{
+						setTag(ast[i+j->position].getContent().get(), j->tag);
+					}
+					else if (j->relative == _end)
+					{
+						setTag(ast[ci+j->position].getContent().get(), j->tag);
+					}
+
+					break;
+				}
+			}
+		}
+	}
+
 	vector<vector<ASTE>::iterator> RDP::findElements(string name)
 	{
 		vector<vector<ASTE>::iterator> rtn;
@@ -29,25 +55,20 @@ namespace parsing
 		return rtn;
 	}
 
-	AST RDP::parse(AST &ast, ASTE p, unsigned int &ci)
+	AST RDP::parse(AST ast, ASTE p, unsigned int &ci)
 	{
 		TRACE_INDATA(TRACE_GREEN << p.getName() << TRACE_DEFAULT << " (from " << ci << " to " << (p.size() < ast.size() ? p.size() : ast.size()) << ") " << ast.displaySome(2));
 
-		if (p.size() == 0)
+		if (!verifyExpectation(p, ast, ci))
 		{
-			throw runtime_error("empty pattern '"+p.getName()+"'");
-		}
-
-		if (ast.size() == 0 || ci >= (p.size() < ast.size() ? p.size() : ast.size())-1)
-		{
-			TRACE_COUT << "cannot parse leaf at this level, returning...\n";
+			TRACE_COUT << "could not verify expectation, returning...\n";
 			TRACE_OUTDATA(ast.displaySome(2));
 			return ast;
 		}
 
 		ast.setName(p.getName());
 		bool fixed = true;
-		unsigned int maxPrec = 0;
+		unsigned int maxPrec = getMaxPrecedence(ast);
 
 		unsigned int i;
 		for (i = ci; i < p.size() && i < ast.size(); i++)
@@ -55,49 +76,16 @@ namespace parsing
 			if (p[i].getExpectationType() == ASTE::_name)
 			{
 				vector<vector<ASTE>::iterator> pi = findElements(p[i].getArgument());
-				if (pi.empty())
+				if (ast[i].getStatus() < AST::statusRDP)
 				{
-					throw runtime_error("no such pattern '"+p[i].getArgument()+"'");
-				}
-				else
-				{
-					if (ast[i].getStatus() < AST::statusRDP)
+					bool haveSuccess = false;
+					AST errtmp;
+
+					for (vector<vector<ASTE>::iterator>::iterator j = pi.begin(); j != pi.end(); j++)
 					{
-						bool haveSuccess = false;
-						AST errtmp;
-
-						for (vector<vector<ASTE>::iterator>::iterator j = pi.begin(); j != pi.end(); j++)
-						{
-							AST tmp = parse(ast[i], **j, i);
-							TRACE_INDATA(tmp.display());
-
-							if (tmp.containsErrors())
-							{
-								errtmp.error(tmp.getErrors());
-							}
-							else if (getPrecedence(ast.getContent().get()) >= getPrecedence(tmp.getContent().get()))
-							{
-								TRACE_COUT << "precedence of root is >= that of child, appending normally...\n";
-								haveSuccess = true;
-								ast[i] = tmp;
-								ast.error(ast[i].getErrors());
-								ast[i].setStatus(AST::statusRDP);
-							}
-							else
-							{
-								TRACE_COUT << "precedence of root is < that of child, appending stealing latest child...\n";
-								haveSuccess = true;
-								tmp.addAtBeginning(ast[i]);
-								ast[i] = tmp;
-								ast.error(ast[i].getErrors());
-								ast[i].setStatus(AST::statusRDP);
-							}
-						}
-
-						if (haveSuccess == false)
-						{
-							ast.error(errtmp.getErrors());
-						}
+						ast[i] = subparse(ast[i], **j, i, getPrecedence(ast));
+						if (ast[i].containsErrors() == false)
+							haveSuccess = true;
 					}
 				}
 			}
@@ -119,8 +107,6 @@ namespace parsing
 				}
 				else
 				{
-					if (getPrecedence(ast[i].getContent().get()) > maxPrec)
-						maxPrec = getPrecedence(ast[i].getContent().get());
 					TRACE_COUT << TRACE_GREEN << p[i].getName() << TRACE_DEFAULT << " succeeded.\n";
 					ast[i].setName(p[i].getName());
 					ast[i].setStatus(AST::statusRDP);
@@ -128,25 +114,30 @@ namespace parsing
 			}
 			else if (p[i].getExpectationType() == ASTE::_scope)
 			{
-				if (ast[i].size() == 0)
+				unsigned int ci2 = 0;
+				ast[i] = subparse(ast[i], ci2, getPrecedence(ast));
+				ast[i].setName(p[i].getName());
+			}
+			else if (p[i].getExpectationType() == ASTE::_tag)
+			{
+				if (getTag(ast[i].getContent().get()).compare(p[i].getArgument()) != 0)
+				{
+					fixed = false;
+					TRACE_COUT << TRACE_RED << p[i].getName() << TRACE_DEFAULT << " failed - (" << p[i].getArgument() << " != " << getTag(ast[i].getContent().get()) << ") - " << ast[i].displaySome(2) << "\n";
+					ast.error(ASTError(ast[i].getContent(), "expected '"+p[i].getArgument()+"', but got '"+getTag(ast[i].getContent().get())+"'"));
+					ast[i].setStatus(AST::statusRDP);
+				}
+				else if (ast[i].size() > 0)
 				{
 					fixed = false;
 					TRACE_COUT << TRACE_RED << p[i].getName() << TRACE_DEFAULT << " failed - " << ast[i].displaySome(2) << "\n";
-					ast.error(ASTError(ast[i].getContent(), "expected a scope, but got a leaf"));
+					ast.error(ASTError(ast[i].getContent(), "expected a leaf, but got a branch with now-orphaned children"));
 					ast[i].setStatus(AST::statusRDP);
 				}
 				else
 				{
 					TRACE_COUT << TRACE_GREEN << p[i].getName() << TRACE_DEFAULT << " succeeded.\n";
-					unsigned int ci2 = 0;
-					if (ast[i].getStatus() < AST::statusRDP)
-					{
-						TRACE_COUT << "parsing sub-scope - " << ast[i].display() << "\n";
-						ast[i] = parse(ast[i], ci2);
-						TRACE_INDATA(ast[i].display());
-					}
 					ast[i].setName(p[i].getName());
-					ast.error(ast[i].getErrors());
 					ast[i].setStatus(AST::statusRDP);
 				}
 			}
@@ -181,7 +172,7 @@ namespace parsing
 		return ast;
 	}
 
-	AST RDP::parse(AST &ast, unsigned int &ci)
+	AST RDP::parse(AST ast, unsigned int &ci)
 	{
 		TRACE_COUT << "any-parsing " << ast.displaySome(3) << "\n";
 		for (unsigned int i = 0; i < ast.size(); i++)
@@ -253,6 +244,113 @@ namespace parsing
 		}
 	}
 
+	bool RDP::verifyASTForParsing(AST &ast)
+	{
+		if (ast.size() == 0)
+		{
+			ast.error(ASTError(ast.getContent(), "expected a scope, but got a leaf"));
+			ast.setStatus(AST::statusRDP);
+			return false;
+		}
+
+		if (ast.getStatus() >= AST::statusRDP)
+		{
+			TRACE_COUT << "already parsed, skipping...\n";
+			return false;
+		}
+
+		return true;
+	}
+
+	AST RDP::reorganizeOnPrecedence(AST ast, AST subast, unsigned int prec)
+	{
+		if (prec >= getPrecedence(subast))
+		{
+			TRACE_COUT << "precedence of root is >= that of child, keeping current structure...\n";
+			
+		}
+		else
+		{
+			TRACE_COUT << "precedence of root is < that of child, reorganizing structure...\n";
+			ast.addAtBeginning(subast);
+		}
+
+		return ast;
+	}
+
+	AST RDP::subparse(AST ast, ASTE e, unsigned int &i, unsigned int prec)
+	{
+		if (verifyASTForParsing(ast) == false)
+		{
+			ast.setName(e.getName());
+			return ast;
+		}
+
+		AST rtn = parse(ast, e, i);
+		rtn = reorganizeOnPrecedence(ast, rtn, prec);
+		rtn.setStatus(AST::statusRDP);
+
+		TRACE_INDATA(rtn.display());
+		return rtn;
+	}
+
+	AST RDP::subparse(AST ast, unsigned int &i, unsigned int prec)
+	{
+		if (verifyASTForParsing(ast) == false)
+			return ast;
+
+		AST rtn = parse(ast, i);
+		rtn = reorganizeOnPrecedence(ast, rtn, prec);
+		rtn.setStatus(AST::statusRDP);
+
+		TRACE_INDATA(rtn.display());
+		return rtn;
+	}
+
+	unsigned int RDP::getMaxPrecedence(AST ast)
+	{
+		unsigned int maxPrec = 0;
+		for (unsigned int i = 0; i < ast.size(); i++)
+			if (getPrecedence(ast[i].getContent().get()) > maxPrec)
+				maxPrec = getPrecedence(ast[i].getContent().get());
+		return maxPrec;
+	}
+
+	bool RDP::verifyExpectation(ASTE e)
+	{
+		if (e.size() == 0)
+		{
+			throw runtime_error("empty expectation");
+			return false;
+		}
+
+		for (unsigned int i = 0; i < e.size(); i++)
+		{
+			if (e[i].getExpectationType() == ASTE::_name)
+			{
+				vector<vector<ASTE>::iterator> pi = findElements(e[i].getArgument());
+				if (pi.empty())
+				{
+					throw runtime_error("no such pattern '"+e[i].getArgument()+"'");
+					return false;
+				}
+			}
+		}
+
+		return true;
+	}
+
+	bool RDP::verifyExpectation(ASTE e, AST ast, unsigned int ci)
+	{
+		if (verifyExpectation(e) == false)
+			return false;
+
+		if (ast.size() == 0 || ci >= (e.size() < ast.size() ? e.size() : ast.size())-1)
+			return false;
+		
+		return false;
+	}
+
 	void RDP::setPrecedence(string content, unsigned int level)
 	{
 		precedences[content] = level;
@@ -264,6 +362,24 @@ namespace parsing
 			return 0;
 		else
 			return precedences[content];
+	}
+
+	unsigned int RDP::getPrecedence(AST ast)
+	{
+		return getPrecedence(ast.getContent().get());
+	}
+
+	string RDP::setTag(string symbol, string tag)
+	{
+		return (tags[symbol] = tag);
+	}
+
+	string RDP::getTag(string symbol)
+	{
+		if (tags.find(symbol) == tags.end())
+			return "";
+		else
+			return tags[symbol];
 	}
 
 	void RDP::addElement(ASTE e)
@@ -284,6 +400,33 @@ namespace parsing
 			}
 
 			content.push_back(e);
+		}
+	}
+
+	void RDP::addTagCondition(ASTE cond, RDP::relativeTo rel, int pos, string tag)
+	{
+		tagCondition tmp;
+		tmp.condition = cond;
+		tmp.relative = rel;
+		tmp.position = pos;
+		tmp.tag = tag;
+
+		if (tagConditionList.empty())
+		{
+			tagConditionList.push_back(tmp);
+		}
+		else
+		{
+			for (vector<tagCondition>::iterator i = tagConditionList.begin(); i != tagConditionList.end(); i++)
+			{
+				if (i->condition.size() < tmp.condition.size())
+				{
+					tagConditionList.insert(i, tmp);
+					return ;
+				}
+			}
+
+			tagConditionList.push_back(tmp);
 		}
 	}
 

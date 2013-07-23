@@ -30,6 +30,15 @@ namespace parsing
 		errors.insert(errors.end(), e.begin(), e.end());
 	}
 
+	void AST::pullUpErrors()
+	{
+		for (vector<AST>::iterator i = children.begin(); i != children.end(); i++)
+		{
+			i->pullUpErrors();
+			error(i->getErrors());
+		}
+	}
+
 	bool AST::containsErrors()
 	{
 		return !errors.empty();
