@@ -151,8 +151,11 @@ void compile(string path)
 	TRACE_COUT << "compiling " << path << "...\n";
 	string page = tokenizer.readFile(path);
 	vector<parsing::Token> toks = tokenizer.tokenize(page, path);
+	TRACE_STACK.clear();
 	parsing::AST ast = scopeParser.parse(toks);
+	TRACE_STACK.clear();
 	ast = rdp.parse(ast);
+	TRACE_STACK.clear();
 	ast.pullUpErrors();
 	//compiler.compile(ast);
 

@@ -27,6 +27,8 @@ namespace trace
 	map<pid_t, Backtrace> stackTable;
 	map<pid_t, bool> debugTable;
 	map<string, bool> flags;
+	vector<string> moduleFilters;
+	vector<string> methodFilters;
 
 	void Backtrace::setFramesToCapture(unsigned int f)
 	{
@@ -178,16 +180,46 @@ namespace trace
 			{
 				flags["use-color"] = false;
 			}
+			else if (string(argv[i]).compare("--trace-filter-module") == 0)
+			{
+				if (++i >= *argc)
+				{
+					cerr << "error: --trace-filter-module requires an argument\n";
+					_exit(1);
+				}
+
+				moduleFilters.push_back(string(argv[i]));
+			}
+			else if (string(argv[i]).compare("--trace-filter-method") == 0)
+			{
+				if (++i >= *argc)
+				{
+					cerr << "error: --trace-filter-method requires an argument\n";
+					_exit(1);
+				}
+
+				methodFilters.push_back(string(argv[i]));
+			}
 			else if (string(argv[i]).compare("--trace-help") == 0)
 			{
 				cout << TRACE_GREEN << "Trace 0.01 Alpha\n\n" << TRACE_DEFAULT;
 				cout << argv[0] << " [TRACE OPTIONS]\n\n";
 				cout << "  TRACE OPTIONS:\n";
-				cout << "--trace-show-data      show data flow messages from TRACE_INDATA and TRACE_OUTDATA\n";
-				cout << "--trace-show-debug     show debug messages from TRACE_COUT\n";
-				cout << "--trace-show-all       show all messages\n";
-				cout << "--trace-disable-color  disable use of terminal colors\n";
-				cout << "--trace-help           show this help screen\n\n";
+				cout << "--trace-show-data                       show data flow messages from\n";
+				cout << "                                        TRACE_INDATA and TRACE_OUTDATA\n";
+				cout << "--trace-show-debug                      show debug messages from\n";
+				cout << "                                        TRACE_COUT\n";
+				cout << "--trace-show-all                        show all messages\n";
+				cout << "--trace-filter-module <MODULE PATTERN>  show only messages from modules\n";
+				cout << "                                        with names containing\n";
+				cout << "                                        <MODULE PATTERN> (can be used\n";
+				cout << "                                        multiple times)\n";
+				cout << "--trace-filter-method <METHOD PATTERN>  show only messages from methods\n";
+				cout << "                                        with names containing\n";
+				cout << "                                        <METHOD PATTERN> (can be used\n";
+				cout << "                                        multiple times)\n";
+				cout << "--trace-disable-color                   disable use of terminal colors\n";
+				cout << "--trace-help                            show this help screen\n";
 				cout << TRACE_GREEN << "* * *\n" << TRACE_DEFAULT;
 				cout.flush();
 				_exit(0);
@@ -209,5 +241,33 @@ namespace trace
 		}
 
 		*argc = newargv.size()+1;
+	}
+
+	bool canDisplayMessages(string module, string method)
+	{
+		bool rtn = false;
+
+		for (vector<string>::iterator i = moduleFilters.begin(); i != moduleFilters.end(); i++)
+		{
+			if (module.find(*i) != string::npos)
+			{
+				rtn = true;
+				break;
+			}
+		}
+
+		for (vector<string>::iterator i = methodFilters.begin(); i != methodFilters.end(); i++)
+		{
+			if (method.find(*i) != string::npos)
+			{
+				rtn = true;
+				break;
+			}
+		}
+
+		if (rtn == false && (moduleFilters.empty() && methodFilters.empty()))
+			rtn = true;
+
+		return rtn;
 	}
 }

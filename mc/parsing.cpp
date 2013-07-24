@@ -144,16 +144,22 @@ namespace mc
 	{
 		parsing::RDP p;
 
-		p.setTag("int", "type");
-		p.setTag("string", "type");
-		p.setTag("vector", "type");
+		p.setTag("int", "Type");
+		p.setTag("string", "Type");
+		p.setTag("vector", "Type");
 
-		p.setTag("import", "symbol");
+		p.setTag("import", "Symbol");
+		p.setTag("print", "Symbol");
+		p.setTag("return", "Symbol");
+
+		p.addTagCondition(parsing::ASTE() << parsing::ASTE("TypeExpression") << parsing::ASTE("Symbol", "Symbol"), parsing::RDP::_end, 0, "Symbol");
 
 		p.setPrecedence("+", 1);
 		p.setPrecedence("*", 2);
 
-		p.addElement(parsing::ASTE("TypeExpression") << parsing::ASTE("Prefix", "TypeExpressionPrefix") << parsing::ASTE("Name", "Symbol") << parsing::ASTE("BoundaryBegin", "BoundaryBeginExpression") << parsing::ASTE("Arguments", parsing::ASTE::_scope) << parsing::ASTE("BoundaryEnd", "BoundaryEndExpression"));
+		p.addElement(parsing::ASTE("TypeExpression") << parsing::ASTE("TypeSymbol", parsing::ASTE::_tag, "Type"));
+		p.addElement(parsing::ASTE("TypeExpression") << parsing::ASTE("TypeSymbol", parsing::ASTE::_tag, "Type") << parsing::ASTE("TypeExpression"));
+		p.addElement(parsing::ASTE("TypeExpression") << parsing::ASTE("TypeSymbol", parsing::ASTE::_tag, "Type") << parsing::ASTE("BoundaryBegin", "BoundaryBeginExpression") << parsing::ASTE("TypeExpression") << parsing::ASTE("BoundaryEnd", "BoundaryEndExpression"));
 
 		p.addElement(parsing::ASTE("Operation") << parsing::ASTE("Value", "ValueInt") << parsing::ASTE("Operator", "OperatorUnaryLeft"));
 		p.addElement(parsing::ASTE("Operation") << parsing::ASTE("Operator", "OperatorUnaryRight") << parsing::ASTE("Value", "ValueInt"));

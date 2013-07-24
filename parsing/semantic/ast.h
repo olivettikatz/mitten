@@ -199,7 +199,7 @@ namespace parsing
 		ASTE() {}
 
 		/*! initializes an ASTE with only a name. */
-		ASTE(string n) : name(n) {}
+		ASTE(string n) : name(n), type(_name) {}
 
 		/*! initializes an ASTE with a name and an expected type. */
 		ASTE(string n, string t) : name(n), type(_type), argument(t) {}

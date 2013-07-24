@@ -441,6 +441,8 @@ namespace parsing
 			ss << "type";
 		else if (type == _scope)
 			ss << "scope";
+		else if (type == _tag)
+			ss << "tag";
 		ss << ":" << argument;
 		for (vector<ASTE>::iterator i = children.begin(); i != children.end(); i++)
 			ss << "\n" << string(l*2, ' ') << i->display(l+1);

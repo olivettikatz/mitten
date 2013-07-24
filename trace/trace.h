@@ -109,12 +109,16 @@ namespace trace
 	extern map<pid_t, Backtrace> stackTable;
 	extern map<pid_t, bool> debugTable;
 	extern map<string, bool> flags;
+	extern vector<string> moduleFilters;
+	extern vector<string> methodFilters;
 
 	/*! initializes the trace library from command line arguments (call executable using this function with argument `--trace-help' for more info). 
 	\param argc pass 'argc' from the main function
 	\param argv pass 'argv' from the main function
 	*/
 	void initFlags(int *argc, char *argv[]);
+
+	bool canDisplayMessages(string module, string method);
 }
 
 /*! initializer for the library. 
@@ -150,7 +154,7 @@ namespace trace
 
 /*! gets the Backtrace object of the current stack in this thread. */
 #define TRACE_STACK (trace::stackTable.find(TRACE_PID)==trace::stackTable.end()?trace::Backtrace():trace::stackTable[TRACE_PID])
-#define TRACE_COUT_SHOW if(TRACE_IS_DEBUG())std::cout<<"["<<TRACE_MODULE<<":"<<TRACE_LINE<<"] "<<string(TRACE_STACK.size()+(TRACE_LINE<10?1:0)+(TRACE_LINE<100?1:0)+(TRACE_LINE<1000?1:0),' ')
+#define TRACE_COUT_SHOW if(TRACE_IS_DEBUG()&&trace::canDisplayMessages(TRACE_MODULE, TRACE_METHOD))std::cout<<"["<<TRACE_MODULE<<":"<<TRACE_LINE<<"] "<<string(TRACE_STACK.size()+(TRACE_LINE<10?1:0)+(TRACE_LINE<100?1:0)+(TRACE_LINE<1000?1:0),' ')
 
 /*! sends a debug message to stdout with prefix if `--trace-show-debug' is enabled (acts like `cout'). */
 #define TRACE_COUT if(trace::flags["show-debug"])TRACE_COUT_SHOW
@@ -182,6 +186,10 @@ namespace trace
 
 /*! disables the use of terminal colors. */
 #define TRACE_DISABLE_COLOR() (trace::flags["use-color"]=false)
+
+#define TRACE_FILTER_MODULE(s) (trace::moduleFilters.push_back(s))
+
+#define TRACE_FILTER_METHOD(s) (trace::methodFilters.push_back(s))
 
 #ifndef __TRACE_DISABLE_COLOR
 /*! a string containing red. */

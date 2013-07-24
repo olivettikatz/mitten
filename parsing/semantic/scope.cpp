@@ -80,7 +80,19 @@ namespace parsing
 				levels[i->getType()]--;
 				TRACE_COUT << "  (level " << levels[i->getType()] << ")\n";
 
-				if (levels[i->getType()] == 0)
+				// The following is a hack, there really should only be one start/level at a time:
+				string largestStart = "";
+				unsigned int largestStartValue = (unsigned int)-1;
+				for (map<string, unsigned int>::iterator j = starts.begin(); j != starts.end(); j++)
+				{
+					if (j->second < largestStartValue)
+					{
+						largestStartValue = j->second;
+						largestStart = j->first;
+					}
+				}
+
+				if (levels[i->getType()] == 0 && i->getType().compare(largestStart) == 0)
 				{
 					vector<Token> tmp(p.begin()+starts[i->getType()]+1, i);
 					AST ast = parse(tmp, l+1);
