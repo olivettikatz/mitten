@@ -34,7 +34,10 @@ namespace parsing
 	{
 	private:
 		map<string, string> bounds;
+		map<string, pair<string, string> > separators;
 		string pad(unsigned int l);
+		AST sepParse(AST ast, string bound);
+		AST sepParse(AST ast);
 		AST parse(vector<Token> p, unsigned int l);
 
 	public:
@@ -46,6 +49,14 @@ namespace parsing
 		\param e the end token type of that scope
 		*/
 		void bindScope(string b, string e);
+
+		/*! creates a new separator.
+		\param sb the token type of the beginning of the scope the separator exists in
+		\param s the token type of the separator
+		*/
+		void bindSeparator(string sb, string s, string n);
+
+		void bindSeparator(string s, string n);
 
 		/*! performs actual parsing. */
 		AST parse(vector<Token> p);

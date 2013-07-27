@@ -137,6 +137,11 @@ namespace mc
 		p.bindScope("BoundaryBeginComplex", "BoundaryEndComplex");
 		p.bindScope("BoundaryBeginExpression", "BoundaryEndExpression");
 
+		p.bindSeparator("EndOfLine", "Line");
+		p.bindSeparator("BoundaryBeginScope", "EndOfLine", "Line");
+		p.bindSeparator("BoundaryBeginComplex", "ArgumentSeparator", "ComplexElement");
+		p.bindSeparator("BoundaryBeginExpression", "ArgumentSeparator", "Argument");
+
 		return p;
 	}
 
@@ -170,6 +175,25 @@ namespace mc
 		p.addElement(parsing::ASTE("Operation") << parsing::ASTE("Value", parsing::ASTE::_scope) << parsing::ASTE("Operator", "OperatorBinary") << parsing::ASTE("Value", parsing::ASTE::_scope));
 		p.addElement(parsing::ASTE("Operation") << parsing::ASTE("Value", parsing::ASTE::_scope) << parsing::ASTE("Operator", "OperatorBinary") << parsing::ASTE("Value", "ValueInt"));
 		p.addElement(parsing::ASTE("Operation") << parsing::ASTE("Value", "ValueInt") << parsing::ASTE("Operator", "OperatorBinary") << parsing::ASTE("Value", parsing::ASTE::_scope));
+
+		p.addElement(parsing::ASTE("ComplexValue") << parsing::ASTE("BoundaryBegin", "BoundaryBeginComplex") << parsing::ASTE("Content", parsing::ASTE::_scope) << parsing::ASTE("BoundaryEnd", "BoundaryEndComplex"));
+
+		p.addElement(parsing::ASTE("ArgumentVector") << parsing::ASTE("BoundaryBegin", "BoundaryBeginExpression") << parsing::ASTE("Content", parsing::ASTE::_scope) << parsing::ASTE("BoundaryEnd", "BoundaryEndExpression"));
+
+		p.addElement(parsing::ASTE("Body") << parsing::ASTE("BoundaryBegin", "BoundaryBeginScope") << parsing::ASTE("Content", parsing::ASTE::_scope) << parsing::ASTE("BoundaryEnd", "BoundaryEndScope"));
+
+		p.addElement(parsing::ASTE("Expression") << parsing::ASTE("Symbol", parsing::ASTE::_tag, "Symbol") << parsing::ASTE("ComplexValue"));
+		p.addElement(parsing::ASTE("Expression") << parsing::ASTE("Symbol", parsing::ASTE::_tag, "Symbol") << parsing::ASTE("ArgumentVector"));
+		p.addElement(parsing::ASTE("Expression") << parsing::ASTE("Symbol", parsing::ASTE::_tag, "Symbol") << parsing::ASTE("Body"));
+		p.addElement(parsing::ASTE("Expression") << parsing::ASTE("Symbol", parsing::ASTE::_tag, "Symbol") << parsing::ASTE("ComplexValue") << parsing::ASTE("ArgumentVector"));
+		p.addElement(parsing::ASTE("Expression") << parsing::ASTE("Symbol", parsing::ASTE::_tag, "Symbol") << parsing::ASTE("ArgumentVector") << parsing::ASTE("Body"));
+		p.addElement(parsing::ASTE("Expression") << parsing::ASTE("Symbol", parsing::ASTE::_tag, "Symbol") << parsing::ASTE("ComplexValue") << parsing::ASTE("ArgumentVector") << parsing::ASTE("Body"));
+		p.addElement(parsing::ASTE("Expression") << parsing::ASTE("TypeExpression") << parsing::ASTE("Symbol", "Symbol") << parsing::ASTE("ComplexValue"));
+		p.addElement(parsing::ASTE("Expression") << parsing::ASTE("TypeExpression") << parsing::ASTE("Symbol", "Symbol") << parsing::ASTE("ArgumentVector"));
+		p.addElement(parsing::ASTE("Expression") << parsing::ASTE("TypeExpression") << parsing::ASTE("Symbol", "Symbol") << parsing::ASTE("Body"));
+		p.addElement(parsing::ASTE("Expression") << parsing::ASTE("TypeExpression") << parsing::ASTE("Symbol", "Symbol") << parsing::ASTE("ComplexValue") << parsing::ASTE("ArgumentVector"));
+		p.addElement(parsing::ASTE("Expression") << parsing::ASTE("TypeExpression") << parsing::ASTE("Symbol", "Symbol") << parsing::ASTE("ArgumentVector") << parsing::ASTE("Body"));
+		p.addElement(parsing::ASTE("Expression") << parsing::ASTE("TypeExpression") << parsing::ASTE("Symbol", "Symbol") << parsing::ASTE("ComplexValue") << parsing::ASTE("ArgumentVector") << parsing::ASTE("Body"));
 
 		return p;
 	}

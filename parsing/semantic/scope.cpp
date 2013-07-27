@@ -30,6 +30,87 @@ namespace parsing
 		bounds[b] = e;
 	}
 
+	void ScopeParser::bindSeparator(string sb, string s, string n)
+	{
+		separators[sb].first = s;
+		separators[sb].second = n;
+	}
+
+	void ScopeParser::bindSeparator(string s, string n)
+	{
+		separators[""].first = s;
+		separators[""].second = n;
+	}
+
+	AST ScopeParser::sepParse(AST ast, string bound)
+	{
+		TRACE_INDATA(ast.display());
+
+		AST rtn = AST(ast.getName(), ast.getContent());
+		AST buf = AST();
+
+		for (unsigned int i = 0; i < ast.size(); i++)
+		{
+			if (ast[i].getContent().getType().compare(separators[bound].first) == 0)
+			{
+				if (buf.size() > 0)
+				{
+					buf.setName(separators[bound].second);
+					buf.setStatus(AST::statusScope);
+					rtn << buf;
+					buf = AST();
+				}
+			}
+			else
+			{
+				for (map<string, pair<string, string> >::iterator j = separators.begin(); j != separators.end(); j++)
+				{
+					if (j->first.compare(bound) != 0 && ast[i].getContent().getType().compare(j->second.first) == 0)
+					{
+						ast[i].error("illegal separator '"+ast[i].getContent().getType()+"' in scope starting with '"+bound+"'");
+						break;
+					}
+				}
+
+				if (ast[i].size() > 0)
+				{
+					if (i > 0)
+					{
+						if (bounds.find(ast[i-1].getContent().getType()) == bounds.end())
+						{
+							ast[i-1].error("unrecognized scope starting with '"+ast[i-1].getContent().getType()+"'");
+						}
+
+						buf << sepParse(ast[i], ast[i-1].getContent().getType());
+					}
+					else
+					{
+						buf << sepParse(ast[i]);
+					}
+				}
+				else
+				{
+					buf << ast[i];
+				}
+			}
+		}
+
+		if (buf.size() > 0)
+		{
+			buf.setName(separators[bound].second);
+			buf.setStatus(AST::statusScope);
+			rtn << buf;
+		}
+
+		TRACE_OUTDATA(rtn.display());
+		return rtn;
+	}
+
+	AST ScopeParser::sepParse(AST ast)
+	{
+		return sepParse(ast, "");
+	}
+
 	AST ScopeParser::parse(vector<Token> p, unsigned int l)
 	{
 		AST rtn = AST();
@@ -125,6 +206,7 @@ namespace parsing
 
 	AST ScopeParser::parse(vector<Token> p)
 	{
-		return parse(p, 0);
+		AST rtn = parse(p, 0);
+		return sepParse(rtn);
 	}
 }
