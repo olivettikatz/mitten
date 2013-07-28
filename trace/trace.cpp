@@ -29,6 +29,7 @@ namespace trace
 	map<string, bool> flags;
 	vector<string> moduleFilters;
 	vector<string> methodFilters;
+	vector<string> dataFilters;
 
 	void Backtrace::setFramesToCapture(unsigned int f)
 	{
@@ -89,10 +90,8 @@ namespace trace
 			{
 				e.sym = toks[3];
 			}
-			//free(namebuf);
 			data.push_back(e);
 		}
-		//free(symbols);
 	}
 
 	unsigned int Backtrace::size()
@@ -200,6 +199,18 @@ namespace trace
 
 				methodFilters.push_back(string(argv[i]));
 			}
+			else if (string(argv[i]).compare("--trace-filter-data") == 0)
+			{
+				if (++i >= *argc)
+				{
+					cerr << "error: --trace-filter-data requires an argument\n";
+					_exit(1);
+				}
+
+				dataFilters.push_back(string(argv[i]));
+				//flags["show-debug"] = false;
+				TRACE_DISABLE_DEBUG();
+			}
 			else if (string(argv[i]).compare("--trace-help") == 0)
 			{
 				cout << TRACE_GREEN << "Trace 0.01 Alpha\n\n" << TRACE_DEFAULT;
@@ -217,6 +228,10 @@ namespace trace
 				cout << "--trace-filter-method <METHOD PATTERN>  show only messages from methods\n";
 				cout << "                                        with names containing\n";
 				cout << "                                        <METHOD PATTERN> (can be used\n";
+				cout << "                                        multiple times)\n";
+				cout << "--trace-filter-data <DATA PATTERN>      show only messages from methods\n";
+				cout << "                                        with input data containing\n";
+				cout << "                                        <DATA PATTERN> (can be used\n";
 				cout << "                                        multiple times)\n";
 				cout << "--trace-disable-color                   disable use of terminal colors\n";
 				cout << "--trace-help                            show this help screen\n";
@@ -269,5 +284,21 @@ namespace trace
 			rtn = true;
 
 		return rtn;
+	}
+
+	bool canDisplayMessages(string data)
+	{
+		for (vector<string>::iterator i = dataFilters.begin(); i != dataFilters.end(); i++)
+		{
+			if (data.find(*i) != string::npos)
+			{
+				return true;
+			}
+		}
+
+		if (dataFilters.empty())
+			return true;
+
+		return false;
 	}
 }

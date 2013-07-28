@@ -42,7 +42,7 @@ namespace mc
 		t.token("BoundaryBeginScope", t() == "{");
 		t.token("BoundaryEndScope", t() == "}");
 		t.token("ArgumentSeparator", t() == ",");
-		/*t.token("OperatorAssign", t() == "=");
+		t.token("OperatorAssign", t() == "=");
 		t.token("OperatorAccess", t() == ".");
 		t.token("OperatorAdd", t() == "+");
 		t.token("OperatorSubtract", t() == "-");
@@ -76,43 +76,43 @@ namespace mc
 		t.token("OperatorXOrBitwiseAssign", t() == "^=");
 		t.token("OperatorNegateBitwiseAssign", t() == "~=");
 		t.token("OperatorBitShiftLeftAssign", t() == "<<=");
-		t.token("OperatorBitShiftRightAssign", t() == ">>=");*/
-		t.token("OperatorBinary", t() == "=");
-		t.token("OperatorBinary", t() == ".");
-		t.token("OperatorBinary", t() == "+");
-		t.token("OperatorBinary", t() == "-");
-		t.token("OperatorBinary", t() == "*");
-		t.token("OperatorBinary", t() == "/");
-		t.token("OperatorBinary", t() == "%");
-		t.token("OperatorBinary", t() == "&");
-		t.token("OperatorBinary", t() == "&&");
-		t.token("OperatorBinary", t() == "|");
-		t.token("OperatorBinary", t() == "||");
-		t.token("OperatorBinary", t() == "^");
-		t.token("OperatorUnaryLeft", t() == "~");
-		t.token("OperatorUnaryLeft", t() == "!");
-		t.token("OperatorBinary", t() == "<<");
-		t.token("OperatorBinary", t() == ">>");
-		t.token("OperatorBinary", t() == "<");
-		t.token("OperatorBinary", t() == "<=");
-		t.token("OperatorBinary", t() == ">");
-		t.token("OperatorBinary", t() == ">=");
-		t.token("OperatorBinary", t() == "==");
-		t.token("OperatorBinary", t() == "!=");
-		t.token("OperatorBinary", t() == "+=");
-		t.token("OperatorUnaryRight", t() == "++");
-		t.token("OperatorBinary", t() == "-=");
-		t.token("OperatorUnaryRight", t() == "--");
-		t.token("OperatorBinary", t() == "*=");
-		t.token("OperatorBinary", t() == "/=");
-		t.token("OperatorBinary", t() == "%=");
-		t.token("OperatorBinary", t() == "&=");
-		t.token("OperatorBinary", t() == "|=");
-		t.token("OperatorBinary", t() == "^=");
-		t.token("OperatorBinary", t() == "~=");
-		t.token("OperatorBinary", t() == "<<=");
-		t.token("OperatorBinary", t() == ">>=");
-		t.token("TypeExpressionPrefix", t() == "@");
+		t.token("OperatorBitShiftRightAssign", t() == ">>=");
+		// t.token("OperatorBinary", t() == "=");
+		// t.token("OperatorBinary", t() == ".");
+		// t.token("OperatorBinary", t() == "+");
+		// t.token("OperatorBinary", t() == "-");
+		// t.token("OperatorBinary", t() == "*");
+		// t.token("OperatorBinary", t() == "/");
+		// t.token("OperatorBinary", t() == "%");
+		// t.token("OperatorBinary", t() == "&");
+		// t.token("OperatorBinary", t() == "&&");
+		// t.token("OperatorBinary", t() == "|");
+		// t.token("OperatorBinary", t() == "||");
+		// t.token("OperatorBinary", t() == "^");
+		// t.token("OperatorUnaryLeft", t() == "~");
+		// t.token("OperatorUnaryLeft", t() == "!");
+		// t.token("OperatorBinary", t() == "<<");
+		// t.token("OperatorBinary", t() == ">>");
+		// t.token("OperatorBinary", t() == "<");
+		// t.token("OperatorBinary", t() == "<=");
+		// t.token("OperatorBinary", t() == ">");
+		// t.token("OperatorBinary", t() == ">=");
+		// t.token("OperatorBinary", t() == "==");
+		// t.token("OperatorBinary", t() == "!=");
+		// t.token("OperatorBinary", t() == "+=");
+		// t.token("OperatorUnaryRight", t() == "++");
+		// t.token("OperatorBinary", t() == "-=");
+		// t.token("OperatorUnaryRight", t() == "--");
+		// t.token("OperatorBinary", t() == "*=");
+		// t.token("OperatorBinary", t() == "/=");
+		// t.token("OperatorBinary", t() == "%=");
+		// t.token("OperatorBinary", t() == "&=");
+		// t.token("OperatorBinary", t() == "|=");
+		// t.token("OperatorBinary", t() == "^=");
+		// t.token("OperatorBinary", t() == "~=");
+		// t.token("OperatorBinary", t() == "<<=");
+		// t.token("OperatorBinary", t() == ">>=");
+		// t.token("TypeExpressionPrefix", t() == "@");
 		t.token("EndOfLine", t() == ";");
 		t.token("ValueChar", t() < "'" && t() > "'");
 		t.token("ValueString", t() < "\"" && t() > "\"");
@@ -162,21 +162,35 @@ namespace mc
 		p.setPrecedence("+", 1);
 		p.setPrecedence("*", 2);
 
-		p.addElement(parsing::ASTE("TypeExpression") << parsing::ASTE("TypeSymbol", parsing::ASTE::_tag, "Type"));
+		/*p.addElement(parsing::ASTE("TypeExpression") << parsing::ASTE("TypeSymbol", parsing::ASTE::_tag, "Type"));
 		p.addElement(parsing::ASTE("TypeExpression") << parsing::ASTE("TypeSymbol", parsing::ASTE::_tag, "Type") << parsing::ASTE("TypeExpression"));
-		p.addElement(parsing::ASTE("TypeExpression") << parsing::ASTE("TypeSymbol", parsing::ASTE::_tag, "Type") << parsing::ASTE("BoundaryBegin", "BoundaryBeginExpression") << parsing::ASTE("TypeExpression") << parsing::ASTE("BoundaryEnd", "BoundaryEndExpression"));
+		p.addElement(parsing::ASTE("TypeExpression") << parsing::ASTE("TypeSymbol", parsing::ASTE::_tag, "Type") << parsing::ASTE("BoundaryBegin", "BoundaryBeginExpression") << parsing::ASTE("TypeExpression") << parsing::ASTE("BoundaryEnd", "BoundaryEndExpression"));*/
 
-		p.addElement(parsing::ASTE("Operation") << parsing::ASTE("Value", "ValueInt") << parsing::ASTE("Operator", "OperatorUnaryLeft"));
-		p.addElement(parsing::ASTE("Operation") << parsing::ASTE("Operator", "OperatorUnaryRight") << parsing::ASTE("Value", "ValueInt"));
-		p.addElement(parsing::ASTE("Operation") << parsing::ASTE("Value", "ValueInt") << parsing::ASTE("Operator", "OperatorBinary") << parsing::ASTE("Value", "ValueInt"));
+		// p("OperatorUnaryLeft", p.type("OperatorUnaryLeft", "OperatorNegateBitwise"));
+		// p("OperatorUnaryLeft", p.type("OperatorUnaryLeft", "OperatorNegateLogical"));
 
-		p.addElement(parsing::ASTE("Operation") << parsing::ASTE("Value", parsing::ASTE::_scope) << parsing::ASTE("Operator", "OperatorUnaryLeft"));
-		p.addElement(parsing::ASTE("Operation") << parsing::ASTE("Operator", "OperatorUnaryRight") << parsing::ASTE("Value", parsing::ASTE::_scope));
-		p.addElement(parsing::ASTE("Operation") << parsing::ASTE("Value", parsing::ASTE::_scope) << parsing::ASTE("Operator", "OperatorBinary") << parsing::ASTE("Value", parsing::ASTE::_scope));
-		p.addElement(parsing::ASTE("Operation") << parsing::ASTE("Value", parsing::ASTE::_scope) << parsing::ASTE("Operator", "OperatorBinary") << parsing::ASTE("Value", "ValueInt"));
-		p.addElement(parsing::ASTE("Operation") << parsing::ASTE("Value", "ValueInt") << parsing::ASTE("Operator", "OperatorBinary") << parsing::ASTE("Value", parsing::ASTE::_scope));
+		// p("OperatorUnaryRight", p.type("OperatorUnaryRight", "OperatorIncrement"));
+		// p("OperatorUnaryRight", p.type("OperatorUnaryRight", "OperatorDecrement"));
 
-		p.addElement(parsing::ASTE("ComplexValue") << parsing::ASTE("BoundaryBegin", "BoundaryBeginComplex") << parsing::ASTE("Content", parsing::ASTE::_scope) << parsing::ASTE("BoundaryEnd", "BoundaryEndComplex"));
+		p("OperatorBinary", p.type("OperatorBinary", "OperatorAssign"));
+
+		//p("Operation", p.type("Value", "ValueInt") << p.type("Operator", "OperatorUnaryLeft"));
+		//p("Operation", p.type("Operator", "OperatorUnaryRight") << p.type("Value", "ValueInt"));
+		p("Operation", p.type("Value", "ValueInt") << p.name("OperatorBinary") << p.type("Value", "ValueInt"));
+
+		//p("Operation", p.scope("Value") << p.type("Operator", "OperatorUnaryLeft"));
+		//p("Operation", p.type("Operator", "OperatorUnaryRight") << p.scope("Value"));
+		p("Operation", p.scope("Value") << p.name("OperatorBinary") << p.scope("Value"));
+		p("Operation", p.scope("Value") << p.name("OperatorBinary") << p.type("Value", "ValueInt"));
+		p("Operation", p.type("Value", "ValueInt") << p.name("OperatorBinary") << p.scope("Value"));
+
+		//p("Operation", p.type("Value", "Symbol") << p.type("Operator", "OperatorUnaryLeft"));
+		//p("Operation", p.type("Operator", "OperatorUnaryRight") << p.type("Value", "Symbol"));
+		p("Operation", p.type("Value", "ValueInt") << p.name("OperatorBinary") << p.type("Value", "Symbol"));
+		p("Operation", p.type("Value", "Symbol") << p.name("OperatorBinary") << p.type("Value", "ValueInt"));
+		p("Operation", p.type("Value", "Symbol") << p.name("OperatorBinary") << p.type("Value", "Symbol"));
+
+		/*p.addElement(parsing::ASTE("ComplexValue") << parsing::ASTE("BoundaryBegin", "BoundaryBeginComplex") << parsing::ASTE("Content", parsing::ASTE::_scope) << parsing::ASTE("BoundaryEnd", "BoundaryEndComplex"));
 
 		p.addElement(parsing::ASTE("ArgumentVector") << parsing::ASTE("BoundaryBegin", "BoundaryBeginExpression") << parsing::ASTE("Content", parsing::ASTE::_scope) << parsing::ASTE("BoundaryEnd", "BoundaryEndExpression"));
 
@@ -193,7 +207,7 @@ namespace mc
 		p.addElement(parsing::ASTE("Expression") << parsing::ASTE("TypeExpression") << parsing::ASTE("Symbol", "Symbol") << parsing::ASTE("Body"));
 		p.addElement(parsing::ASTE("Expression") << parsing::ASTE("TypeExpression") << parsing::ASTE("Symbol", "Symbol") << parsing::ASTE("ComplexValue") << parsing::ASTE("ArgumentVector"));
 		p.addElement(parsing::ASTE("Expression") << parsing::ASTE("TypeExpression") << parsing::ASTE("Symbol", "Symbol") << parsing::ASTE("ArgumentVector") << parsing::ASTE("Body"));
-		p.addElement(parsing::ASTE("Expression") << parsing::ASTE("TypeExpression") << parsing::ASTE("Symbol", "Symbol") << parsing::ASTE("ComplexValue") << parsing::ASTE("ArgumentVector") << parsing::ASTE("Body"));
+		p.addElement(parsing::ASTE("Expression") << parsing::ASTE("TypeExpression") << parsing::ASTE("Symbol", "Symbol") << parsing::ASTE("ComplexValue") << parsing::ASTE("ArgumentVector") << parsing::ASTE("Body"));*/
 
 		return p;
 	}

@@ -20,6 +20,49 @@
 
 namespace parsing
 {
+	ASTE RDP::operator () ()
+	{
+		return ASTE();
+	}
+
+	ASTE RDP::operator () (string n, ASTE e)
+	{
+		ASTE root = ASTE(e.getName(), e.getExpectationType(), e.getArgument());
+
+		ASTE tmp = name(n) << root;
+		for (unsigned int i = 0; i < e.size(); i++)
+			tmp << e[i];
+
+		addElement(tmp);
+		return e;
+	}
+
+	ASTE RDP::operator () (ASTE e)
+	{
+		addElement(e);
+		return e;
+	}
+
+	ASTE RDP::name(string n)
+	{
+		return ASTE(n);
+	}
+
+	ASTE RDP::type(string n, string t)
+	{
+		return ASTE(n, t);
+	}
+
+	ASTE RDP::scope(string n)
+	{
+		return ASTE(n, ASTE::_scope);
+	}
+
+	ASTE RDP::tag(string n, string t)
+	{
+		return ASTE(n, ASTE::_tag, t);
+	}
+
 	void RDP::addTagsFromAST(AST ast)
 	{
 		for (unsigned int i = 0; i < ast.size()-1; i++)
@@ -69,6 +112,7 @@ namespace parsing
 			TRACE_COUT << "could not verify expectation, returning...\n";
 			TRACE_OUTDATA(ast.display());
 			ast.error("expectation '"+p.getName()+"' does not match this syntax");
+			ast.setStatusRecursive(AST::statusRDP);
 			return ast;
 		}
 
@@ -79,16 +123,22 @@ namespace parsing
 		unsigned int ai = ci, pi = 0;
 		for (; pi < p.size(); pi++, ai++)
 		{
+			TRACE_COUT << "expecting " << p.getName() << "[" << pi << ":" << p.size() << "] " << p[pi].getName() << " from AST[" << ai << ":" << ast.size() << "]\n";
+			TRACE_COUT << p.display() << "\n";
+
 			if (ai >= ast.size())
 			{
 				TRACE_COUT << TRACE_RED << p[pi].getName() << TRACE_DEFAULT << " overflowed the current AST\n";
 				ast.error("expectation "+p.getName()+" overflowed");
+				fixed = false;
 				break;
 			}
 
 			if (p[pi].getExpectationType() == ASTE::_name)
 			{
-				vector<vector<ASTE>::iterator> fi = findElements(p[pi].getArgument());
+				vector<vector<ASTE>::iterator> fi = findElements(p[pi].getName());
+
+				TRACE_COUT << "  '"+p[pi].getName()+"' matches " << fi.size() << " expectations\n";
 				bool haveSuccess = false;
 				AST errtmp;
 
@@ -105,11 +155,14 @@ namespace parsing
 
 				if (haveSuccess == false)
 				{
+					TRACE_COUT << TRACE_RED << p[pi].getName() << TRACE_DEFAULT << " could not match the sub-expectation\n";
 					ast.error(errtmp.getErrors());
+					fixed = false;
 				}
 			}
 			else if (p[pi].getExpectationType() == ASTE::_type)
 			{
+				TRACE_COUT << "  "+p[pi].getName()+" expects type '"+p[pi].getArgument()+"', got '"+ast[ai].getContent().getType()+"' "+ast[ai].getContent().get() << "\n";
 				if (ast[ai].getContent().getType().compare(p[pi].getArgument()) != 0)
 				{
 					fixed = false;
@@ -133,12 +186,14 @@ namespace parsing
 			}
 			else if (p[pi].getExpectationType() == ASTE::_scope)
 			{
+				TRACE_COUT << "  "+p[pi].getName()+" expects scope\n";
 				unsigned int ci2 = 0;
 				ast[ai] = subparse(ast[ai], ci2, getPrecedence(ast));
 				ast[ai].setName(p[pi].getName());
 			}
 			else if (p[pi].getExpectationType() == ASTE::_tag)
 			{
+				TRACE_COUT << "  "+p[pi].getName()+" expects tag '"+p[pi].getArgument()+"', got '"+getTag(ast[ai].getContent().get())+"' "+ast[ai].getContent().get() << "\n";
 				if (getTag(ast[ai].getContent().get()).compare(p[pi].getArgument()) != 0)
 				{
 					fixed = false;
@@ -175,8 +230,8 @@ namespace parsing
 		else if (ast.containsErrors() == false && ai < ast.size())
 		{
 			TRACE_COUT << "more tokens to parse...\n";
-			ast.setStatus(AST::statusRDP);
 			ast = parse(ast, ai);
+			ast.setStatus(AST::statusRDP);
 			if (maxPrec < getPrecedence(ast[ai].getContent().get()))
 			{
 				TRACE_COUT << "time to fix precedence (root " << maxPrec << ", child '" << ast[ai].getContent().get() << "' " << getPrecedence(ast[ai].getContent().get()) << ")...\n";
@@ -189,6 +244,8 @@ namespace parsing
 			}
 		}
 
+		ast.setStatus(AST::statusRDP);
+
 		TRACE_OUTDATA(ast.display());
 
 		ci = ai;
@@ -198,15 +255,24 @@ namespace parsing
 	AST RDP::parse(AST ast, unsigned int &ci)
 	{
 		TRACE_INDATA(ast.display());
+
+		if (verifyASTForParsing(ast) == false)
+		{
+			TRACE_COUT << "couldn't verify AST, skipping...\n";
+			TRACE_OUTDATA(ast.display());
+			return ast;
+		}
+
 		TRACE_COUT << "any-parsing...\n";
 		for (unsigned int i = 0; i < ast.size(); i++)
 		{
-			// if (ast[i].getStatus() < AST::statusRDP && ast[i].size() > 0)
-			// {
+			if (ast[i].getStatus() < AST::statusRDP && ast[i].size() > 0)
+			{
 				unsigned int ci2 = 0;
 				ast[i] = parse(ast[i], ci2);
+				ast[i].setStatusRecursive(AST::statusRDP);
 				ast.error(ast[i].getErrors());
-			// }
+			}
 		}
 
 		//addTagsFromAST(ast);
@@ -221,7 +287,7 @@ namespace parsing
 
 			TRACE_COUT << "trying " << TRACE_GREEN << i->getName() << TRACE_DEFAULT << " (" << (i-content.begin()) << "/" << content.size() << ", from " << ci << " to " << ast.size() << ") - " << i->display() << "\n";
 
-			if (tmpci < tmp.size() && tmp[tmpci].getStatus() < AST::statusRDP)
+			if (tmpci < tmp.size() && tmp.getStatus() < AST::statusRDP)
 			{
 				tmp = parse(tmp, *i, tmpci);
 				tmp.pullUpErrors();
@@ -233,7 +299,7 @@ namespace parsing
 			}
 			else
 			{
-				TRACE_COUT << "already parsed, skipping... (" << tmp[tmpci].getStatus() << " < " << AST::statusRDP << ")\n";
+				TRACE_COUT << "already parsed, skipping...\n";
 				continue;
 			}
 
@@ -279,11 +345,11 @@ namespace parsing
 			return false;
 		}
 
-		// if (ast.getStatus() >= AST::statusRDP)
-		// {
-		// 	TRACE_COUT << "already parsed, skipping...\n";
-		// 	return false;
-		// }
+		if (ast.getStatus() >= AST::statusRDP)
+		{
+			TRACE_COUT << "already parsed, skipping...\n";
+			return false;
+		}
 
 		return true;
 	}
@@ -321,7 +387,9 @@ namespace parsing
 	AST RDP::subparse(AST ast, unsigned int &i, unsigned int prec)
 	{
 		if (verifyASTForParsing(ast) == false)
+		{
 			return ast;
+		}
 
 		AST rtn = parse(ast, i);
 		rtn = reorganizeOnPrecedence(ast, rtn, prec);
@@ -372,12 +440,6 @@ namespace parsing
 
 		if (!verifyASTForParsing(ast))
 			return false;
-
-		/*if (ci >= (e.size() < ast.size() ? e.size() : ast.size())-1)
-		{
-			TRACE_COUT << "verification failed because expectation does not meet size requirements of AST (current position: " << ci << ", actual limit: " << ast.size() << ", expectation limit: " << e.size() << ")\n";
-			return false;
-		}*/
 		
 		return true;
 	}

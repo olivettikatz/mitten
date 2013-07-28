@@ -252,6 +252,8 @@ namespace parsing
 		/*! gets the child at a certain index. */
 		ASTE &operator [] (unsigned int l);
 
+		void replace(unsigned int i, ASTE e);
+
 		string display(unsigned int l);
 
 		/*! displays the ASTE. */

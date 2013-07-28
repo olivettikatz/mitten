@@ -431,6 +431,12 @@ namespace parsing
 		return children[l];
 	}
 
+	void ASTE::replace(unsigned int i, ASTE e)
+	{
+		children.erase(children.begin()+i);
+		children.insert(children.begin()+i, e.children.begin(), e.children.end());
+	}
+
 	string ASTE::display(unsigned int l)
 	{
 		stringstream ss;

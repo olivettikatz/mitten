@@ -111,6 +111,7 @@ namespace trace
 	extern map<string, bool> flags;
 	extern vector<string> moduleFilters;
 	extern vector<string> methodFilters;
+	extern vector<string> dataFilters;
 
 	/*! initializes the trace library from command line arguments (call executable using this function with argument `--trace-help' for more info). 
 	\param argc pass 'argc' from the main function
@@ -119,6 +120,7 @@ namespace trace
 	void initFlags(int *argc, char *argv[]);
 
 	bool canDisplayMessages(string module, string method);
+	bool canDisplayMessages(string data);
 }
 
 /*! initializer for the library. 
@@ -162,7 +164,7 @@ namespace trace
 /*! displays data flow to stdout with prefix if `--trace-show-data' is enabled. 
 \param d a string to display as the data coming into the method
 */
-#define TRACE_INDATA(d) {if(trace::stackTable.find(TRACE_PID)==trace::stackTable.end())trace::stackTable[TRACE_PID]=trace::Backtrace();trace::stackTable[TRACE_PID].push(TRACE_METHOD);if(trace::flags["show-data"]){TRACE_COUT_SHOW<<"<= "<<d<<"\n";}}
+#define TRACE_INDATA(d) {if(trace::dataFilters.empty()==false){std::stringstream ss;ss<<d;if(trace::canDisplayMessages(ss.str())){trace::debugTable[TRACE_PID]=true;}}if(trace::stackTable.find(TRACE_PID)==trace::stackTable.end())trace::stackTable[TRACE_PID]=trace::Backtrace();trace::stackTable[TRACE_PID].push(TRACE_METHOD);if(trace::flags["show-data"]){TRACE_COUT_SHOW<<"<= "<<d<<"\n";}}
 
 /*! displays data flow to stdout with prefix if `--trace-show-data' is enabled. 
 \param d a string to display as the data going out of the method
@@ -190,6 +192,8 @@ namespace trace
 #define TRACE_FILTER_MODULE(s) (trace::moduleFilters.push_back(s))
 
 #define TRACE_FILTER_METHOD(s) (trace::methodFilters.push_back(s))
+
+#define TRACE_FILTER_DATA(s) (trace::dataFilters.push_back(s))
 
 #ifndef __TRACE_DISABLE_COLOR
 /*! a string containing red. */

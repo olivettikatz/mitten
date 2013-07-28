@@ -70,6 +70,15 @@ namespace parsing
 		/*! initializes an empty parser. */
 		RDP() {}
 
+		ASTE operator () ();
+		ASTE operator () (string n, ASTE e);
+		ASTE operator () (ASTE e);
+
+		ASTE name(string n);
+		ASTE type(string n, string t);
+		ASTE scope(string n);
+		ASTE tag(string n, string t);
+
 		/*! sets the precedence of a token.
 		\param content the content of the token of which to set the precedence
 		\param level the precedence level (from 1 to infinity)
