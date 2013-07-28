@@ -20,10 +20,20 @@
 
 namespace parsing
 {
+	Pattern::algorithmType Pattern::getAlgorithm()
+	{
+		return algorithm;
+	}
+
 	Pattern &Pattern::setAlgorithm(Pattern::algorithmType a)
 	{
 		algorithm = a;
 		return *this;
+	}
+
+	string Pattern::getArgument()
+	{
+		return argument;
 	}
 
 	Pattern &Pattern::setArgument(string a)
@@ -45,6 +55,11 @@ namespace parsing
 		tmp.second = p;
 		attachments.push_back(tmp);
 		return *this;
+	}
+
+	size_t Pattern::attachmentSize()
+	{
+		return attachments.size();
 	}
 
 	Pattern &Pattern::operator == (string s)

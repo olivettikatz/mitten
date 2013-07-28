@@ -111,7 +111,7 @@ int main(int argc, char *argv[])
 	TRACE_COUT << "creating parsers...\n";
 	tokenizer = mc::createTokenizer();
 	scopeParser = mc::createScopeParser();
-	rdp = mc::createRDP();
+	rdp = mc::createRDP(tokenizer);
 
 	TRACE_COUT << "creating compiler...\n";
 	compiler = mc::Compiler();

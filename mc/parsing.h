@@ -28,7 +28,7 @@ namespace mc
 
 	parsing::Tokenizer createTokenizer();
 	parsing::ScopeParser createScopeParser();
-	parsing::RDP createRDP();
+	parsing::RDP createRDP(parsing::Tokenizer t);
 }
 
 #endif

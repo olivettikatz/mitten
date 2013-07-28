@@ -70,14 +70,47 @@ namespace parsing
 		/*! initializes an empty parser. */
 		RDP() {}
 
+		/*! creates an empty ASTE. */
 		ASTE operator () ();
+
+		/*! creates an ASTE with e's root and e's children as its children and adds it to the parser under a specified name.
+		\param n the name of the expectation
+		\param e the expectation to add
+		*/
 		ASTE operator () (string n, ASTE e);
+
+		/*! adds an ASTE e. */
 		ASTE operator () (ASTE e);
 
+		/*! creates an ASTE to expect a name. */
 		ASTE name(string n);
+
+		/*! creates an ASTE to expect a type.
+		\param n the name of the ASTE
+		\param t the type to expect
+		*/
 		ASTE type(string n, string t);
+
+		/*! creates an ASTE to expect a type.
+		\param nt both the name of the ASTE and the type to expect
+		*/
+		ASTE type(string nt);
+
+		/*! creates an ASTE to expect a scope.
+		\param n the name of the ASTE
+		*/
 		ASTE scope(string n);
+
+		/*! creates an ASTE to expect a tag.
+		\param n the name of the ASTE
+		\param t the tag to expect
+		*/
 		ASTE tag(string n, string t);
+
+		/*! creates an ASTE to expect a tag.
+		\param nt both the name of the ASTE and the tag to expect
+		*/
+		ASTE tag(string nt);
 
 		/*! sets the precedence of a token.
 		\param content the content of the token of which to set the precedence

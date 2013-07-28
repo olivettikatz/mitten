@@ -73,10 +73,16 @@ namespace parsing
 		/*! initializes the pattern with a callback algorithm. */
 		Pattern(callback a) : alternateCallback(a) {}
 
+		/*! gets the algorithm type. */
+		algorithmType getAlgorithm();
+
 		/*! sets the algorithm type. 
 		\return a reference to the current pattern
 		*/
 		Pattern &setAlgorithm(algorithmType a);
+
+		/*! gets the argument. */
+		string getArgument();
 
 		/*! sets the algorithm's string argument. 
 		\return a reference to the current pattern
@@ -92,6 +98,9 @@ namespace parsing
 		\return a reference to the current pattern
 		*/
 		Pattern &attach(attachmentType t, Pattern p);
+
+		/*! gets the number of attachments. */
+		size_t attachmentSize();
 		
 		/*! initializes the pattern with `Pattern(isEqualTo, s)'. 
 		\return a reference to the current pattern

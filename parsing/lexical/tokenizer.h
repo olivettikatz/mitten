@@ -211,6 +211,9 @@ namespace parsing
 
 		/*! reads a file and calls `tokenize(s, path)' where `s' is the contents of the file. */
 		vector<Token> tokenizeFile(string path);
+
+		/*! if a one-to-one categorizer exists with a name, returns the token value. */
+		string operator [] (string s);
 	};
 }
 

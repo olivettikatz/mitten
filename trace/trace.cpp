@@ -17,12 +17,9 @@
  * Copyright 2013 Oliver Katz */
 
 #include "trace.h"
-//#include "tokenizer.h"
 
 namespace trace
 {
-	//using namespace parsing;
-
 	map<string, string> moduleTable;
 	map<pid_t, Backtrace> stackTable;
 	map<pid_t, bool> debugTable;
@@ -30,6 +27,8 @@ namespace trace
 	vector<string> moduleFilters;
 	vector<string> methodFilters;
 	vector<string> dataFilters;
+	int msgCounter;
+	int msgCounterFilter;
 
 	void Backtrace::setFramesToCapture(unsigned int f)
 	{
@@ -154,9 +153,13 @@ namespace trace
 
 	void initFlags(int *argc, char *argv[])
 	{
+		msgCounter = 0;
+		msgCounterFilter = 0;
+
 		flags["show-data"] = false;
 		flags["show-debug"] = false;
 		flags["use-color"] = true;
+		flags["use-n"] = false;
 
 		vector<char *> newargv;
 
@@ -178,6 +181,10 @@ namespace trace
 			else if (string(argv[i]).compare("--trace-disable-color") == 0)
 			{
 				flags["use-color"] = false;
+			}
+			else if (string(argv[i]).compare("--trace-enable-n") == 0)
+			{
+				flags["use-n"] = true;
 			}
 			else if (string(argv[i]).compare("--trace-filter-module") == 0)
 			{
@@ -208,8 +215,19 @@ namespace trace
 				}
 
 				dataFilters.push_back(string(argv[i]));
-				//flags["show-debug"] = false;
 				TRACE_DISABLE_DEBUG();
+			}
+			else if (string(argv[i]).compare("--trace-filter-n") == 0)
+			{
+				flags["use-n"] = true;
+
+				if (++i >= *argc)
+				{
+					cerr << "error: --trace-filter-n requires an argument\n";
+					_exit(1);
+				}
+
+				msgCounterFilter = b64toi(string(argv[i]));
 			}
 			else if (string(argv[i]).compare("--trace-help") == 0)
 			{
@@ -233,6 +251,9 @@ namespace trace
 				cout << "                                        with input data containing\n";
 				cout << "                                        <DATA PATTERN> (can be used\n";
 				cout << "                                        multiple times)\n";
+				cout << "--trace-filter-n <MSG CODE>             only display messages around and\n";
+				cout << "                                        after a message with <MSG CODE>\n";
+				cout << "                                        is generated\n";
 				cout << "--trace-disable-color                   disable use of terminal colors\n";
 				cout << "--trace-help                            show this help screen\n";
 				cout << TRACE_GREEN << "* * *\n" << TRACE_DEFAULT;
@@ -300,5 +321,35 @@ namespace trace
 			return true;
 
 		return false;
+	}
+
+	string base64 = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_";
+
+	string itob64(int i)
+	{
+		if (i == 0)
+		{
+			return "0";
+		}
+
+		string tmp;
+
+		while (i > 0)
+		{
+			tmp.insert(tmp.begin(), base64[i%64]);
+			i /= 64;
+		}
+
+		return tmp;
+	}
+
+	int b64toi(string b64)
+	{
+		int i = 0;
+		for (int e = 0; e < b64.size(); e++)
+		{
+			i += base64.find(b64[e])*pow(64, (b64.size()-e-1));
+		}
+		return i;
 	}
 }

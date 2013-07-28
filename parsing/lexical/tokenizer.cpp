@@ -451,4 +451,17 @@ namespace parsing
 	{
 		return tokenize(readFile(path), path);
 	}
+
+	string Tokenizer::operator [] (string s)
+	{
+		for (vector<pair<string, Pattern> >::iterator i = categorizers.begin(); i != categorizers.end(); i++)
+		{
+			if ((i->first.compare(s) == 0 && i->second.attachmentSize() == 0) && i->second.getAlgorithm() == Pattern::isEqualTo)
+			{
+				return i->second.getArgument();
+			}
+		}
+
+		return "";
+	}
 }

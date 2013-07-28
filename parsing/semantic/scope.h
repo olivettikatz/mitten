@@ -53,9 +53,14 @@ namespace parsing
 		/*! creates a new separator.
 		\param sb the token type of the beginning of the scope the separator exists in
 		\param s the token type of the separator
+		\param n the name of the separated element
 		*/
 		void bindSeparator(string sb, string s, string n);
 
+		/*! creates a new separator with the token type of the beginning of the scope being ''.
+		\param s the token type of the separator
+		\param n the name of the separated element
+		*/
 		void bindSeparator(string s, string n);
 
 		/*! performs actual parsing. */

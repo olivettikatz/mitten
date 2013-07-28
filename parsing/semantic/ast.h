@@ -194,6 +194,8 @@ namespace parsing
 		string argument;
 		vector<ASTE> children;
 
+		string display(unsigned int l);
+
 	public:
 		/*! initializes an empty ASTE. */
 		ASTE() {}
@@ -252,9 +254,11 @@ namespace parsing
 		/*! gets the child at a certain index. */
 		ASTE &operator [] (unsigned int l);
 
+		/*! replaces the child at the specified index with another ASTE.
+		\param i the index of the child
+		\param e the replacement expectation
+		*/
 		void replace(unsigned int i, ASTE e);
-
-		string display(unsigned int l);
 
 		/*! displays the ASTE. */
 		string display();

@@ -53,6 +53,11 @@ namespace parsing
 		return ASTE(n, t);
 	}
 
+	ASTE RDP::type(string nt)
+	{
+		return ASTE(nt, nt);
+	}
+
 	ASTE RDP::scope(string n)
 	{
 		return ASTE(n, ASTE::_scope);
@@ -61,6 +66,11 @@ namespace parsing
 	ASTE RDP::tag(string n, string t)
 	{
 		return ASTE(n, ASTE::_tag, t);
+	}
+
+	ASTE RDP::tag(string nt)
+	{
+		return ASTE(nt, ASTE::_tag, nt);
 	}
 
 	void RDP::addTagsFromAST(AST ast)
@@ -124,7 +134,6 @@ namespace parsing
 		for (; pi < p.size(); pi++, ai++)
 		{
 			TRACE_COUT << "expecting " << p.getName() << "[" << pi << ":" << p.size() << "] " << p[pi].getName() << " from AST[" << ai << ":" << ast.size() << "]\n";
-			TRACE_COUT << p.display() << "\n";
 
 			if (ai >= ast.size())
 			{

@@ -145,7 +145,7 @@ namespace mc
 		return p;
 	}
 
-	parsing::RDP createRDP()
+	parsing::RDP createRDP(parsing::Tokenizer t)
 	{
 		parsing::RDP p;
 
@@ -156,6 +156,8 @@ namespace mc
 		p.setTag("import", "Symbol");
 		p.setTag("print", "Symbol");
 		p.setTag("return", "Symbol");
+
+		p.setTag(t["OperatorAssign"], "OperatorBinary");
 
 		p.addTagCondition(parsing::ASTE() << parsing::ASTE("TypeExpression") << parsing::ASTE("Symbol", "Symbol"), parsing::RDP::_end, 0, "Symbol");
 
@@ -172,23 +174,23 @@ namespace mc
 		// p("OperatorUnaryRight", p.type("OperatorUnaryRight", "OperatorIncrement"));
 		// p("OperatorUnaryRight", p.type("OperatorUnaryRight", "OperatorDecrement"));
 
-		p("OperatorBinary", p.type("OperatorBinary", "OperatorAssign"));
+		// p("OperatorBinary", p.type("OperatorBinary", "OperatorAssign"));
 
 		//p("Operation", p.type("Value", "ValueInt") << p.type("Operator", "OperatorUnaryLeft"));
 		//p("Operation", p.type("Operator", "OperatorUnaryRight") << p.type("Value", "ValueInt"));
-		p("Operation", p.type("Value", "ValueInt") << p.name("OperatorBinary") << p.type("Value", "ValueInt"));
+		p("Operation", p.type("Value", "ValueInt") << p.tag("OperatorBinary") << p.type("Value", "ValueInt"));
 
 		//p("Operation", p.scope("Value") << p.type("Operator", "OperatorUnaryLeft"));
 		//p("Operation", p.type("Operator", "OperatorUnaryRight") << p.scope("Value"));
-		p("Operation", p.scope("Value") << p.name("OperatorBinary") << p.scope("Value"));
-		p("Operation", p.scope("Value") << p.name("OperatorBinary") << p.type("Value", "ValueInt"));
-		p("Operation", p.type("Value", "ValueInt") << p.name("OperatorBinary") << p.scope("Value"));
+		p("Operation", p.scope("Value") << p.tag("OperatorBinary") << p.scope("Value"));
+		p("Operation", p.scope("Value") << p.tag("OperatorBinary") << p.type("Value", "ValueInt"));
+		p("Operation", p.type("Value", "ValueInt") << p.tag("OperatorBinary") << p.scope("Value"));
 
 		//p("Operation", p.type("Value", "Symbol") << p.type("Operator", "OperatorUnaryLeft"));
 		//p("Operation", p.type("Operator", "OperatorUnaryRight") << p.type("Value", "Symbol"));
-		p("Operation", p.type("Value", "ValueInt") << p.name("OperatorBinary") << p.type("Value", "Symbol"));
-		p("Operation", p.type("Value", "Symbol") << p.name("OperatorBinary") << p.type("Value", "ValueInt"));
-		p("Operation", p.type("Value", "Symbol") << p.name("OperatorBinary") << p.type("Value", "Symbol"));
+		p("Operation", p.type("Value", "ValueInt") << p.tag("OperatorBinary") << p.type("Value", "Symbol"));
+		p("Operation", p.type("Value", "Symbol") << p.tag("OperatorBinary") << p.type("Value", "ValueInt"));
+		p("Operation", p.type("Value", "Symbol") << p.tag("OperatorBinary") << p.type("Value", "Symbol"));
 
 		/*p.addElement(parsing::ASTE("ComplexValue") << parsing::ASTE("BoundaryBegin", "BoundaryBeginComplex") << parsing::ASTE("Content", parsing::ASTE::_scope) << parsing::ASTE("BoundaryEnd", "BoundaryEndComplex"));
 
