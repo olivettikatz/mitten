@@ -145,28 +145,35 @@ namespace parsing
 
 			if (p[pi].getExpectationType() == ASTE::_name)
 			{
-				vector<vector<ASTE>::iterator> fi = findElements(p[pi].getName());
-
-				TRACE_COUT << "  '"+p[pi].getName()+"' matches " << fi.size() << " expectations\n";
-				bool haveSuccess = false;
-				AST errtmp;
-
-				for (vector<vector<ASTE>::iterator>::iterator j = fi.begin(); j != fi.end(); j++)
+				if (ast[ai].getName().compare(p[pi].getName()) == 0)
 				{
-					unsigned int oldai = ai;
-					ast[oldai] = subparse(ast[ai], **j, ai, getPrecedence(ast));
-					if (ast[oldai].containsErrors() == false)
-					{
-						haveSuccess = true;
-						break;
-					}
+					TRACE_COUT << TRACE_GREEN << p[pi].getName() << TRACE_DEFAULT << " succeeded.\n";
 				}
-
-				if (haveSuccess == false)
+				else
 				{
-					TRACE_COUT << TRACE_RED << p[pi].getName() << TRACE_DEFAULT << " could not match the sub-expectation\n";
-					ast.error(errtmp.getErrors());
-					fixed = false;
+					vector<vector<ASTE>::iterator> fi = findElements(p[pi].getName());
+
+					TRACE_COUT << "  '"+p[pi].getName()+"' matches " << fi.size() << " expectations\n";
+					bool haveSuccess = false;
+					AST errtmp;
+
+					for (vector<vector<ASTE>::iterator>::iterator j = fi.begin(); j != fi.end(); j++)
+					{
+						unsigned int oldai = ai;
+						ast[oldai] = subparse(ast[ai], **j, ai, getPrecedence(ast));
+						if (ast[oldai].containsErrors() == false)
+						{
+							haveSuccess = true;
+							break;
+						}
+					}
+
+					if (haveSuccess == false)
+					{
+						TRACE_COUT << TRACE_RED << p[pi].getName() << TRACE_DEFAULT << " could not match the sub-expectation\n";
+						ast.error(errtmp.getErrors());
+						fixed = false;
+					}
 				}
 			}
 			else if (p[pi].getExpectationType() == ASTE::_type)
@@ -346,13 +353,13 @@ namespace parsing
 
 	bool RDP::verifyASTForParsing(AST &ast)
 	{
-		if (ast.size() == 0)
+		/*if (ast.size() == 0)
 		{
 			TRACE_COUT << "expected a scope, but got a leaf\n";
 			ast.error("expected a scope, but got a leaf");
 			ast.setStatus(AST::statusRDP);
 			return false;
-		}
+		}*/
 
 		if (ast.getStatus() >= AST::statusRDP)
 		{
@@ -380,6 +387,8 @@ namespace parsing
 
 	AST RDP::subparse(AST ast, ASTE e, unsigned int &i, unsigned int prec)
 	{
+		TRACE_COUT << "trying " << TRACE_GREEN << e.getName() << TRACE_DEFAULT << " (from " << i << " to " << ast.size() << ") - " << e.display() << "\n";
+
 		if (verifyASTForParsing(ast) == false)
 		{
 			ast.setName(e.getName());
