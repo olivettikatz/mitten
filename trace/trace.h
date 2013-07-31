@@ -122,12 +122,17 @@ namespace trace
 	*/
 	void initFlags(int *argc, char *argv[]);
 
-	bool canDisplayMessages(string module, string method);
+	bool canDisplayMessages(string module, string method, int &mc, int mcf);
 	bool canDisplayMessages(string data);
 
 	extern string base64;
 	string itob64(int i);
 	int b64toi(string b64);
+
+	string getModule(string file);
+	Backtrace getStack();
+	string createCoutPrefix(string module, unsigned int line);
+	void indata(string d, string m);
 }
 
 /*! initializer for the library. 
@@ -159,11 +164,12 @@ namespace trace
 #define TRACE_MODULE_MAP(file, name) (trace::moduleTable[file]=string(name))
 
 /*! gets the current module name in the current file. */
-#define TRACE_MODULE (trace::moduleTable.find(TRACE_FILE)==trace::moduleTable.end()?TRACE_FILE:trace::moduleTable[TRACE_FILE])
+#define TRACE_MODULE (trace::getModule(TRACE_FILE))
 
 /*! gets the Backtrace object of the current stack in this thread. */
-#define TRACE_STACK (trace::stackTable.find(TRACE_PID)==trace::stackTable.end()?trace::Backtrace():trace::stackTable[TRACE_PID])
-#define TRACE_COUT_SHOW if(TRACE_IS_DEBUG()&&(trace::canDisplayMessages(TRACE_MODULE, TRACE_METHOD)&&trace::msgCounter++>trace::msgCounterFilter-5))std::cout<<"["<<TRACE_MODULE<<":"<<TRACE_LINE<<(trace::flags["use-n"]?":"+trace::itob64(trace::msgCounter):"")<<"] "<<string(TRACE_STACK.size()+(TRACE_LINE<10?1:0)+(TRACE_LINE<100?1:0)+(TRACE_LINE<1000?1:0),' ')
+#define TRACE_STACK (trace::getStack())
+#define TRACE_COUT_SHOW if(trace::canDisplayMessages(TRACE_MODULE, TRACE_METHOD, trace::msgCounter, trace::msgCounterFilter)) \
+	std::cout<<trace::createCoutPrefix(TRACE_MODULE,TRACE_LINE)
 
 /*! sends a debug message to stdout with prefix if `--trace-show-debug' is enabled (acts like `cout'). */
 #define TRACE_COUT if(trace::flags["show-debug"])TRACE_COUT_SHOW
@@ -171,12 +177,18 @@ namespace trace
 /*! displays data flow to stdout with prefix if `--trace-show-data' is enabled. 
 \param d a string to display as the data coming into the method
 */
-#define TRACE_INDATA(d) {if(trace::dataFilters.empty()==false){std::stringstream ss;ss<<d;if(trace::canDisplayMessages(ss.str())){trace::debugTable[TRACE_PID]=true;}else{trace::debugTable[TRACE_PID]=false;}}if(trace::stackTable.find(TRACE_PID)==trace::stackTable.end())trace::stackTable[TRACE_PID]=trace::Backtrace();trace::stackTable[TRACE_PID].push(TRACE_METHOD);if(trace::flags["show-data"]){TRACE_COUT_SHOW<<"<= "<<d<<"\n";}}
+#define TRACE_INDATA(d) {stringstream ss;ss<<d;trace::indata(ss.str(),TRACE_METHOD);}
 
 /*! displays data flow to stdout with prefix if `--trace-show-data' is enabled. 
 \param d a string to display as the data going out of the method
 */
-#define TRACE_OUTDATA(d) {if(trace::flags["show-data"]){TRACE_COUT_SHOW<<"=> "<<d<<"\n";}trace::stackTable[TRACE_PID].pop();}
+#define TRACE_OUTDATA(d) { \
+	if(trace::flags["show-data"]) \
+	{ \
+		TRACE_COUT_SHOW<<"=> "<<d<<"\n"; \
+	} \
+	trace::stackTable[TRACE_PID].pop(); \
+	}
 
 /*! returns if debugging is enabled in program. */
 #define TRACE_IS_DEBUG() (trace::debugTable.find(TRACE_PID)==trace::debugTable.end()?false:trace::debugTable[TRACE_PID])

@@ -279,7 +279,7 @@ namespace trace
 		*argc = newargv.size()+1;
 	}
 
-	bool canDisplayMessages(string module, string method)
+	bool canDisplayMessages(string module, string method, int &mc, int mcf)
 	{
 		bool rtn = false;
 
@@ -304,23 +304,39 @@ namespace trace
 		if (rtn == false && (moduleFilters.empty() && methodFilters.empty()))
 			rtn = true;
 
-		return rtn;
+		if (rtn == true)
+		{
+			return TRACE_IS_DEBUG() && (mc++ > mcf-5);
+		}
+		else
+		{
+			return rtn;
+		}
 	}
 
 	bool canDisplayMessages(string data)
 	{
+		bool rtn = false;
+
 		for (vector<string>::iterator i = dataFilters.begin(); i != dataFilters.end(); i++)
 		{
 			if (data.find(*i) != string::npos)
 			{
-				return true;
+				rtn = true;
 			}
 		}
 
 		if (dataFilters.empty())
-			return true;
+			rtn = true;
 
-		return false;
+		if (rtn)
+		{
+			return TRACE_IS_DEBUG();
+		}
+		else
+		{
+			return false;
+		}
 	}
 
 	string base64 = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_";
@@ -351,5 +367,54 @@ namespace trace
 			i += base64.find(b64[e])*pow(64, (b64.size()-e-1));
 		}
 		return i;
+	}
+
+	string getModule(string file)
+	{
+		if (moduleTable.find(file) == moduleTable.end())
+		{
+			return file;
+		}
+		else
+		{
+			return moduleTable[file];
+		}
+	}
+
+	Backtrace getStack()
+	{
+		if (stackTable.find(TRACE_PID) == stackTable.end())
+		{
+			return Backtrace();
+		}
+		else
+		{
+			return stackTable[TRACE_PID];
+		}
+	}
+
+	string createCoutPrefix(string module, unsigned int line)
+	{
+		stringstream ss;
+		ss << "[" << module << ":" << line;
+		if (flags["use-n"])
+			ss << ":" << itob64(msgCounter);
+		ss << "] " << string(getStack().size()+(unsigned int)log10((double)line), ' ');
+		return ss.str();
+	}
+
+	void indata(string d, string m)
+	{
+		if (dataFilters.empty() == false)
+			debugTable[TRACE_PID] = canDisplayMessages(d);
+
+		if (stackTable.find(TRACE_PID) == stackTable.end())
+		{
+			stackTable[TRACE_PID] = Backtrace();
+			stackTable[TRACE_PID].push(m);
+		}
+
+		if (flags["show-data"])
+			TRACE_COUT_SHOW << "<= " << d << "\n";
 	}
 }

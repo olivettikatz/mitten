@@ -161,6 +161,7 @@ namespace parsing
 					{
 						unsigned int oldai = ai;
 						ast[oldai] = subparse(ast[ai], **j, ai, getPrecedence(ast));
+						ast[oldai].pullUpErrors();
 						if (ast[oldai].containsErrors() == false)
 						{
 							haveSuccess = true;
@@ -191,6 +192,13 @@ namespace parsing
 					fixed = false;
 					TRACE_COUT << TRACE_RED << p[pi].getName() << TRACE_DEFAULT << " failed\n";
 					ast.error("expected a leaf, but got a branch with now-orphaned children");
+					ast[ai].setStatus(AST::statusRDP);
+				}
+				else if (getTag(ast[ai].getContent().get()).empty() == false)
+				{
+					fixed = false;
+					TRACE_COUT << TRACE_RED << p[pi].getName() << TRACE_DEFAULT << " failed\n";
+					ast.error("expected type '"+p[pi].getArgument()+"', but got tag '"+getTag(ast[ai].getContent().get())+"'");
 					ast[ai].setStatus(AST::statusRDP);
 				}
 				else
@@ -238,6 +246,8 @@ namespace parsing
 				return ast;
 			}
 		}
+
+		ast.pullUpErrors();
 
 		if (fixed == false)
 		{
@@ -310,8 +320,8 @@ namespace parsing
 			}
 			else if (tmpci >= tmp.size())
 			{
-				TRACE_COUT << "there aren't actually any more tokens to parse, skipping... (" << tmpci << " >= " << tmp.size() << ")\n";
-				continue;
+				TRACE_COUT << "there aren't actually any more tokens to parse, halting... (" << tmpci << " >= " << tmp.size() << ")\n";
+				break;
 			}
 			else
 			{
@@ -353,14 +363,6 @@ namespace parsing
 
 	bool RDP::verifyASTForParsing(AST &ast)
 	{
-		/*if (ast.size() == 0)
-		{
-			TRACE_COUT << "expected a scope, but got a leaf\n";
-			ast.error("expected a scope, but got a leaf");
-			ast.setStatus(AST::statusRDP);
-			return false;
-		}*/
-
 		if (ast.getStatus() >= AST::statusRDP)
 		{
 			TRACE_COUT << "already parsed, skipping...\n";
