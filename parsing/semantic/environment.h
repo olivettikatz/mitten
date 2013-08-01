@@ -32,11 +32,13 @@ namespace parsing
 	{
 	private:
 		map<string, vector<vector<ASTError> > > errorStacks;
+		void debugStacks();
 
 	public:
 		Environment() {}
 		void error(AST ast, string m);
 		void error(string file, AST ast, string m);
+		void error(ASTError e);
 		void pushErrors(string file);
 		void pushErrors(AST ast);
 		vector<ASTError> popErrors(string file);

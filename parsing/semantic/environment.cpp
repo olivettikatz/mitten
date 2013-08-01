@@ -20,6 +20,20 @@
 
 namespace parsing
 {
+	void Environment::debugStacks()
+	{
+		for (map<string, vector<vector<ASTError> > >::iterator i = errorStacks.begin(); i != errorStacks.end(); i++)
+		{
+			stringstream ss;
+			ss << i->first << ":";
+			for (vector<vector<ASTError> >::iterator j = i->second.begin(); j != i->second.end(); j++)
+			{
+				ss << " " << j->size();
+			}
+			TRACE_COUT << ss.str() << "\n";
+		}
+	}
+
 	void Environment::error(AST ast, string m)
 	{
 		if (errorStacks.find(ast.getFile()) == errorStacks.end())
@@ -30,12 +44,22 @@ namespace parsing
 
 	void Environment::error(string file, AST ast, string m)
 	{
+		if (errorStacks.find(file) == errorStacks.end())
+			pushErrors(file);
 		errorStacks[file].back().push_back(ASTError(ast.getContent(), m));
+	}
+
+	void Environment::error(ASTError e)
+	{
+		if (errorStacks.find(e.getSource().getFile()) == errorStacks.end())
+			pushErrors(e.getSource().getFile());
+		errorStacks[e.getSource().getFile()].back().push_back(e);
 	}
 
 	void Environment::pushErrors(string file)
 	{
 		TRACE_COUT << "pushing errors in '" << file << "'\n";
+		//TRACE_BACKTRACE();
 		vector<ASTError> tmp;
 		errorStacks[file].push_back(tmp);
 	}
@@ -56,6 +80,7 @@ namespace parsing
 	vector<ASTError> Environment::popErrors(AST ast)
 	{
 		TRACE_COUT << "popping errors in '" << ast.getFile() << "'\n";
+		//TRACE_BACKTRACE();
 		return popErrors(ast.getFile());
 	}
 
@@ -76,17 +101,23 @@ namespace parsing
 	void Environment::mergeErrors(string file)
 	{
 		TRACE_COUT << "merging errors in '" << file << "'\n";
+		//TRACE_BACKTRACE();
+		debugStacks();
 		vector<ASTError> tmp = popErrors(file);
 		errorStacks[file].back().insert(errorStacks[file].back().begin(), tmp.begin(), tmp.end());
+		debugStacks();
 	}
 
 	void Environment::mergeErrors(string file, string dst)
 	{
 		TRACE_COUT << "merging errors from '" << file << "' to '" << dst << "'\n";
+		//TRACE_BACKTRACE();
+		debugStacks();
 		vector<ASTError> tmp = popErrors(file);
 		if (errorStacks.find(dst) == errorStacks.end())
 			pushErrors(dst);
 		errorStacks[dst].back().insert(errorStacks[dst].back().begin(), tmp.begin(), tmp.end());
+		debugStacks();
 	}
 
 	void Environment::mergeErrors(string file, AST dst)

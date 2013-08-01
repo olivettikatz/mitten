@@ -173,7 +173,7 @@ namespace parsing
 						}
 						else
 						{
-							environment.mergeErrors(ast, ast.getContent().getFile()+".tmp");
+							environment.mergeErrors(ast, ast.getFile()+".tmp");
 							//vector<ASTError> tmp = environment.popErrors(ast);
 							//errtmp.insert(errtmp.end(), tmp.begin(), tmp.end());
 						}
@@ -183,7 +183,7 @@ namespace parsing
 					{
 						TRACE_COUT << TRACE_RED << p[pi].getName() << TRACE_DEFAULT << " could not match the sub-expectation\n";
 						//ast.error(errtmp.getErrors());
-						environment.mergeErrors(ast.getContent().getFile()+".tmp", ast);
+						environment.mergeErrors(ast.getFile()+".tmp", ast);
 						fixed = false;
 					}
 				}
@@ -318,10 +318,9 @@ namespace parsing
 		AST tmp;
 		unsigned int tmpci;
 		bool anyPotentialMatches = false;
+		vector<ASTError> errtmp;
 		for (vector<ASTE>::iterator i = content.begin(); i != content.end(); i++)
 		{
-			environment.pushErrors(ast);
-
 			tmp = ast;
 			tmpci = ci;
 
@@ -329,30 +328,30 @@ namespace parsing
 
 			if (tmpci < tmp.size() && tmp.getStatus() < AST::statusRDP)
 			{
+				environment.pushErrors(ast);
 				tmp = parse(tmp, *i, tmpci);
-				//tmp.pullUpErrors();
 			}
 			else if (tmpci >= tmp.size())
 			{
 				TRACE_COUT << "there aren't actually any more tokens to parse, halting... (" << tmpci << " >= " << tmp.size() << ")\n";
-				environment.popErrors(ast);
 				break;
 			}
 			else
 			{
 				TRACE_COUT << "already parsed, skipping...\n";
-				environment.popErrors(ast);
 				continue;
 			}
 
 			if (tmp.containsNamedBranch())
+			{
 				anyPotentialMatches = true;
+				errtmp.push_back(ASTError(tmp.getContent(), "cannot be parsed as "+i->getName()));
+			}
 
 			if (environment.areErrors(ast))
 			{
 				TRACE_COUT << "contains errors, skipping...\n";
-				environment.pushErrors(ast.getContent().getFile()+".tmp");
-				environment.mergeErrors(tmp, ast.getContent().getFile()+".tmp");
+				environment.popErrors(ast);
 			}
 			else
 			{
@@ -369,8 +368,8 @@ namespace parsing
 			TRACE_COUT << "match found with errors, returning errors...\n";
 			TRACE_OUTDATA(ast.display());
 			ast.setStatusRecursive(AST::statusRDP);
-			environment.pushErrors(ast.getFile()+".tmp");
-			environment.mergeErrors(ast.getFile()+".tmp", ast);
+			for (vector<ASTError>::iterator i = errtmp.begin(); i != errtmp.end(); i++)
+				environment.error(*i);
 			return ast;
 		}
 		else
@@ -520,6 +519,7 @@ namespace parsing
 	{
 		if (content.empty())
 		{
+			TRACE_COUT << "adding first element - " << e.display() << "\n";
 			content.push_back(e);
 		}
 		else
@@ -528,11 +528,13 @@ namespace parsing
 			{
 				if (i->size() < e.size())
 				{
+					TRACE_COUT << "adding element " << (i-content.begin()) << " - " << e.display() << "\n";
 					content.insert(i, e);
 					return ;
 				}
 			}
 
+			TRACE_COUT << "adding element " << content.size() << " - " << e.display() << "\n";
 			content.push_back(e);
 		}
 	}

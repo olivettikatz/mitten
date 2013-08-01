@@ -29,6 +29,7 @@ namespace trace
 	vector<string> dataFilters;
 	int msgCounter;
 	int msgCounterFilter;
+	vector<int> backtraceRequests;
 
 	void Backtrace::setFramesToCapture(unsigned int f)
 	{
@@ -134,7 +135,7 @@ namespace trace
 	{
 		stringstream ss;
 		for (vector<traceElement>::iterator i = data.begin(); i != data.end(); i++)
-			ss << i->exec << " " << i->addr << " " << i->sym << "\n";
+			ss << i->exec << " " << i->addr << " " << TRACE_YELLOW << i->sym << TRACE_DEFAULT << "\n";
 		return ss.str();
 	}
 
@@ -158,6 +159,7 @@ namespace trace
 
 		flags["show-data"] = false;
 		flags["show-debug"] = false;
+		flags["show-backtraces"] = false;
 		flags["use-color"] = true;
 		flags["use-n"] = false;
 
@@ -173,10 +175,15 @@ namespace trace
 			{
 				flags["show-debug"] = true;
 			}
+			else if (string(argv[i]).compare("--trace-show-backtraces") == 0)
+			{
+				flags["show-backtraces"] = true;
+			}
 			else if (string(argv[i]).compare("--trace-show-all") == 0)
 			{
 				flags["show-data"] = true;
 				flags["show-debug"] = true;
+				flags["show-backtraces"] = true;
 			}
 			else if (string(argv[i]).compare("--trace-disable-color") == 0)
 			{
@@ -229,6 +236,16 @@ namespace trace
 
 				msgCounterFilter = b64toi(string(argv[i]));
 			}
+			else if (string(argv[i]).compare("--trace-backtrace-n") == 0)
+			{
+				if (++i >= *argc)
+				{
+					cerr << "error: --trace-backtrace-n requires an argument\n";
+					_exit(1);
+				}
+
+				backtraceRequests.push_back(b64toi(string(argv[i])));
+			}
 			else if (string(argv[i]).compare("--trace-help") == 0)
 			{
 				cout << TRACE_GREEN << "Trace 0.01 Alpha\n\n" << TRACE_DEFAULT;
@@ -238,7 +255,10 @@ namespace trace
 				cout << "                                        TRACE_INDATA and TRACE_OUTDATA\n";
 				cout << "--trace-show-debug                      show debug messages from\n";
 				cout << "                                        TRACE_COUT\n";
+				cout << "--trace-show-backtraces                 show backtraces from\n";
+				cout << "                                        TRACE_BACKTRACE\n";
 				cout << "--trace-show-all                        show all messages\n";
+				cout << "--trace-enable-n                        display <MSG CODE>s\n";
 				cout << "--trace-filter-module <MODULE PATTERN>  show only messages from modules\n";
 				cout << "                                        with names containing\n";
 				cout << "                                        <MODULE PATTERN> (can be used\n";
@@ -254,6 +274,8 @@ namespace trace
 				cout << "--trace-filter-n <MSG CODE>             only display messages around and\n";
 				cout << "                                        after a message with <MSG CODE>\n";
 				cout << "                                        is generated\n";
+				cout << "--trace-backtrace-n <MSG CODE>          request backtrace of message with\n";
+				cout << "                                        <MSG CODE>\n";
 				cout << "--trace-disable-color                   disable use of terminal colors\n";
 				cout << "--trace-help                            show this help screen\n";
 				cout << TRACE_GREEN << "* * *\n" << TRACE_DEFAULT;
@@ -306,12 +328,19 @@ namespace trace
 
 		if (rtn == true)
 		{
-			return TRACE_IS_DEBUG() && (mc++ > mcf-5);
+			rtn = TRACE_IS_DEBUG() && (mc++ > mcf-5);
 		}
-		else
+
+		if (rtn)
 		{
-			return rtn;
+			if (isBacktraceRequested())
+			{
+				cout << "Backtrace for " << method << ":\n";
+				cout << showBacktrace();
+			}
 		}
+
+		return rtn;
 	}
 
 	bool canDisplayMessages(string data)
@@ -337,6 +366,14 @@ namespace trace
 		{
 			return false;
 		}
+	}
+
+	bool isBacktraceRequested()
+	{
+		for (vector<int>::iterator i = backtraceRequests.begin(); i != backtraceRequests.end(); i++)
+			if (*i == msgCounter)
+				return true;
+		return false;
 	}
 
 	string base64 = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_";
@@ -416,5 +453,12 @@ namespace trace
 
 		if (flags["show-data"])
 			TRACE_COUT_SHOW << "<= " << d << "\n";
+	}
+
+	string showBacktrace()
+	{
+		Backtrace tmp = Backtrace();
+		tmp.capture();
+		return tmp.dump();
 	}
 }

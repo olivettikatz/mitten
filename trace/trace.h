@@ -115,6 +115,7 @@ namespace trace
 	extern vector<string> dataFilters;
 	extern int msgCounter;
 	extern int msgCounterFilter;
+	extern vector<int> backtraceRequests;
 
 	/*! initializes the trace library from command line arguments (call executable using this function with argument `--trace-help' for more info). 
 	\param argc pass 'argc' from the main function
@@ -124,6 +125,7 @@ namespace trace
 
 	bool canDisplayMessages(string module, string method, int &mc, int mcf);
 	bool canDisplayMessages(string data);
+	bool isBacktraceRequested();
 
 	extern string base64;
 	string itob64(int i);
@@ -133,6 +135,7 @@ namespace trace
 	Backtrace getStack();
 	string createCoutPrefix(string module, unsigned int line);
 	void indata(string d, string m);
+	string showBacktrace();
 }
 
 /*! initializer for the library. 
@@ -172,7 +175,9 @@ namespace trace
 	std::cout<<trace::createCoutPrefix(TRACE_MODULE,TRACE_LINE)
 
 /*! sends a debug message to stdout with prefix if `--trace-show-debug' is enabled (acts like `cout'). */
-#define TRACE_COUT if(trace::flags["show-debug"])TRACE_COUT_SHOW
+//#define TRACE_COUT if(trace::flags["show-debug"])TRACE_COUT_SHOW
+#define TRACE_COUT if(trace::flags["show-debug"]&&trace::canDisplayMessages(TRACE_MODULE, TRACE_METHOD, trace::msgCounter, trace::msgCounterFilter)) \
+	std::cout<<trace::createCoutPrefix(TRACE_MODULE,TRACE_LINE)
 
 /*! displays data flow to stdout with prefix if `--trace-show-data' is enabled. 
 \param d a string to display as the data coming into the method
@@ -189,6 +194,8 @@ namespace trace
 	} \
 	trace::stackTable[TRACE_PID].pop(); \
 	}
+
+#define TRACE_BACKTRACE() {if(trace::flags["show-backtraces"])TRACE_COUT_SHOW<<"\n"<<trace::showBacktrace()<<"\n";}
 
 /*! returns if debugging is enabled in program. */
 #define TRACE_IS_DEBUG() (trace::debugTable.find(TRACE_PID)==trace::debugTable.end()?false:trace::debugTable[TRACE_PID])
