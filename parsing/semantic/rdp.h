@@ -22,6 +22,7 @@
 #include <stdexcept>
 #include "scope.h"
 #include <trace/trace.h>
+#include "environment.h"
 
 namespace parsing
 {

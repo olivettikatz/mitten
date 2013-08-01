@@ -80,8 +80,9 @@ namespace parsing
 			for (vector<tagCondition>::iterator j = tagConditionList.begin(); j != tagConditionList.end(); j++)
 			{
 				unsigned int ci = i;
+				environment.pushErrors(ast);
 				AST tmp = parse(ast, j->condition, ci);
-				if (tmp.containsErrors() == false)
+				if (environment.areErrors(ast))
 				{
 					if (j->relative == _beginning)
 					{
@@ -100,6 +101,7 @@ namespace parsing
 
 					break;
 				}
+				environment.popErrors(ast);
 			}
 		}
 	}
@@ -121,7 +123,7 @@ namespace parsing
 		{
 			TRACE_COUT << "could not verify expectation, returning...\n";
 			TRACE_OUTDATA(ast.display());
-			ast.error("expectation '"+p.getName()+"' does not match this syntax");
+			environment.error(ast, "expectation '"+p.getName()+"' does not match this syntax");
 			ast.setStatusRecursive(AST::statusRDP);
 			return ast;
 		}
@@ -138,7 +140,7 @@ namespace parsing
 			if (ai >= ast.size())
 			{
 				TRACE_COUT << TRACE_RED << p[pi].getName() << TRACE_DEFAULT << " overflowed the current AST\n";
-				ast.error("expectation "+p.getName()+" overflowed");
+				environment.error(ast, "expectation "+p.getName()+" overflowed");
 				fixed = false;
 				break;
 			}
@@ -155,24 +157,33 @@ namespace parsing
 
 					TRACE_COUT << "  '"+p[pi].getName()+"' matches " << fi.size() << " expectations\n";
 					bool haveSuccess = false;
-					AST errtmp;
+					//vector<ASTError> errtmp;
 
 					for (vector<vector<ASTE>::iterator>::iterator j = fi.begin(); j != fi.end(); j++)
 					{
 						unsigned int oldai = ai;
+						environment.pushErrors(ast);
 						ast[oldai] = subparse(ast[ai], **j, ai, getPrecedence(ast));
-						ast[oldai].pullUpErrors();
-						if (ast[oldai].containsErrors() == false)
+						//ast[oldai].pullUpErrors();
+						if (!environment.areErrors(ast))
 						{
 							haveSuccess = true;
+							environment.popErrors(ast);
 							break;
+						}
+						else
+						{
+							environment.mergeErrors(ast, ast.getContent().getFile()+".tmp");
+							//vector<ASTError> tmp = environment.popErrors(ast);
+							//errtmp.insert(errtmp.end(), tmp.begin(), tmp.end());
 						}
 					}
 
 					if (haveSuccess == false)
 					{
 						TRACE_COUT << TRACE_RED << p[pi].getName() << TRACE_DEFAULT << " could not match the sub-expectation\n";
-						ast.error(errtmp.getErrors());
+						//ast.error(errtmp.getErrors());
+						environment.mergeErrors(ast.getContent().getFile()+".tmp", ast);
 						fixed = false;
 					}
 				}
@@ -184,21 +195,21 @@ namespace parsing
 				{
 					fixed = false;
 					TRACE_COUT << TRACE_RED << p[pi].getName() << TRACE_DEFAULT << " failed - (expectation '" << p[pi].getArgument() << "' != actual[" << ai << "] '" << ast[ai].getContent().getType() << "')\n";
-					ast[ai].error("expected '"+p[pi].getArgument()+"', but got '"+ast[ai].getContent().getType()+"'");
+					environment.error(ast[ai], "expected '"+p[pi].getArgument()+"', but got '"+ast[ai].getContent().getType()+"'");
 					ast[ai].setStatus(AST::statusRDP);
 				}
 				else if (ast[ai].size() > 0)
 				{
 					fixed = false;
 					TRACE_COUT << TRACE_RED << p[pi].getName() << TRACE_DEFAULT << " failed\n";
-					ast.error("expected a leaf, but got a branch with now-orphaned children");
+					environment.error(ast, "expected a leaf, but got a branch with now-orphaned children");
 					ast[ai].setStatus(AST::statusRDP);
 				}
 				else if (getTag(ast[ai].getContent().get()).empty() == false)
 				{
 					fixed = false;
 					TRACE_COUT << TRACE_RED << p[pi].getName() << TRACE_DEFAULT << " failed\n";
-					ast.error("expected type '"+p[pi].getArgument()+"', but got tag '"+getTag(ast[ai].getContent().get())+"'");
+					environment.error(ast, "expected type '"+p[pi].getArgument()+"', but got tag '"+getTag(ast[ai].getContent().get())+"'");
 					ast[ai].setStatus(AST::statusRDP);
 				}
 				else
@@ -212,6 +223,7 @@ namespace parsing
 			{
 				TRACE_COUT << "  "+p[pi].getName()+" expects scope\n";
 				unsigned int ci2 = 0;
+				//environment.pushErrors();
 				ast[ai] = subparse(ast[ai], ci2, getPrecedence(ast));
 				ast[ai].setName(p[pi].getName());
 			}
@@ -222,14 +234,14 @@ namespace parsing
 				{
 					fixed = false;
 					TRACE_COUT << TRACE_RED << p[pi].getName() << TRACE_DEFAULT << " failed - (expectation '" << p[pi].getArgument() << "' != actual[" << ai << "] '" << getTag(ast[ai].getContent().get()) << "')\n";
-					ast[ai].error("expected '"+p[pi].getArgument()+"', but got '"+getTag(ast[ai].getContent().get())+"'");
+					environment.error(ast[ai], "expected '"+p[pi].getArgument()+"', but got '"+getTag(ast[ai].getContent().get())+"'");
 					ast[ai].setStatus(AST::statusRDP);
 				}
 				else if (ast[ai].size() > 0)
 				{
 					fixed = false;
 					TRACE_COUT << TRACE_RED << p[pi].getName() << TRACE_DEFAULT << " failed\n";
-					ast[ai].error("expected a leaf, but got a branch with now-orphaned children");
+					environment.error(ast[ai], "expected a leaf, but got a branch with now-orphaned children");
 					ast[ai].setStatus(AST::statusRDP);
 				}
 				else
@@ -247,13 +259,13 @@ namespace parsing
 			}
 		}
 
-		ast.pullUpErrors();
+		//ast.pullUpErrors();
 
 		if (fixed == false)
 		{
 			ast.setName("");
 		}
-		else if (ast.containsErrors() == false && ai < ast.size())
+		else if (environment.areErrors(ast) == false && ai < ast.size())
 		{
 			TRACE_COUT << "more tokens to parse...\n";
 			ast = parse(ast, ai);
@@ -297,7 +309,7 @@ namespace parsing
 				unsigned int ci2 = 0;
 				ast[i] = parse(ast[i], ci2);
 				ast[i].setStatusRecursive(AST::statusRDP);
-				ast.error(ast[i].getErrors());
+				//ast.error(ast[i].getErrors());
 			}
 		}
 
@@ -308,6 +320,8 @@ namespace parsing
 		bool anyPotentialMatches = false;
 		for (vector<ASTE>::iterator i = content.begin(); i != content.end(); i++)
 		{
+			environment.pushErrors(ast);
+
 			tmp = ast;
 			tmpci = ci;
 
@@ -316,31 +330,36 @@ namespace parsing
 			if (tmpci < tmp.size() && tmp.getStatus() < AST::statusRDP)
 			{
 				tmp = parse(tmp, *i, tmpci);
-				tmp.pullUpErrors();
+				//tmp.pullUpErrors();
 			}
 			else if (tmpci >= tmp.size())
 			{
 				TRACE_COUT << "there aren't actually any more tokens to parse, halting... (" << tmpci << " >= " << tmp.size() << ")\n";
+				environment.popErrors(ast);
 				break;
 			}
 			else
 			{
 				TRACE_COUT << "already parsed, skipping...\n";
+				environment.popErrors(ast);
 				continue;
 			}
 
 			if (tmp.containsNamedBranch())
 				anyPotentialMatches = true;
 
-			if (tmp.containsErrors())
+			if (environment.areErrors(ast))
 			{
 				TRACE_COUT << "contains errors, skipping...\n";
+				environment.pushErrors(ast.getContent().getFile()+".tmp");
+				environment.mergeErrors(tmp, ast.getContent().getFile()+".tmp");
 			}
 			else
 			{
 				TRACE_COUT << "have successful result.\n";
 				TRACE_OUTDATA(tmp.display());
 				tmp.setStatusRecursive(AST::statusRDP);
+				environment.popErrors(ast);
 				return tmp;
 			}
 		}
@@ -350,6 +369,8 @@ namespace parsing
 			TRACE_COUT << "match found with errors, returning errors...\n";
 			TRACE_OUTDATA(ast.display());
 			ast.setStatusRecursive(AST::statusRDP);
+			environment.pushErrors(ast.getFile()+".tmp");
+			environment.mergeErrors(ast.getFile()+".tmp", ast);
 			return ast;
 		}
 		else

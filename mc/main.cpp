@@ -156,7 +156,7 @@ void compile(string path)
 	TRACE_STACK.clear();
 	ast = rdp.parse(ast);
 	TRACE_STACK.clear();
-	ast.pullUpErrors();
+	//ast.pullUpErrors();
 	//compiler.compile(ast);
 
 	/*if (compiler.errorNumber() > 0)

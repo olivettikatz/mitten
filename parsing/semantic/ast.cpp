@@ -20,12 +20,13 @@
 
 namespace parsing
 {
-	void AST::error(string msg)
+	/*ASTError AST::error(string msg)
 	{
-		errors.push_back(ASTError(content, msg));
-	}
+		return ASTError(content, msg);
+		//errors.push_back(ASTError(content, msg));
+	}*/
 
-	void AST::error(ASTError e)
+	/*void AST::error(ASTError e)
 	{
 		errors.push_back(e);
 	}
@@ -52,11 +53,11 @@ namespace parsing
 	vector<ASTError> AST::getErrors()
 	{
 		return errors;
-	}
+	}*/
 
 	bool AST::empty()
 	{
-		return (content.empty() && name.empty()) && (children.empty() && errors.empty());
+		return (content.empty() && name.empty()) && children.empty();
 	}
 
 	AST &AST::add(AST a)
@@ -141,6 +142,23 @@ namespace parsing
 	Token AST::setContent(Token t)
 	{
 		return (content = t);
+	}
+
+	string AST::getFile()
+	{
+		if (content.getFile().empty())
+		{
+			for (vector<AST>::iterator i = children.begin(); i != children.end(); i++)
+			{
+				return i->getFile();
+			}
+		}
+		else
+		{
+			return content.getFile();
+		}
+
+		return "";
 	}
 
 	unsigned int AST::size()
@@ -286,7 +304,7 @@ namespace parsing
 		return displaySome(0, limit);
 	}	
 
-	string AST::dumpErrors()
+	/*string AST::dumpErrors()
 	{
 		stringstream ss;
 		
@@ -297,7 +315,7 @@ namespace parsing
 			ss << i->display();
 
 		return ss.str();
-	}
+	}*/
 
 	AST AST::flatten(vector<AST> &rtn)
 	{

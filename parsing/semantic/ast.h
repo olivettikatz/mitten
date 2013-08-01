@@ -34,7 +34,7 @@ namespace parsing
 		string name;
 		Token content;
 		vector<AST> children;
-		vector<ASTError> errors;
+		//vector<ASTError> errors;
 		int status;
 
 		string display(unsigned int l);
@@ -59,21 +59,22 @@ namespace parsing
 		/*! initializes an AST with only a token content. */
 		AST(Token c) : content(c), status(statusRaw) {}
 
-		void error(string msg);
+		/*! creates an error. */
+		//ASTError error(string msg);
 
-		/*! adds an error. */
-		void error(ASTError e);
+		/*! assigns root token to an error. */
+		//ASTError error(ASTError e);
 
 		/*! adds multiple errors. */
-		void error(vector<ASTError> e);
+		//void error(vector<ASTError> e);
 
-		void pullUpErrors();
+		//void pullUpErrors();
 
 		/*! returns `true' if there are errors. */
-		bool containsErrors();
+		//bool containsErrors();
 
 		/*! returns the errors in this AST. */
-		vector<ASTError> getErrors();
+		//vector<ASTError> getErrors();
 
 		/*! returns `true' if the AST is empty. */
 		bool empty();
@@ -120,6 +121,8 @@ namespace parsing
 		/*! sets the token content. */
 		Token setContent(Token t);
 
+		string getFile();
+
 		/*! gets the size of the children vector. */
 		unsigned int size();
 
@@ -154,7 +157,7 @@ namespace parsing
 		string displaySome(unsigned int limit);
 
 		/*! displays the errors in the current AST. */
-		string dumpErrors();
+		//string dumpErrors();
 
 		/*! returns a flat version of the current AST. */
 		AST flatten();

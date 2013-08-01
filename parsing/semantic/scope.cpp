@@ -70,7 +70,7 @@ namespace parsing
 				{
 					if (j->first.compare(bound) != 0 && ast[i].getContent().getType().compare(j->second.first) == 0)
 					{
-						ast[i].error("illegal separator '"+ast[i].getContent().getType()+"' in scope starting with '"+bound+"'");
+						environment.error(ast[i], "illegal separator '"+ast[i].getContent().getType()+"' in scope starting with '"+bound+"'");
 						break;
 					}
 				}
@@ -81,7 +81,7 @@ namespace parsing
 					{
 						if (bounds.find(ast[i-1].getContent().getType()) == bounds.end())
 						{
-							ast[i-1].error("unrecognized scope starting with '"+ast[i-1].getContent().getType()+"'");
+							environment.error(ast[i-1], "unrecognized scope starting with '"+ast[i-1].getContent().getType()+"'");
 						}
 
 						buf << sepParse(ast[i], ast[i-1].getContent().getType());

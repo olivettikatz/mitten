@@ -24,6 +24,7 @@
 #include "../lexical/tokenizer.h"
 #include "ast.h"
 #include <trace/trace.h>
+#include "environment.h"
 
 namespace parsing
 {
