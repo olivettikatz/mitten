@@ -150,15 +150,17 @@ namespace parsing
 		{
 			for (vector<AST>::iterator i = children.begin(); i != children.end(); i++)
 			{
-				return i->getFile();
+				string tmp = i->getFile();
+				if (tmp.empty() == false)
+				{
+					return tmp;
+				}
 			}
-		}
-		else
-		{
-			return content.getFile();
-		}
 
-		return "";
+			throw runtime_error("fileless AST");
+		}
+		
+		return content.getFile();
 	}
 
 	unsigned int AST::size()

@@ -30,35 +30,51 @@ namespace parsing
 			{
 				ss << " " << j->size();
 			}
-			TRACE_COUT << ss.str() << "\n";
+			TRACE_COUT(ss.str() << "\n");
 		}
 	}
 
 	void Environment::error(AST ast, string m)
 	{
-		if (errorStacks.find(ast.getFile()) == errorStacks.end())
+		if (errorStacks.find(ast.getFile()) == errorStacks.end() || errorStacks[ast.getFile()].empty())
 			pushErrors(ast.getFile());
-		TRACE_COUT << "error in '" << ast.getFile() << "' - " << ASTError(ast.getContent(), m).display() << "\n";
+		TRACE_COUT("error in '" << ast.getFile() << "' - " << ASTError(ast.getContent(), m).display() << "\n");
 		errorStacks[ast.getFile()].back().push_back(ASTError(ast.getContent(), m));
 	}
 
 	void Environment::error(string file, AST ast, string m)
 	{
-		if (errorStacks.find(file) == errorStacks.end())
+		if (file.empty())
+			throw runtime_error("empty file in error");
+		if (errorStacks.find(file) == errorStacks.end() || errorStacks[file].empty())
 			pushErrors(file);
 		errorStacks[file].back().push_back(ASTError(ast.getContent(), m));
 	}
 
 	void Environment::error(ASTError e)
 	{
-		if (errorStacks.find(e.getSource().getFile()) == errorStacks.end())
+		if (e.getSource().getFile().empty())
+			throw runtime_error("empty file in error");
+		if (errorStacks.find(e.getSource().getFile()) == errorStacks.end() || errorStacks[e.getSource().getFile()].empty())
 			pushErrors(e.getSource().getFile());
 		errorStacks[e.getSource().getFile()].back().push_back(e);
 	}
 
+	void Environment::error(string file, vector<ASTError> e)
+	{
+		if (file.empty())
+			throw runtime_error("empty file in error");
+		if (errorStacks.find(file) == errorStacks.end() || errorStacks[file].empty())
+			pushErrors(file);
+		for (vector<ASTError>::iterator i = e.begin(); i != e.end(); i++)
+			errorStacks[file].back().push_back(*i);
+	}
+
 	void Environment::pushErrors(string file)
 	{
-		TRACE_COUT << "pushing errors in '" << file << "'\n";
+		if (file.empty())
+			throw runtime_error("empty file in error");
+		TRACE_COUT("pushing errors in '" << file << "'\n");
 		//TRACE_BACKTRACE();
 		vector<ASTError> tmp;
 		errorStacks[file].push_back(tmp);
@@ -71,6 +87,8 @@ namespace parsing
 
 	vector<ASTError> Environment::popErrors(string file)
 	{
+		if (file.empty())
+			throw runtime_error("empty file in error");
 		vector<ASTError> rtn = errorStacks[file].back();
 		if (!errorStacks[file].empty())
 			errorStacks[file].pop_back();
@@ -79,7 +97,7 @@ namespace parsing
 
 	vector<ASTError> Environment::popErrors(AST ast)
 	{
-		TRACE_COUT << "popping errors in '" << ast.getFile() << "'\n";
+		TRACE_COUT("popping errors in '" << ast.getFile() << "'\n");
 		//TRACE_BACKTRACE();
 		return popErrors(ast.getFile());
 	}
@@ -100,23 +118,25 @@ namespace parsing
 
 	void Environment::mergeErrors(string file)
 	{
-		TRACE_COUT << "merging errors in '" << file << "'\n";
+		TRACE_COUT("merging errors in '" << file << "'\n");
 		//TRACE_BACKTRACE();
 		debugStacks();
 		vector<ASTError> tmp = popErrors(file);
-		errorStacks[file].back().insert(errorStacks[file].back().begin(), tmp.begin(), tmp.end());
+		//errorStacks[file].back().insert(errorStacks[file].back().begin(), tmp.begin(), tmp.end());
+		error(file, tmp);
 		debugStacks();
 	}
 
 	void Environment::mergeErrors(string file, string dst)
 	{
-		TRACE_COUT << "merging errors from '" << file << "' to '" << dst << "'\n";
+		TRACE_COUT("merging errors from '" << file << "' to '" << dst << "'\n");
 		//TRACE_BACKTRACE();
 		debugStacks();
 		vector<ASTError> tmp = popErrors(file);
-		if (errorStacks.find(dst) == errorStacks.end())
+		if (errorStacks.find(dst) == errorStacks.end() || errorStacks[dst].empty())
 			pushErrors(dst);
-		errorStacks[dst].back().insert(errorStacks[dst].back().begin(), tmp.begin(), tmp.end());
+		//errorStacks[dst].back().insert(errorStacks[dst].back().begin(), tmp.begin(), tmp.end());
+		error(dst, tmp);
 		debugStacks();
 	}
 

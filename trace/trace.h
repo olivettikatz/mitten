@@ -134,7 +134,7 @@ namespace trace
 	string getModule(string file);
 	Backtrace getStack();
 	string createCoutPrefix(string module, unsigned int line);
-	void indata(string d, string m);
+	void indata(string mod, string d, string m);
 	string showBacktrace();
 }
 
@@ -171,18 +171,26 @@ namespace trace
 
 /*! gets the Backtrace object of the current stack in this thread. */
 #define TRACE_STACK (trace::getStack())
-#define TRACE_COUT_SHOW if(trace::canDisplayMessages(TRACE_MODULE, TRACE_METHOD, trace::msgCounter, trace::msgCounterFilter)) \
-	std::cout<<trace::createCoutPrefix(TRACE_MODULE,TRACE_LINE)
+#define TRACE_COUT_SHOW(m, d) { \
+		if(trace::canDisplayMessages(m, TRACE_METHOD, trace::msgCounter, trace::msgCounterFilter)) \
+		{ \
+			std::cout<<trace::createCoutPrefix(m,TRACE_LINE)<<d; \
+		} \
+	}
 
 /*! sends a debug message to stdout with prefix if `--trace-show-debug' is enabled (acts like `cout'). */
 //#define TRACE_COUT if(trace::flags["show-debug"])TRACE_COUT_SHOW
-#define TRACE_COUT if(trace::flags["show-debug"]&&trace::canDisplayMessages(TRACE_MODULE, TRACE_METHOD, trace::msgCounter, trace::msgCounterFilter)) \
-	std::cout<<trace::createCoutPrefix(TRACE_MODULE,TRACE_LINE)
+#define TRACE_COUT(d) { \
+			if(trace::flags["show-debug"]&&trace::canDisplayMessages(TRACE_MODULE, TRACE_METHOD, trace::msgCounter, trace::msgCounterFilter)) \
+			{ \
+				std::cout<<trace::createCoutPrefix(TRACE_MODULE,TRACE_LINE)<<d; \
+			} \
+		}
 
 /*! displays data flow to stdout with prefix if `--trace-show-data' is enabled. 
 \param d a string to display as the data coming into the method
 */
-#define TRACE_INDATA(d) {stringstream ss;ss<<d;trace::indata(ss.str(),TRACE_METHOD);}
+#define TRACE_INDATA(d) {stringstream ss;ss<<d;trace::indata(TRACE_MODULE, ss.str(),TRACE_METHOD);}
 
 /*! displays data flow to stdout with prefix if `--trace-show-data' is enabled. 
 \param d a string to display as the data going out of the method
@@ -190,7 +198,7 @@ namespace trace
 #define TRACE_OUTDATA(d) { \
 	if(trace::flags["show-data"]) \
 	{ \
-		TRACE_COUT_SHOW<<"=> "<<d<<"\n"; \
+		TRACE_COUT_SHOW(TRACE_MODULE, "=> "<<d<<"\n"); \
 	} \
 	trace::stackTable[TRACE_PID].pop(); \
 	}

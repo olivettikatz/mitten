@@ -331,7 +331,7 @@ namespace trace
 			rtn = TRACE_IS_DEBUG() && (mc++ > mcf-5);
 		}
 
-		if (rtn)
+		if (rtn == true)
 		{
 			if (isBacktraceRequested())
 			{
@@ -440,10 +440,12 @@ namespace trace
 		return ss.str();
 	}
 
-	void indata(string d, string m)
+	void indata(string mod, string d, string m)
 	{
 		if (dataFilters.empty() == false)
+		{
 			debugTable[TRACE_PID] = canDisplayMessages(d);
+		}
 
 		if (stackTable.find(TRACE_PID) == stackTable.end())
 		{
@@ -451,8 +453,11 @@ namespace trace
 			stackTable[TRACE_PID].push(m);
 		}
 
-		if (flags["show-data"])
-			TRACE_COUT_SHOW << "<= " << d << "\n";
+		if (flags["show-data"] == true)
+		{
+			//cout << "INDATA " << d << "\n";
+			TRACE_COUT_SHOW(mod, "<= " << d << "\n");
+		}
 	}
 
 	string showBacktrace()

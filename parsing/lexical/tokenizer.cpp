@@ -273,7 +273,7 @@ namespace parsing
 
 	string Tokenizer::readFile(string path)
 	{
-		TRACE_COUT << "reading " << path << "\n";
+		TRACE_COUT("reading " << path << "\n");
 		ifstream f(path.c_str());
 		if (f.good() == false)
 		{
@@ -320,7 +320,7 @@ namespace parsing
 			{
 				if ((toksize = j->first.match(s.substr(i))))
 				{
-					TRACE_COUT << "found the beginning of a no-delimination segment (" << TRACE_YELLOW << j->first.display() << TRACE_DEFAULT << " - " << TRACE_YELLOW << j->second.display() << TRACE_DEFAULT << ")... '" << TRACE_GREEN << current(s, i) << TRACE_DEFAULT << "'\n";
+					TRACE_COUT("found the beginning of a no-delimination segment (" << TRACE_YELLOW << j->first.display() << TRACE_DEFAULT << " - " << TRACE_YELLOW << j->second.display() << TRACE_DEFAULT << ")... '" << TRACE_GREEN << current(s, i) << TRACE_DEFAULT << "'\n");
 					if (i-last > 0)
 					{
 						Token tmp = Token(s.substr(last, i-last), 0, 0);
@@ -328,7 +328,7 @@ namespace parsing
 						tmp.setType(categorize(tmp));
 						tmp.setFile(f);
 						rtn.push_back(tmp);
-						TRACE_COUT << "  appending last token... '" << TRACE_RED << tmp.get() << TRACE_DEFAULT << "'\n";
+						TRACE_COUT("  appending last token... '" << TRACE_RED << tmp.get() << TRACE_DEFAULT << "'\n");
 					}
 
 					last = i;
@@ -338,7 +338,7 @@ namespace parsing
 					{
 						if ((toksize = j->second.match(s.substr(i))))
 						{
-							TRACE_COUT << "found the end of the no-delimination segment... '" << TRACE_GREEN << current(s, i) << TRACE_DEFAULT << "'\n";
+							TRACE_COUT("found the end of the no-delimination segment... '" << TRACE_GREEN << current(s, i) << TRACE_DEFAULT << "'\n");
 							i += toksize;
 							Token tmp = Token(s.substr(last, i-last), 0, 0);
 							calcLocation(lineLengths, last, tmp);
@@ -346,7 +346,7 @@ namespace parsing
 							tmp.setFile(f);
 							rtn.push_back(tmp);
 							last = i;
-							TRACE_COUT << "  appending segment token... '" << TRACE_RED << tmp.get() << TRACE_DEFAULT << "'\n";
+							TRACE_COUT("  appending segment token... '" << TRACE_RED << tmp.get() << TRACE_DEFAULT << "'\n");
 							break;
 						}
 					}
@@ -359,7 +359,7 @@ namespace parsing
 			{
 				if ((toksize = j->first.match(s.substr(i))))
 				{
-					TRACE_COUT << "found the beginning of a skip segment (" << TRACE_YELLOW << j->first.display() << TRACE_DEFAULT << " - " << TRACE_YELLOW << j->second.display() << TRACE_DEFAULT << ")... '" << TRACE_GREEN << current(s, i) << TRACE_DEFAULT << "'\n";
+					TRACE_COUT("found the beginning of a skip segment (" << TRACE_YELLOW << j->first.display() << TRACE_DEFAULT << " - " << TRACE_YELLOW << j->second.display() << TRACE_DEFAULT << ")... '" << TRACE_GREEN << current(s, i) << TRACE_DEFAULT << "'\n");
 					if (i-last > 0)
 					{
 						Token tmp = Token(s.substr(last, i-last), 0, 0);
@@ -367,7 +367,7 @@ namespace parsing
 						tmp.setType(categorize(tmp));
 						tmp.setFile(f);
 						rtn.push_back(tmp);
-						TRACE_COUT << "  appending last token... '" << TRACE_RED << tmp.get() << TRACE_DEFAULT << "'\n";
+						TRACE_COUT("  appending last token... '" << TRACE_RED << tmp.get() << TRACE_DEFAULT << "'\n");
 					}
 
 					last = i+1;
@@ -377,7 +377,7 @@ namespace parsing
 					{
 						if ((toksize = j->second.match(s.substr(i))))
 						{
-							TRACE_COUT << "found the end of the skip segment... '" << TRACE_GREEN << current(s, i) << TRACE_DEFAULT << "'\n";
+							TRACE_COUT("found the end of the skip segment... '" << TRACE_GREEN << current(s, i) << TRACE_DEFAULT << "'\n");
 							last = i+toksize;
 							i += toksize;
 							break;
@@ -390,7 +390,7 @@ namespace parsing
 
 			if ((toksize = isDeliminator(s.substr(i))))
 			{
-				TRACE_COUT << "found a deliminator (token - " << TRACE_YELLOW << s.substr(i, toksize) << TRACE_DEFAULT << ", size - " << toksize << ")... '" << TRACE_GREEN << current(s, i) << TRACE_DEFAULT << "'\n";
+				TRACE_COUT("found a deliminator (token - " << TRACE_YELLOW << s.substr(i, toksize) << TRACE_DEFAULT << ", size - " << toksize << ")... '" << TRACE_GREEN << current(s, i) << TRACE_DEFAULT << "'\n");
 				if (i-last > 0)
 				{
 					Token tmp = Token(s.substr(last, i-last), 0, 0);
@@ -398,7 +398,7 @@ namespace parsing
 					tmp.setType(categorize(tmp));
 					tmp.setFile(f);
 					rtn.push_back(tmp);
-					TRACE_COUT << "  appending last token... '" << TRACE_RED << tmp.get() << TRACE_DEFAULT << "'\n";
+					TRACE_COUT("  appending last token... '" << TRACE_RED << tmp.get() << TRACE_DEFAULT << "'\n");
 				}
 				Token tmp = Token(s.substr(i, toksize), 0, 0);
 				calcLocation(lineLengths, i, tmp);
@@ -407,11 +407,11 @@ namespace parsing
 				rtn.push_back(tmp);
 				i += toksize-1;
 				last = i+1;
-				TRACE_COUT << "  appending deliminator token... '" << TRACE_RED << tmp.get() << TRACE_DEFAULT << "'\n";
+				TRACE_COUT("  appending deliminator token... '" << TRACE_RED << tmp.get() << TRACE_DEFAULT << "'\n");
 			}
 			else if ((toksize = isWhitespace(s.substr(i))))
 			{
-				TRACE_COUT << "found a piece of whitespace (size - " << toksize << ")... '" << TRACE_GREEN << current(s, i) << TRACE_DEFAULT << "'\n";
+				TRACE_COUT("found a piece of whitespace (size - " << toksize << ")... '" << TRACE_GREEN << current(s, i) << TRACE_DEFAULT << "'\n");
 				if (i-last > 0)
 				{
 					Token tmp = Token(s.substr(last, i-last), 0, 0);
@@ -419,7 +419,7 @@ namespace parsing
 					tmp.setType(categorize(tmp));
 					tmp.setFile(f);
 					rtn.push_back(tmp);
-					TRACE_COUT << "  appending last token... '" << TRACE_RED << tmp.get() << TRACE_DEFAULT << "'\n";
+					TRACE_COUT("  appending last token... '" << TRACE_RED << tmp.get() << TRACE_DEFAULT << "'\n");
 				}
 				last = i+toksize;
 			}
@@ -431,7 +431,7 @@ namespace parsing
 			{
 				if (j->first.match(rtn[i-1].get()) && j->second.match(rtn[i].get()))
 				{
-					TRACE_COUT << "combining '" << TRACE_RED << rtn[i-1].get() << TRACE_DEFAULT << "' and '" << TRACE_RED << rtn[i].get() << TRACE_DEFAULT << "'\n";
+					TRACE_COUT("combining '" << TRACE_RED << rtn[i-1].get() << TRACE_DEFAULT << "' and '" << TRACE_RED << rtn[i].get() << TRACE_DEFAULT << "'\n");
 					rtn[i-1].set(rtn[i-1].get()+rtn[i].get());
 					rtn.erase(rtn.begin()+i);
 					i--;

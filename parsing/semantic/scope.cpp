@@ -44,7 +44,7 @@ namespace parsing
 
 	AST ScopeParser::sepParse(AST ast, string bound)
 	{
-		TRACE_COUT << "separator parsing with bound '"+bound+"', separator '"+separators[bound].first+"', segments named '"+separators[bound].second+"'\n";
+		TRACE_COUT("separator parsing with bound '"+bound+"', separator '"+separators[bound].first+"', segments named '"+separators[bound].second+"'\n");
 		TRACE_INDATA(ast.display());
 
 		AST rtn = AST(ast.getName(), ast.getContent());
@@ -54,7 +54,7 @@ namespace parsing
 		{
 			if (ast[i].getContent().getType().compare(separators[bound].first) == 0)
 			{
-				TRACE_COUT << "AST[" << i << "] '" << ast[i].getContent().getType() << "':'"+ast[i].getContent().get() << "' is a separator...\n";
+				TRACE_COUT("AST[" << i << "] '" << ast[i].getContent().getType() << "':'"+ast[i].getContent().get() << "' is a separator...\n");
 				if (buf.size() > 0)
 				{
 					buf.setName(separators[bound].second);
@@ -65,7 +65,7 @@ namespace parsing
 			}
 			else
 			{
-				TRACE_COUT << "AST[" << i << "] '" << ast[i].getContent().getType() << "':'"+ast[i].getContent().get() << "' is NOT a separator (" << separators[bound].first << ")...\n";
+				TRACE_COUT("AST[" << i << "] '" << ast[i].getContent().getType() << "':'"+ast[i].getContent().get() << "' is NOT a separator (" << separators[bound].first << ")...\n");
 				for (map<string, pair<string, string> >::iterator j = separators.begin(); j != separators.end(); j++)
 				{
 					if (j->first.compare(bound) != 0 && ast[i].getContent().getType().compare(j->second.first) == 0)
@@ -141,28 +141,28 @@ namespace parsing
 		{
 			if (bounds.find(i->getType()) != bounds.end())
 			{
-				TRACE_COUT << "starting bound " << TRACE_YELLOW << i->getType() << " " << TRACE_RED << i->get() << TRACE_DEFAULT << "\n";
+				TRACE_COUT("starting bound " << TRACE_YELLOW << i->getType() << " " << TRACE_RED << i->get() << TRACE_DEFAULT << "\n");
 			
 				if (levels.find(bounds[i->getType()]) == levels.end())
 				{
 					levels[bounds[i->getType()]] = 1;
 					starts[bounds[i->getType()]] = i-p.begin();
-					TRACE_COUT << "  (level 1)\n";
+					TRACE_COUT("  (level 1)\n");
 				}
 				else
 				{
 					levels[bounds[i->getType()]]++;
-					TRACE_COUT << "  (level " << levels[bounds[i->getType()]] << ")\n";
+					TRACE_COUT("  (level " << levels[bounds[i->getType()]] << ")\n");
 				}
 
 				masterLevel++;
 			}
 			else if (starts.find(i->getType()) != starts.end())
 			{
-				TRACE_COUT << "ending bound [" << starts[i->getType()] << ":" << (i-p.begin()) << "] after " << TRACE_YELLOW << i->getType() << " " << TRACE_RED << i->get() << TRACE_DEFAULT << "\n";
+				TRACE_COUT("ending bound [" << starts[i->getType()] << ":" << (i-p.begin()) << "] after " << TRACE_YELLOW << i->getType() << " " << TRACE_RED << i->get() << TRACE_DEFAULT << "\n");
 				
 				levels[i->getType()]--;
-				TRACE_COUT << "  (level " << levels[i->getType()] << ")\n";
+				TRACE_COUT("  (level " << levels[i->getType()] << ")\n");
 
 				string largestStart = "";
 				unsigned int largestStartValue = (unsigned int)-1;

@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
 	TRACE_MODULE_MAP("compile.cpp", "Compiler");
 	TRACE_ENABLE_DEBUG();
 
-	TRACE_COUT << "reading command line paramters...\n";
+	TRACE_COUT("reading command line paramters...\n");
 	vector<string> infiles;
 	string outfile;
 	vector<string> objects;
@@ -108,12 +108,12 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
-	TRACE_COUT << "creating parsers...\n";
+	TRACE_COUT("creating parsers...\n");
 	tokenizer = mc::createTokenizer();
 	scopeParser = mc::createScopeParser();
 	rdp = mc::createRDP(tokenizer);
 
-	TRACE_COUT << "creating compiler...\n";
+	TRACE_COUT("creating compiler...\n");
 	compiler = mc::Compiler();
 
 	for (vector<string>::iterator i = infiles.begin(); i != infiles.end(); i++)
@@ -148,7 +148,7 @@ void usage()
 
 void compile(string path)
 {
-	TRACE_COUT << "compiling " << path << "...\n";
+	TRACE_COUT("compiling " << path << "...\n");
 	string page = tokenizer.readFile(path);
 	vector<parsing::Token> toks = tokenizer.tokenize(page, path);
 	TRACE_STACK.clear();

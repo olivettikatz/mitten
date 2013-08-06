@@ -103,10 +103,10 @@ namespace mc
 		{
 			if (ast[i].size() == 0 && symbols.find(ast[i].getContent().get()) != symbols.end())
 			{
-				TRACE_COUT << "found symbol - " << ast[i].getContent().get() << "\n";
+				TRACE_COUT("found symbol - " << ast[i].getContent().get() << "\n");
 				if (ast[i+1].size() == 0 && ast[i+1].getContent().get().compare("(") == 0)
 				{
-					TRACE_COUT << "  with arguments...\n";
+					TRACE_COUT("  with arguments...\n");
 					vector<parsing::AST> args = tokenizeAST(ast[i+2], ",");
 					for (vector<parsing::AST>::iterator j = args.begin(); j != args.end(); j++)
 					{
@@ -133,11 +133,11 @@ namespace mc
 				}
 				else if (ast[i+1].size() == 0 && ast[i+1].getContent().get().compare(";") == 0)
 				{
-					TRACE_COUT << "  line ends...\n";
+					TRACE_COUT("  line ends...\n");
 				}
 				else if (ast[i+1].size() == 0 && ast[i+1].getContent().get().compare("=") == 0)
 				{
-					TRACE_COUT << "found assignment of expression - " << ast[i+1].getContent().get() << "\n";
+					TRACE_COUT("found assignment of expression - " << ast[i+1].getContent().get() << "\n");
 				}
 				else
 				{
@@ -147,12 +147,12 @@ namespace mc
 			}
 			else if (ast[i].size() == 0 && types.find(ast[i].getContent().get()) != types.end())
 			{
-				TRACE_COUT << "found type - " << ast[i].getContent().get() << "\n";
+				TRACE_COUT("found type - " << ast[i].getContent().get() << "\n");
 				for (i++; i < ast.size(); i++)
 				{
 					if (ast[i].size() == 0 && types.find(ast[i].getContent().get()) != types.end())
 					{
-						TRACE_COUT << "found type - " << ast[i].getContent().get() << "\n";
+						TRACE_COUT("found type - " << ast[i].getContent().get() << "\n");
 					}
 					else if (ast[i].size() == 0 && ast[i].getContent().get().compare("(") == 0)
 					{
@@ -174,7 +174,7 @@ namespace mc
 					}
 					else if (ast[i].size() == 0 && isSymbolToken(ast[i].getContent()))
 					{
-						TRACE_COUT << "found symbol after types - " << ast[i].getContent().get() << "\n";
+						TRACE_COUT("found symbol after types - " << ast[i].getContent().get() << "\n");
 						addSymbol(ast[i].getContent().get());
 						break;
 					}
@@ -187,22 +187,22 @@ namespace mc
 			}
 			else if (ast[i].size() == 0 && isValueToken(ast[i].getContent()))
 			{
-				TRACE_COUT << "found value - " << ast[i].getContent().get() << "\n";
+				TRACE_COUT("found value - " << ast[i].getContent().get() << "\n");
 			}
 			else if (ast[i].size() == 0 && isOperatorToken(ast[i].getContent()))
 			{
-				TRACE_COUT << "found operator - " << ast[i].getContent().get() << "\n";
+				TRACE_COUT("found operator - " << ast[i].getContent().get() << "\n");
 				if (ast[i].getContent().get().compare("!") == 0 || ast[i].getContent().get().compare("~") == 0)
 				{
-					TRACE_COUT << "  unary right operation\n";
+					TRACE_COUT("  unary right operation\n");
 				}
 				else if (ast[i].getContent().get().compare("++") == 0 || ast[i].getContent().get().compare("--") == 0)
 				{
-					TRACE_COUT << "  unary left operation\n";
+					TRACE_COUT("  unary left operation\n");
 				}
 				else
 				{
-					TRACE_COUT << "  binary operation\n";
+					TRACE_COUT("  binary operation\n");
 				}
 			}
 		}

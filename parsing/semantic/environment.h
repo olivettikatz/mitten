@@ -39,6 +39,7 @@ namespace parsing
 		void error(AST ast, string m);
 		void error(string file, AST ast, string m);
 		void error(ASTError e);
+		void error(string file, vector<ASTError> e);
 		void pushErrors(string file);
 		void pushErrors(AST ast);
 		vector<ASTError> popErrors(string file);

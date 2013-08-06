@@ -18,9 +18,14 @@
 SYSTEM=$(shell uname -s)
 
 ifeq ($(SYSTEM),Darwin)
-CXX=c++
+CXX=g++
+ifeq ($(CXX),c++)
 CXXFLAGS=-std=c++11 -stdlib=libc++ -ggdb -O0 -I/usr/include/mitten -I.. -D_MITTEN_PLATFORM_DARWIN
 CXXSHAREDFLAGS=-dynamiclib
+else
+CXXFLAGS=--std=c++11 -ggdb -O0 -I/usr/include/mitten -I.. -D_MITTEN_PLATFORM_DARWIN
+CXXSHAREDFLAGS=-dynamiclib
+endif
 LDFLAGS=-L/usr/lib/mitten -L../trace -L../parsing -L../runcfg
 RM=rm
 RMFLAGS=-rf
